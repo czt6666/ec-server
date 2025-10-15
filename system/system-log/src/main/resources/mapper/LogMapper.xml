@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bistu.system.log.dao.LogDao">
+
+
+    <select id="countLog" resultType="Integer">
+        SELECT count(0)
+        FROM  logging_event_property
+        WHERE mapped_key = 'username'
+    </select>
+
+    <select id="countLoginLog" resultType="Integer">
+        SELECT count(0)
+        FROM  logging_event
+        WHERE arg0 = 'read'
+    </select>
+
+    <select id="countOperateLog" resultType="Integer">
+        SELECT count(0)
+        FROM  t_logrecord
+    </select>
+
+<!--    <select id="listLog" resultType="com.alibaba.fastjson.JSONObject">-->
+<!--        SELECT G.id, method, name, date, creator, result, (time - H.mapped_value) time, req-->
+<!--        FROM-->
+<!--            (SELECT F.id id, method method, name name, date date, creator creator, result result, time time, E.mapped_value req-->
+<!--            FROM-->
+<!--            (SELECT-->
+<!--            l.event_id  id,-->
+<!--            l.caller_method method,-->
+<!--            l.formatted_message name,-->
+<!--            FROM_UNIXTIME(l.timestmp/1000,'%Y-%m-%d %H:%i:%s')   date,-->
+<!--            p.mapped_value  creator,-->
+<!--            l.caller_method result,-->
+<!--            l.timestmp      time-->
+<!--            FROM logging_event l-->
+<!--            Join logging_event_property p ON p.event_id = l.event_id AND p.mapped_key = 'username')-->
+<!--            F LEFT JOIN logging_event_property E ON F.id = E.event_id WHERE E.mapped_key = 'req')-->
+<!--            G LEFT JOIN logging_event_property H ON G.id = H.event_id WHERE H.mapped_key = 'startTime'-->
+<!--        ORDER BY G.id DESC-->
+<!--            LIMIT #{offSet}, #{pageRow}-->
+<!--    </select>-->
+
+    <select id="listLoginLog" resultType="com.alibaba.fastjson.JSONObject" databaseId="mysql">
+        select
+            event_id "id",
+            arg2 "creator",
+            FROM_UNIXTIME(timestmp/1000,'%Y-%m-%d %H:%i:%s') "date",
+            arg3 "name",
+            arg1 "time",
+            caller_method "method"
+        from logging_event where arg0='read' ORDER BY event_id DESC
+            LIMIT #{offSet}, #{pageRow}
+    </select>
+    <select id="listLoginLog" resultType="com.alibaba.fastjson.JSONObject" databaseId="hgdb">
+        select
+            event_id id,
+            arg2 creator,
+            to_char(to_timestamp( timestmp/1000), 'YYYY MM DD HH24:MI:SS') "date",
+            arg3 "name",
+            arg1 "time",
+            caller_method "method"
+        from logging_event where arg0='read' ORDER BY event_id DESC
+            LIMIT #{offSet}, #{pageRow}
+    </select>
+
+    <select id="listOperateLog" resultType="com.alibaba.fastjson.JSONObject" databaseId="mysql">
+        select
+            id "id",
+            sub_type "subtype",
+            DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') "date",
+            operator "creator",
+            action "action",
+            extra "extra",
+            fail "res"
+        from t_logrecord where type='FILE' ORDER BY id DESC
+            LIMIT #{offSet}, #{pageRow}
+    </select>
+
+    <select id="listOperateLog" resultType="com.alibaba.fastjson.JSONObject" databaseId="hgdb">
+        select
+            id "id",
+            sub_type "subtype",
+            to_char(create_time, 'YYYY MM DD HH24:MI:SS') "date",
+            operator "creator",
+            action "action",
+            extra "extra",
+            fail "res"
+        from t_logrecord where type='FILE' ORDER BY id DESC
+            LIMIT #{offSet}, #{pageRow}
+    </select>
+
+    <select id="creatorLog" parameterType="String">
+        SELECT
+            p.mapped_value  "creator"
+        FROM logging_event_property p
+        WHERE p.mapped_key = 'username'
+    </select>
+
+    <select id="detailLog" resultType="String">
+        SELECT
+            p.mapped_value  "detail"
+        FROM logging_event_property p
+        WHERE p.event_id = #{id} AND p.mapped_key = 'req'
+    </select>
+
+    <select id="detailLoginLog" resultType="String">
+        SELECT
+            p.mapped_value  "detail"
+        FROM logging_event_property p
+        WHERE p.event_id = #{id} AND p.mapped_key = 'req'
+    </select>
+
+    <select id="detailOperateLog" parameterType="Long" resultType="String">
+        SELECT
+            t.extra  "detail"
+        FROM t_logrecord t
+        WHERE t.id = #{id}
+    </select>
+
+    <insert id="insertOperateLog" parameterType="com.bistu.system.log.PO.LogRecordPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_logrecord (tenant, type, sub_type, biz_no, operator, action, fail, extra, code_variable) VALUES (#{tenant}, #{type}, #{subType}, #{bizNo}, #{operator}, #{action}, #{fail}, #{extra}, #{codeVariable})
+    </insert>
+
+</mapper>

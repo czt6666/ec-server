@@ -1,0 +1,63 @@
+##################################SPRING及存储相关##############################################
+spring:
+  profiles:
+    active: local
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+  activemq:
+    broker-url:
+  datasource:
+    url: jdbc:mysql://192.168.160.29:3306/ecadmin?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: 123456
+  # 对应 RedisProperties 类
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: # Redis 服务器密码，默认为空。生产中，一定要设置 Redis 密码！
+    database: 0 # Redis 数据库号，默认为 0 。
+    timeout: 0 # Redis 连接超时时间，单位：毫秒。
+    # 对应 RedisProperties.Jedis 内部类
+    jedis:
+      pool:
+        max-active: -1 # 连接池最大连接数，默认为 8 。使用负数表示没有限制。
+        max-idle: -1 # 默认连接数最小空闲的连接数，默认为 8 。使用负数表示没有限制。
+        min-idle: 0 # 默认连接池最小空闲的连接数，默认为 0 。允许设置 0 和 正数。
+        max-wait: -1 # 连接池最大阻塞等待时间，单位：毫秒。默认为 -1 ，表示不限制。
+  # cache 缓存配置内容
+  cache:
+    type: redis
+  main:
+    banner-mode: console
+
+minio:
+  #  endpoint: "http://${IP}:9000"
+  endpoint: "http://localhost:9000"
+  accessKey: "minioadmin"
+  secretKey: "minioadmin"
+  bucket: "certificate"
+
+mybatis:
+  mapperLocations: classpath*:/mapper/*.xml
+
+##################################License校验相关##############################################
+springboot.license.verify:
+  subject: webofdLicense
+  publicAlias: publicCert
+  publicKeysStorePath: /publicCerts.store
+  storePass: Webofd1
+  licensePath: classpath:license.lic
+
+#【必改项】
+##################################IP及端口相关##################################################
+server:
+  port: 8080
+
+
+
+##################################日志相关#####################################################
+logging:
+  config: classpath:logback-local.xml

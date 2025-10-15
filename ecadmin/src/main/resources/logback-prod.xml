@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+
+    <contextName>webofd</contextName>
+
+    <!--定义日志文件的存储地址 -->
+    <property name="LOG_HOME" value="logs"/>
+
+    <!--定义日志的输出格式 -->
+    <property name="PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{traceId}][%X{username}] [%thread] %logger{30}:%line - %msg%n"/>
+
+    <!-- 彩色日志 -->
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <!-- 彩色日志格式 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %yellow([%X{traceId}][%X{username}]) %highlight(%-5level) %magenta(%logger{30}:%-3L) - %m%n"/>
+
+    <!-- console日志格式 精简版 -->
+    <property name="CONSOLE_LOG_PATTERN_SIMPLE"
+              value="%d{HH:mm:ss.SSS} %highlight(%-5level) %magenta(%logger{20}:%-3L) - %m%n"/>
+
+
+    <!-- 日志输出到控制台 -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <!--此日志appender是为开发使用，只配置最底级别，控制台输出的日志级别是大于或等于此级别的日志信息-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!--encoder 默认配置为PatternLayoutEncoder-->
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 修改ConsoleAppender节点配置 -->
+    <!--    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+    <!--        &lt;!&ndash;encoder 默认配置为PatternLayoutEncoder&ndash;&gt;-->
+    <!--        <encoder>-->
+    <!--            <pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
+    <!--            &lt;!&ndash;<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level -&#45;&#45; [%thread] %logger Line:%-3L - %msg%n</pattern>&ndash;&gt;-->
+    <!--            <charset>UTF-8</charset>-->
+    <!--        </encoder>-->
+    <!--        &lt;!&ndash;此日志appender是为开发使用，只配置最底级别，控制台输出的日志级别是大于或等于此级别的日志信息&ndash;&gt;-->
+    <!--        <filter class="com.bistu.webofd.log.LogFilter"/>-->
+    <!--    </appender>-->
+
+    <!-- 将日志写入数据库 -->
+    <!--<appender name="DB-CLASSIC-MYSQL-POOL" class="ch.qos.logback.classic.db.DBAppender">
+        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
+            <dataSource class="org.apache.commons.dbcp.BasicDataSource">
+                <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
+                <url>jdbc:mysql://192.168.160.66:3306/ecadmin?characterEncoding=UTF-8</url>
+                <username>root</username>
+                <password>@ofd404</password>
+            </dataSource>
+        </connectionSource>
+        &lt;!&ndash;<connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">&ndash;&gt;
+        &lt;!&ndash;    <dataSource class="org.apache.commons.dbcp.BasicDataSource">&ndash;&gt;
+        &lt;!&ndash;        <driverClassName>com.highgo.jdbc.Driver</driverClassName>&ndash;&gt;
+        &lt;!&ndash;        <url>jdbc:highgo://192.168.9.240:5866/webofd</url>&ndash;&gt;
+        &lt;!&ndash;        <username>sysdba</username>&ndash;&gt;
+        &lt;!&ndash;        <password>@hg405</password>&ndash;&gt;
+        &lt;!&ndash;    </dataSource>&ndash;&gt;
+        &lt;!&ndash;</connectionSource>&ndash;&gt;
+        &lt;!&ndash;这里设置日志级别为error&ndash;&gt;
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            &lt;!&ndash;            <level>info</level>&ndash;&gt;
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>-->
+
+    <!-- 滚动记录文件 -->
+    <appender name="RollingFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+            <maxHistory>180</maxHistory>
+            <totalSizeCap>40GB</totalSizeCap>
+        </rollingPolicy>
+        <!-- 日志文件的格式 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="AsyncRollingFile" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="RollingFile"/>
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <!-- 操作日志记录到不同的文件 -->
+    <appender name="businessLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/business.log</File>
+        <append>true</append>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/操作日志.%d.%i.log</fileNamePattern>
+            <maxHistory>180</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>"%d{yyyy-MM-dd HH:mm:ss.SSS} %t %-5level %X{userId} %logger{30}.%method:%L - %msg%n"</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 日志输出级别 TRACE < DEBUG < INFO < WARN < ERROR < FATAL-->
+    <!-- 输出到控制台和文件，可定义更多的 Appender -->
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+        <!-- <appender-ref ref="STDOUT"/>-->
+        <appender-ref ref="AsyncRollingFile"/>
+        <appender-ref ref="businessLogAppender"/>
+        <!--<appender-ref ref="DB-CLASSIC-MYSQL-POOL" />-->
+    </root>
+
+    <!-- 下面配置一些第三方包的日志过滤级别，用于避免刷屏 -->
+    <logger name="org.mybatis" level="INFO"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="com.bistu" level="DEBUG"/>
+    <!--如果需要打印SQL,可以把下面的级别设置为DEBUG -->
+    <!--<logger name="com.bistu.webofd.dao" level="DEBUG"/>-->
+    <!--<logger name="com.bistu.system.login.dao" level="INFO"/>-->
+
+
+    <!-- 操作日志记录 -->
+    <logger name="businessLog" additivity="false" level="INFO">
+        <appender-ref ref="businessLogAppender"/>
+    </logger>
+    <!-- 登录日志记录 -->
+    <logger name="com.bistu.system" level="ERROR" additivity="false">
+        <!--<appender-ref ref="DB-CLASSIC-MYSQL-POOL"/>-->
+        <!-- 存入数据库的同时，输出到控制台 -->
+        <appender-ref ref="Console"/>
+    </logger>
+
+</configuration>

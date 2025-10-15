@@ -1,0 +1,111 @@
+##################################SPRING及存储相关##############################################
+spring:
+  profiles:
+    active: local
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+  activemq:
+    broker-url:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecadmin?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: 123456
+#    url: jdbc:highgo://192.168.9.240:5866/webofd?currentSchema=public,public&stringtype=unspecified
+#    username: sysdba
+#    password: @hg405
+#    driver-class-name: com.highgo.jdbc.Driver
+  # 对应 RedisProperties 类
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: # Redis 服务器密码，默认为空。生产中，一定要设置 Redis 密码！
+    database: 0 # Redis 数据库号，默认为 0 。
+    timeout: 0 # Redis 连接超时时间，单位：毫秒。
+    # 对应 RedisProperties.Jedis 内部类
+    jedis:
+      pool:
+        max-active: -1 # 连接池最大连接数，默认为 8 。使用负数表示没有限制。
+        max-idle: -1 # 默认连接数最小空闲的连接数，默认为 8 。使用负数表示没有限制。
+        min-idle: 0 # 默认连接池最小空闲的连接数，默认为 0 。允许设置 0 和 正数。
+        max-wait: -1 # 连接池最大阻塞等待时间，单位：毫秒。默认为 -1 ，表示不限制。
+  # cache 缓存配置内容
+  cache:
+    type: redis
+  main:
+    banner-mode: console
+webofd:
+  mysql:
+    enable: true
+  package:
+    type: war
+  prefix: ""
+  maxSize: 200
+  isJniReload: false # jniserver.war是否重启
+  protocol: "http://"
+  feignPort: 18020
+  ocr:
+    enable: false
+  dcs:
+    address: "http://dp.poc.com:18080/fcscloud"
+# 200个，10秒检查一次，超过1800秒未访问的ofd将被删除,Redis/Local。
+xReaderCache:
+  num: 50
+  scanCron: "*/10 * * * * ?"
+  eliminateTime: 3600
+  type: Redis
+
+#minio:
+#  #  endpoint: "http://${IP}:9000"
+#  endpoint: "http://localhost:9000"
+#  accessKey: "minioadmin"
+#  secretKey: "minioadmin"
+#  bucket: "certificate"
+
+mybatis:
+  configuration:
+    #使用不同数据库时，配置不同id,例如mysql，hgdb
+    database-id: mysql
+#    database-id: hgdb
+  mapperLocations: classpath*:/mapper/*.xml
+
+##################################License校验相关##############################################
+springboot.license.verify:
+  subject: webofdLicense
+  publicAlias: publicCert
+  publicKeysStorePath: /publicCerts.store
+  storePass: Webofd1
+#  licensePath: classpath:license.lic
+  licensePath: "${path.workPath}license.lic"
+
+#【必改项】
+##################################IP及端口相关##################################################
+IP: localhost
+urlIP: localhost
+urlPort: 8020
+localhost: ${IP}
+server:
+  port: 8020
+#  ssl:
+#    key-store: "${path.workPath}keystore.p12"
+#    key-alias: webOFD
+#    enabled: true
+#    key-store-password: a123456
+#    key-store-type: PKCS12
+#  tomcat:
+#    threads:
+#      max: 200
+view:
+  port: 9520
+
+
+##################################路径相关#####################################################
+path:
+  #  【必改项】
+  workPath: "D:/WebFrontEnd/Projects/ECadminv1/admin-spring/logs"
+
+##################################日志相关#####################################################
+logging:
+  config: classpath:logback-local.xml

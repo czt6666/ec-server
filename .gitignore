@@ -1,0 +1,72 @@
+# 编译输出
+target/
+build/
+out/
+
+# 依赖包
+*.jar
+*.war
+*.ear
+*.zip
+
+# 临时文件
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+Thumbs.db
+
+# =========================
+# IDE & 工具配置
+# =========================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# =========================
+# 系统环境 & 缓存
+# =========================
+
+# Mac / Linux / Windows 系统文件
+.DS_Store
+ehthumbs.db
+Icon?
+desktop.ini
+
+# Maven 缓存
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Gradle 缓存
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# =========================
+# 其他常见忽略项
+# =========================
+
+# 日志 / 临时文件夹
+logs/
+temp/
+tmp/
+
+# 单元测试报告
+test-output/
+surefire-reports/
+
+# 环境配置（可选）
+*.env
+application-*.yml
+application-*.properties
