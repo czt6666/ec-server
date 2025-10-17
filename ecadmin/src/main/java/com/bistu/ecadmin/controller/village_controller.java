@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @Slf4j
 @Api(tags = "村庄相关接口")
-@RequestMapping("/bistu/ecadmin/village")
+@RequestMapping("/admin/ecadmin/village")
 
 public class village_controller {
     @Autowired
