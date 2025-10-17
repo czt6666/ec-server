@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.VillageMapper">
+
+    <resultMap id="VillageMap" type="com.bistu.ecadmin.pojo.village">
+        <id     property="id"               column="id"/>
+        <result property="villageName"      column="village_name"/>
+        <result property="address"          column="address"/>
+        <result property="villageDescription" column="village_description"/>
+        <result property="managerCount"     column="manager_count"/>
+        <result property="householdCount"   column="household_count"/>
+        <result property="secretaryName"    column="secretary_name"/>
+        <result property="secretaryPhone"   column="secretary_phone"/>
+        <result property="totalArea"        column="total_area"/>
+        <result property="farmlandArea"     column="farmland_area"/>
+        <result property="forestArea"       column="forest_area"/>
+        <result property="waterArea"        column="water_area"/>
+        <result property="constructionArea" column="construction_area"/>
+        <result property="createTime"       column="create_time"/>
+        <result property="updateTime"       column="update_time"/>
+    </resultMap>
+
+
+
+    <select id="pageQuery" resultMap="VillageMap">
+        select *
+        from village
+        order by id asc
+    </select>
+
+
+
+    <!-- 简单条件列表（不分页） -->
+    <select id="list" parameterType="com.bistu.ecadmin.pojo.village" resultMap="VillageMap">
+        select *
+        from village
+        <where>
+            <if test="villageName != null and villageName != ''">
+                and village_name like concat('%', #{villageName}, '%')
+            </if>
+            <if test="address != null and address != ''">
+                and address like concat('%', #{address}, '%')
+            </if>
+            <if test="secretaryName != null and secretaryName != ''">
+                and secretary_name like concat('%', #{secretaryName}, '%')
+            </if>
+        </where>
+        order by id asc
+    </select>
+
+    <!-- 新增村庄 -->
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.village" useGeneratedKeys="true" keyProperty="id">
+        insert into village (
+            village_name, address, village_description, manager_count, household_count,
+            secretary_name, secretary_phone, total_area, farmland_area, forest_area,
+            water_area, construction_area, create_time, update_time
+        ) values (
+                     #{villageName}, #{address}, #{villageDescription}, #{managerCount}, #{householdCount},
+                     #{secretaryName}, #{secretaryPhone}, #{totalArea}, #{farmlandArea}, #{forestArea},
+                     #{waterArea}, #{constructionArea}, #{createTime}, #{updateTime}
+                 )
+    </insert>
+    <!-- 修改村庄 -->
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.village">
+        update village set
+                           village_name = #{villageName},
+                           address = #{address},
+                           village_description = #{villageDescription},
+                           manager_count = #{managerCount},
+                           household_count = #{householdCount},
+                           secretary_name = #{secretaryName},
+                           secretary_phone = #{secretaryPhone},
+                           total_area = #{totalArea},
+                           farmland_area = #{farmlandArea},
+                           forest_area = #{forestArea},
+                           water_area = #{waterArea},
+                           construction_area = #{constructionArea},
+                           update_time = #{updateTime}
+        where id = #{id}
+    </update>
+
+    <!-- 根据ID查询村庄 -->
+    <select id="getById" resultMap="VillageMap">
+        select * from village where id = #{id}
+    </select>
+    <!-- 删除村庄 -->
+    <delete id="delete">
+        delete from village where id = #{id}
+    </delete>
+</mapper>
