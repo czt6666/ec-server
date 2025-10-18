@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.VillageNewsThemeDao">
+
+    <!-- 新增乡村新闻主题 - 使用数据库自增ID -->
+    <insert id="addVillageNewsTheme" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO village_news_theme (name)
+        VALUES (#{name})
+    </insert>
+    
+    <!-- 更新乡村新闻主题 -->
+    <update id="updateVillageNewsTheme" parameterType="com.alibaba.fastjson.JSONObject">
+        UPDATE village_news_theme 
+        SET name = #{name}
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除乡村新闻主题（逻辑删除） -->
+    <update id="deleteVillageNewsTheme" parameterType="com.alibaba.fastjson.JSONObject">
+        UPDATE village_news_theme 
+        SET is_deleted = '1'
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 查询乡村新闻主题数量 -->
+    <select id="countVillageNewsTheme" resultType="Integer" parameterType="com.alibaba.fastjson.JSONObject">
+        SELECT COUNT(0)
+        FROM village_news_theme vnt
+        WHERE vnt.is_deleted = '0'
+        <if test="keyword != null and keyword != ''">
+            AND (vnt.name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+    
+    <!-- 分页查询乡村新闻主题列表 -->
+    <select id="listVillageNewsTheme" resultType="com.alibaba.fastjson.JSONObject" parameterType="com.alibaba.fastjson.JSONObject">
+        SELECT 
+            vnt.id,
+            vnt.name
+        FROM village_news_theme vnt
+        WHERE vnt.is_deleted = '0'
+        <if test="keyword != null and keyword != ''">
+            AND (vnt.name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY vnt.id DESC
+        LIMIT #{offSet,jdbcType=INTEGER}, #{pageRow,jdbcType=INTEGER}
+    </select>
+
+</mapper>

@@ -1,4 +1,4 @@
-package com.bistu.ecadmin.service.iml;
+package com.bistu.ecadmin.service.impl;
 
 import com.bistu.ecadmin.dao.DTO.VillagePageQueryDTO;
 import com.bistu.ecadmin.dao.mapper.VillageMapper;

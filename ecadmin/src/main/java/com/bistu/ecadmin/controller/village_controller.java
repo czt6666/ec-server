@@ -4,7 +4,7 @@ import com.bistu.ecadmin.dao.DTO.VillagePageQueryDTO;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.village;
-import com.bistu.ecadmin.service.iml.village_serviceIml;
+import com.bistu.ecadmin.service.impl.village_serviceIml;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

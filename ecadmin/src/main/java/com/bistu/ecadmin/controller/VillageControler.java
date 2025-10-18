@@ -1,0 +1,235 @@
+package com.bistu.ecadmin.controller;
+
+import com.alibaba.fastjson.JSONObject;
+import com.bistu.common.util.CommonUtil;
+import com.bistu.ecadmin.service.VillageService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/village")
+@Slf4j
+public class VillageControler {
+
+    @Autowired
+    private VillageService villageService;
+    
+    // 从配置文件中读取图片存储路径
+    @Value("${file.upload.path:/Users/yitis/Projects/ec-server/ecadmin/uploads/}")
+    private String uploadPath;
+    
+    // 从配置文件中读取图片访问路径前缀
+    @Value("${file.access.path:/uploads/}")
+    private String accessPath;
+
+    /**
+     * 上传图片
+     */
+    /**
+     * 上传图片
+     */
+    @PostMapping(value = "/news/uploadImage", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> uploadImage(@RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
+        
+        // 确保始终有data字段
+        Map<String, Object> data = new HashMap<>();
+        
+        if (file.isEmpty()) {
+            response.put("code", 400);
+            response.put("msg", "上传文件为空");
+            response.put("data", data);
+            return response;
+        }
+        
+        try {
+            // 获取文件原始名称
+            String originalFilename = file.getOriginalFilename();
+            
+            // 检查是否为null
+            if (originalFilename == null || originalFilename.lastIndexOf(".") == -1) {
+                response.put("code", 400);
+                response.put("msg", "文件格式不正确");
+                response.put("data", data);
+                return response;
+            }
+            
+            // 获取文件后缀名
+            String fileSuffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+            
+            // 生成新的文件名，避免重复
+            String newFileName = UUID.randomUUID().toString().replace("-", "") + fileSuffix;
+            
+            // 按日期创建文件夹
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/");
+            String datePath = sdf.format(new Date());
+            
+            // 创建文件夹
+            File folder = new File(uploadPath + datePath);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            
+            // 文件存储路径
+            String filePath = uploadPath + datePath + newFileName;
+            
+            // 保存文件
+            file.transferTo(new File(filePath));
+            
+            // 返回访问路径
+            String fileAccessUrl = accessPath + datePath + newFileName;
+            
+            // 构造前端期望的返回格式
+            data.put("url", fileAccessUrl);
+            data.put("fileName", newFileName);
+            
+            response.put("code", 200);
+            response.put("msg", "上传成功");
+            response.put("data", data);
+            
+            // 添加日志以便调试
+            log.info("文件上传成功: {}, 访问路径: {}", newFileName, fileAccessUrl);
+            
+            return response;
+        } catch (IOException e) {
+            log.error("文件上传失败", e);
+            response.put("code", 500);
+            response.put("msg", "文件上传失败: " + e.getMessage());
+            response.put("data", data);
+            return response;
+        } catch (Exception e) {
+            log.error("文件上传异常", e);
+            response.put("code", 500);
+            response.put("msg", "文件上传异常: " + e.getMessage());
+            response.put("data", data);
+            return response;
+        }
+    }
+
+    /**
+     * 新增乡村新闻
+     */
+    @PostMapping(value = "/news/add", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    public JSONObject addVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
+        // 如果没有JSON请求体，则从请求参数中获取
+        if (requestJson == null) {
+            requestJson = CommonUtil.request2Json(request);
+        }
+        
+        // 处理前端可能传递的不同字段名
+        if (requestJson.containsKey("theme_id") && !requestJson.containsKey("themeName")) {
+            requestJson.put("themeName", requestJson.getString("theme_id"));
+        }
+        
+        if (requestJson.containsKey("themeid") && !requestJson.containsKey("themeName")) {
+            requestJson.put("themeName", requestJson.getString("themeid"));
+        }
+        
+        if (requestJson.containsKey("village_id") && !requestJson.containsKey("villageName")) {
+            requestJson.put("villageName", requestJson.getString("village_id"));
+        }
+        
+        if (requestJson.containsKey("villageid") && !requestJson.containsKey("villageName")) {
+            requestJson.put("villageName", requestJson.getString("villageid"));
+        }
+        
+        if (requestJson.containsKey("author_id") && !requestJson.containsKey("author")) {
+            requestJson.put("author", requestJson.getString("author_id"));
+        }
+        
+        if (requestJson.containsKey("image_url") && !requestJson.containsKey("imageUrl")) {
+            requestJson.put("imageUrl", requestJson.getString("image_url"));
+        }
+        
+        CommonUtil.hasAllRequired(requestJson, "title, author, villageName, themeName, content");
+        return villageService.addVillageNews(requestJson);
+    }
+
+    /**
+     * 更新乡村新闻
+     */
+    @PostMapping(value = "/news/update", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    public JSONObject updateVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
+        // 如果没有JSON请求体，则从请求参数中获取
+        if (requestJson == null) {
+            requestJson = CommonUtil.request2Json(request);
+        }
+        
+        // 处理前端可能传递的不同字段名
+        if (requestJson.containsKey("theme_id") && !requestJson.containsKey("themeName")) {
+            requestJson.put("themeName", requestJson.getString("theme_id"));
+        }
+        
+        if (requestJson.containsKey("themeid") && !requestJson.containsKey("themeName")) {
+            requestJson.put("themeName", requestJson.getString("themeid"));
+        }
+        
+        if (requestJson.containsKey("village_id") && !requestJson.containsKey("villageName")) {
+            requestJson.put("villageName", requestJson.getString("village_id"));
+        }
+        
+        if (requestJson.containsKey("villageid") && !requestJson.containsKey("villageName")) {
+            requestJson.put("villageName", requestJson.getString("villageid"));
+        }
+        
+        if (requestJson.containsKey("author_id") && !requestJson.containsKey("author")) {
+            requestJson.put("author", requestJson.getString("author_id"));
+        }
+        
+        if (requestJson.containsKey("image_url") && !requestJson.containsKey("imageUrl")) {
+            requestJson.put("imageUrl", requestJson.getString("image_url"));
+        }
+        
+        CommonUtil.hasAllRequired(requestJson, "id, title, author, villageName, themeName, content");
+        return villageService.updateVillageNews(requestJson);
+    }
+
+    /**
+     * 删除乡村新闻
+     */
+    @PostMapping(value = "/news/delete", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    public JSONObject deleteVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
+        // 如果没有JSON请求体，则从请求参数中获取
+        if (requestJson == null) {
+            requestJson = CommonUtil.request2Json(request);
+        }
+        
+        CommonUtil.hasAllRequired(requestJson, "id");
+        return villageService.deleteVillageNews(requestJson);
+    }
+
+    /**
+     * 分页查询乡村新闻列表
+     */
+    @GetMapping("/news/list")
+    public JSONObject getVillageNewsList(HttpServletRequest request) {
+        JSONObject requestJson = CommonUtil.request2Json(request);
+        
+        // 设置默认值
+        if (!requestJson.containsKey("pageNum")) {
+            requestJson.put("pageNum", 1);
+        }
+        if (!requestJson.containsKey("pageRow")) {
+            requestJson.put("pageRow", 10);
+        }
+        if (!requestJson.containsKey("keyword")) {
+            requestJson.put("keyword", "");
+        }
+        
+        return villageService.getVillageNewsList(requestJson);
+    }
+}

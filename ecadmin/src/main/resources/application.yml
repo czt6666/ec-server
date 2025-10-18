@@ -5,14 +5,14 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 500MB
-      max-request-size: 500MB
+      max-file-size: 10MB
+      max-request-size: 10MB
   activemq:
     broker-url:
   datasource:
     url: jdbc:mysql://localhost:3306/ecadmin?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai&useSSL=false
     username: root
-    password: 123456
+    password: root123456
 #    url: jdbc:highgo://192.168.9.240:5866/webofd?currentSchema=public,public&stringtype=unspecified
 #    username: sysdba
 #    password: @hg405
@@ -36,6 +36,14 @@ spring:
     type: redis
   main:
     banner-mode: console
+
+# 自定义文件上传路径配置
+file:
+  upload:
+    path: /Users/yitis/Projects/ec-server/ecadmin/uploads/
+  access:
+    path: /uploads/
+
 webofd:
   mysql:
     enable: true
@@ -100,11 +108,10 @@ server:
 view:
   port: 9520
 
-
 ##################################路径相关#####################################################
 path:
   #  【必改项】
-  workPath: "D:/WebFrontEnd/Projects/ECadminv1/admin-spring/logs"
+  workPath: "/Users/yitis/Projects/ecadminLog"
 
 ##################################日志相关#####################################################
 logging:
