@@ -1,12 +1,46 @@
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (13, 'a', 'aaa', 'aaa', NULL, NULL, 'a', '2025-10-18 18:16:39', '2025-10-18 18:16:39', '2025-10-18 19:58:42', 1);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (15, 'nkqq', 'aaa', 'aaa', NULL, NULL, 'aaa', '2025-10-18 18:21:43', '2025-10-18 18:21:43', '2025-10-18 23:15:58', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (16, 'a', 'aaa', 'aaa', NULL, NULL, 'a', '2025-10-18 18:31:57', '2025-10-18 18:31:57', '2025-10-18 18:31:57', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (17, '标题', 'aaa', 'aaa', NULL, NULL, '1', '2025-10-18 19:58:37', '2025-10-18 19:58:37', '2025-10-18 19:58:37', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (18, '1', 'aaa', 'aaa', '红色乡村', '', 'a', '2025-10-18 20:30:00', '2025-10-18 20:30:00', '2025-10-18 22:13:55', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (19, 'q', 'aaa', 'aaa', NULL, NULL, 'a', '2025-10-18 20:30:43', '2025-10-18 20:30:43', '2025-10-18 20:30:43', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (20, 'aa', 'aaa', 'aaa', NULL, NULL, 'aaaaaa', '2025-10-18 20:34:13', '2025-10-18 20:34:13', '2025-10-18 20:34:13', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (21, 'aaaa', 'aaa', 'aaa', '丰收节', 'blob:http://localhost:9521/41fe3af0-d597-499c-891e-82225e7962fe', 'aaaaa', '2025-10-18 20:35:12', '2025-10-18 20:35:12', '2025-10-18 22:19:39', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (22, '123', 'aaa', 'bbb', '红色乡村', '/uploads/2025/10/19/cd79aa08ebd04b528b5173dee6bb4b14.png', '123', '2025-10-18 23:36:02', '2025-10-18 23:36:02', '2025-10-19 00:48:59', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (23, '111', 'aaa', 'aaa', '丰收节', '', '111', '2025-10-18 23:55:27', '2025-10-18 23:55:27', '2025-10-18 23:55:27', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (24, '111', 'aaa', 'aaa', '丰收节', '', '111', '2025-10-19 00:12:17', '2025-10-19 00:12:17', '2025-10-19 00:12:17', 0);
-INSERT INTO `village_news` (`id`, `title`, `author`, `village_name`, `theme_name`, `image_url`, `content`, `published_time`, `created_time`, `updated_time`, `is_deleted`) VALUES (25, 'aa', 'aaa', 'aaa', '丰收节', '/uploads/2025/10/19/159aa9cfd91640b29cc7586e82bec929.png', 'aaaa', '2025-10-19 00:20:32', '2025-10-19 00:20:32', '2025-10-19 00:42:21', 0);
+/*
+ Navicat Premium Dump SQL
+
+ Source Server         : localhost
+ Source Server Type    : MySQL
+ Source Server Version : 80043 (8.0.43)
+ Source Host           : localhost:3306
+ Source Schema         : ecadmin
+
+ Target Server Type    : MySQL
+ Target Server Version : 80043 (8.0.43)
+ File Encoding         : 65001
+
+ Date: 19/10/2025 01:44:42
+*/
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for village_news
+-- ----------------------------
+DROP TABLE IF EXISTS `village_news`;
+CREATE TABLE `village_news` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) NOT NULL COMMENT '新闻标题',
+  `author` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '编写用户',
+  `village_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '隶属乡村ID',
+  `theme_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '主题名称',
+  `image_url` varchar(1024) DEFAULT NULL COMMENT '封面图片URL（单张）',
+  `content` mediumtext NOT NULL COMMENT '新闻内容',
+  `published_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+  `created_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `is_deleted` tinyint(1) DEFAULT '0' COMMENT '是否删除(0否,1是)',
+  PRIMARY KEY (`id`),
+  KEY `idx_author_id` (`author`),
+  KEY `idx_village_id` (`village_name`),
+  KEY `idx_theme_id` (`theme_name`),
+  KEY `idx_published_at` (`published_time`),
+  CONSTRAINT `author` FOREIGN KEY (`author`) REFERENCES `sys_user` (`nickname`) ON UPDATE CASCADE,
+  CONSTRAINT `theme` FOREIGN KEY (`theme_name`) REFERENCES `village_news_theme` (`name`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `village` FOREIGN KEY (`village_name`) REFERENCES `village` (`village_name`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='新闻表';
+
+SET FOREIGN_KEY_CHECKS = 1;
