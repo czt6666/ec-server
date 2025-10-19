@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.VillageHomestayMapper">
+
+    <resultMap id="VillageHomestayMap" type="com.bistu.ecadmin.pojo.VillageHomestay">
+        <id column="id" property="id"/>
+        <result column="village_id" property="villageId"/>
+        <result column="homestay_name" property="homestayName"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="star_level" property="starLevel"/>
+        <result column="room_count" property="roomCount"/>
+        <result column="bed_count" property="bedCount"/>
+        <result column="max_capacity" property="maxCapacity"/>
+        <result column="contact_name" property="contactName"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="description" property="description"/>
+        <result column="price" property="price"/>
+        <result column="cover_image" property="coverImage"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 分页查询民宿列表（支持模糊查询） -->
+    <select id="pageQuery" parameterType="com.bistu.ecadmin.dao.DTO.VillageHomestayPageQueryDTO" resultMap="VillageHomestayMap">
+        select *
+        from village_homestay
+        <where>
+            <if test="villageId != null">
+                and village_id = #{villageId}
+            </if>
+            <if test="homestayName != null and homestayName != ''">
+                and homestay_name like concat('%', #{homestayName}, '%')
+            </if>
+            <if test="address != null and address != ''">
+                and address like concat('%', #{address}, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="starLevel != null">
+                and star_level = #{starLevel}
+            </if>
+            <if test="contactName != null and contactName != ''">
+                and contact_name like concat('%', #{contactName}, '%')
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <!-- 根据ID查询民宿详情 -->
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="VillageHomestayMap">
+        select * from village_homestay where id = #{id}
+    </select>
+
+    <!-- 新增民宿 -->
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.VillageHomestay" useGeneratedKeys="true" keyProperty="id">
+        insert into village_homestay (
+            village_id, homestay_name, address, status, star_level,
+            room_count, bed_count, max_capacity, contact_name, contact_phone,
+            description, price, cover_image, create_time
+        ) values (
+                     #{villageId}, #{homestayName}, #{address}, #{status}, #{starLevel},
+                     #{roomCount}, #{bedCount}, #{maxCapacity}, #{contactName}, #{contactPhone},
+                     #{description}, #{price}, #{coverImage}, #{createTime}
+                 )
+    </insert>
+
+    <!-- 更新民宿 -->
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.VillageHomestay">
+        update village_homestay
+        <set>
+            <if test="villageId != null">village_id = #{villageId},</if>
+            <if test="homestayName != null and homestayName != ''">homestay_name = #{homestayName},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="starLevel != null">star_level = #{starLevel},</if>
+            <if test="roomCount != null">room_count = #{roomCount},</if>
+            <if test="bedCount != null">bed_count = #{bedCount},</if>
+            <if test="maxCapacity != null">max_capacity = #{maxCapacity},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="coverImage != null">cover_image = #{coverImage},</if>
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 删除民宿 -->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from village_homestay where id = #{id}
+    </delete>
+
+    <!-- 根据乡村ID查询民宿列表 -->
+    <select id="selectByVillageId" parameterType="java.lang.Integer" resultMap="VillageHomestayMap">
+        select * from village_homestay where village_id = #{villageId} order by id desc
+    </select>
+
+    <!-- 统计民宿总数 -->
+    <select id="count" parameterType="com.bistu.ecadmin.dao.DTO.VillageHomestayPageQueryDTO" resultType="long">
+        select count(*)
+        from village_homestay
+        <where>
+            <if test="villageId != null">
+                and village_id = #{villageId}
+            </if>
+            <if test="homestayName != null and homestayName != ''">
+                and homestay_name like concat('%', #{homestayName}, '%')
+            </if>
+            <if test="address != null and address != ''">
+                and address like concat('%', #{address}, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="starLevel != null">
+                and star_level = #{starLevel}
+            </if>
+            <if test="contactName != null and contactName != ''">
+                and contact_name like concat('%', #{contactName}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

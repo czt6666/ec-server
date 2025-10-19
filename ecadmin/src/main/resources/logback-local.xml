@@ -58,7 +58,7 @@
                 <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
                 <url>jdbc:mysql://localhost:3306/ecadmin?characterEncoding=UTF-8</url>
                 <username>root</username>
-                <password>123456</password>
+                <password>li200211</password>
             </dataSource>
         </connectionSource>
         <!--这里设置日志级别为error-->
