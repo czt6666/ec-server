@@ -45,7 +45,7 @@
                 and contact_name like concat('%', #{contactName}, '%')
             </if>
         </where>
-        order by id desc
+        order by id asc
     </select>
 
     <!-- 根据ID查询民宿详情 -->

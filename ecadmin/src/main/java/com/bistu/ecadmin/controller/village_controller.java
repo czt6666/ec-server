@@ -33,7 +33,7 @@ public class village_controller {
     @ApiOperation("分页查询村庄")
     @GetMapping("/page")
     public Result<PageResult> page(@RequestParam(defaultValue = "1") Integer page,
-                                   @RequestParam(defaultValue = "10") Integer pageSize) {
+                                   @RequestParam(defaultValue = "5") Integer pageSize) {
         VillagePageQueryDTO dto = new VillagePageQueryDTO();
         dto.setPage(page);
         dto.setPageSize(pageSize);
