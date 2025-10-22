@@ -70,5 +70,6 @@ surefire-reports/
 *.env
 application-*.yml
 application-*.properties
-
+ecadmin/src/main/resources/logback-local.xml
+ecadmin/src/main/resources/application.yml
 112233
