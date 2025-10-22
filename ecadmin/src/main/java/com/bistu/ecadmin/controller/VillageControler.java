@@ -155,6 +155,16 @@ public class VillageControler {
             requestJson.put("imageUrl", requestJson.getString("image_url"));
         }
         
+        // 处理发布状态字段，默认为1（草稿）
+        if (!requestJson.containsKey("publish_status")) {
+            if (requestJson.containsKey("publishStatus")) {
+                requestJson.put("publish_status", requestJson.getInteger("publishStatus"));
+            } else {
+                // 设置默认值
+                requestJson.put("publish_status", 1);
+            }
+        }
+        
         CommonUtil.hasAllRequired(requestJson, "title, author, villageName, themeName, content");
         return villageService.addVillageNews(requestJson);
     }
@@ -192,6 +202,11 @@ public class VillageControler {
         
         if (requestJson.containsKey("image_url") && !requestJson.containsKey("imageUrl")) {
             requestJson.put("imageUrl", requestJson.getString("image_url"));
+        }
+        
+        // 处理发布状态字段
+        if (requestJson.containsKey("publishStatus") && !requestJson.containsKey("publish_status")) {
+            requestJson.put("publish_status", requestJson.getInteger("publishStatus"));
         }
         
         CommonUtil.hasAllRequired(requestJson, "id, title, author, villageName, themeName, content");
