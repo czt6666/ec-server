@@ -49,7 +49,17 @@
             <artifactId>license-creator</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
+        <!-- pom.xml 中添加POI依赖 -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>4.1.2</version>
+        </dependency>
         <dependency>
             <groupId>com.bistu</groupId>
             <artifactId>system-log</artifactId>

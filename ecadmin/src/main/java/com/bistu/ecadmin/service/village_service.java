@@ -3,6 +3,8 @@ package com.bistu.ecadmin.service;
 import com.bistu.ecadmin.dao.DTO.VillagePageQueryDTO;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.village;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -23,4 +25,11 @@ public interface village_service {
     village getById(Integer id);
     // 删除村庄
     void delete(Integer id);
+
+    // 导入相关方法
+    Map<String, Object> importVillages(MultipartFile file);
+    ByteArrayResource getTemplateFile();
+    // 删除相关方法
+    Map<String, Object> checkDeleteConstraints(Integer id);
+    void deleteWithCascade(Integer id);
 }

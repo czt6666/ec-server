@@ -9,8 +9,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -79,22 +84,89 @@ public class village_controller {
             return Result.error("查询失败：" + e.getMessage());
         }
     }
-// 在 VillageController 中添加
     /**
-     * 删除村庄
+     * 删除村庄（带级联删除）
      */
     @DeleteMapping("/{id}")
     public Result<String> delete(@PathVariable Integer id) {
         try {
-            villageServiceIml.delete(id);
+            // 先检查删除约束
+            Map<String, Object> constraintResult = villageServiceIml.checkDeleteConstraints(id);
+            Boolean canDelete = (Boolean) constraintResult.get("canDelete");
+
+            if (!canDelete) {
+                String message = (String) constraintResult.get("message");
+                return Result.error("删除失败：" + message);
+            }
+
+            // 执行级联删除
+            villageServiceIml.deleteWithCascade(id);
             return Result.success("删除成功");
         } catch (Exception e) {
+            log.error("删除村庄失败", e);
             return Result.error("删除失败：" + e.getMessage());
         }
     }
 
     /**
-     * 批量删除村庄
+     * 强制删除村庄（忽略约束）
      */
+    @DeleteMapping("/force/{id}")
+    @ApiOperation("强制删除村庄")
+    public Result<String> forceDelete(@PathVariable Integer id) {
+        try {
+            villageServiceIml.deleteWithCascade(id);
+            return Result.success("删除成功");
+        } catch (Exception e) {
+            log.error("强制删除村庄失败", e);
+            return Result.error("删除失败：" + e.getMessage());
+        }
+    }
+    /**
+     * 检查删除约束
+     */
+    @GetMapping("/check-delete/{id}")
+    @ApiOperation("检查删除约束")
+    public Result<Map<String, Object>> checkDeleteConstraints(@PathVariable Integer id) {
+        try {
+            Map<String, Object> result = villageServiceIml.checkDeleteConstraints(id);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("检查删除约束失败", e);
+            return Result.error("检查失败：" + e.getMessage());
+        }
+    }
+    /**
+     * 导入村庄信息
+     */
+    @PostMapping("/import")
+    @ApiOperation("导入村庄信息")
+    public Result<Map<String, Object>> importVillages(@RequestParam("file") MultipartFile file) {
+        try {
+            Map<String, Object> result = villageServiceIml.importVillages(file);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("导入村庄失败", e);
+            return Result.error("导入失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 下载村庄导入模板
+     */
+    @GetMapping("/template")
+    @ApiOperation("下载村庄导入模板")
+    public ResponseEntity<Resource> downloadTemplate() {
+        try {
+            Resource resource = (Resource) villageServiceIml.getTemplateFile();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"村庄信息导入模板.xlsx\"")
+                    .body(resource);
+        } catch (Exception e) {
+            log.error("下载模板失败", e);
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
