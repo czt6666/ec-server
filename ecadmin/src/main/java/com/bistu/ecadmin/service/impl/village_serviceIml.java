@@ -10,20 +10,28 @@ import com.github.pagehelper.PageHelper;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
 public class village_serviceIml implements village_service {
 @Autowired
 private VillageMapper villageMapper;
+@Value("${file.export.path}")
+private String exportPath;
+
+@Value("${file.export.access.path}")
+private String exportAccessPath;
 
     @Override
     public PageResult page(VillagePageQueryDTO dto) {
@@ -144,19 +152,36 @@ private VillageMapper villageMapper;
         return result;
     }
 
+
     @Override
-    public ByteArrayResource getTemplateFile() {
+    public Resource exportVillages() {
         try {
-            // 创建Excel模板
+
+
+            // 获取所有村庄数据
+            List<village> villageList = villageMapper.list(new village());
+
+            // 创建导出目录
+            File exportDir = new File(exportPath);
+            if (!exportDir.exists()) {
+                exportDir.mkdirs();
+            }
+
+            // 生成文件名
+            String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            String filename = "村庄信息_" + dateStr + ".xlsx";
+            String filePath = exportPath + filename;
+
+            // 创建Excel文件
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("村庄信息");
 
             // 创建标题行
             Row headerRow = sheet.createRow(0);
             String[] headers = {
-                    "村庄名称*", "详细地址*", "村庄描述", "村书记姓名", "联系方式",
+                    "ID", "村庄名称", "详细地址", "村庄描述", "村书记姓名", "联系方式",
                     "户数", "管理人数", "总面积(亩)", "耕地面积(亩)", "林地面积(亩)",
-                    "水域面积(亩)", "建设用地面积(亩)"
+                    "水域面积(亩)", "建设用地面积(亩)", "纬度", "经度", "创建时间", "更新时间"
             };
 
             for (int i = 0; i < headers.length; i++) {
@@ -164,38 +189,71 @@ private VillageMapper villageMapper;
                 cell.setCellValue(headers[i]);
             }
 
-            // 设置列宽
+            // 填充数据
+            for (int i = 0; i < villageList.size(); i++) {
+                village village = villageList.get(i);
+                Row row = sheet.createRow(i + 1);
+
+                row.createCell(0).setCellValue(village.getId() != null ? village.getId() : 0);
+                row.createCell(1).setCellValue(village.getVillageName() != null ? village.getVillageName() : "");
+                row.createCell(2).setCellValue(village.getAddress() != null ? village.getAddress() : "");
+                row.createCell(3).setCellValue(village.getVillageDescription() != null ? village.getVillageDescription() : "");
+                row.createCell(4).setCellValue(village.getSecretaryName() != null ? village.getSecretaryName() : "");
+                row.createCell(5).setCellValue(village.getSecretaryPhone() != null ? village.getSecretaryPhone() : "");
+                row.createCell(6).setCellValue(village.getHouseholdCount() != null ? village.getHouseholdCount() : 0);
+                row.createCell(7).setCellValue(village.getManagerCount() != null ? village.getManagerCount() : 0);
+                row.createCell(8).setCellValue(String.valueOf(village.getTotalArea() != null ? village.getTotalArea() : 0.0));
+                row.createCell(9).setCellValue(String.valueOf(village.getFarmlandArea() != null ? village.getFarmlandArea() : 0.0));
+                row.createCell(10).setCellValue(String.valueOf(village.getForestArea() != null ? village.getForestArea() : 0.0));
+                row.createCell(11).setCellValue(String.valueOf(village.getWaterArea() != null ? village.getWaterArea() : 0.0));
+                row.createCell(12).setCellValue(String.valueOf(village.getConstructionArea() != null ? village.getConstructionArea() : 0.0));
+
+                row.createCell(15).setCellValue(village.getCreateTime() != null ? village.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                row.createCell(16).setCellValue(village.getUpdateTime() != null ? village.getUpdateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+            }
+
+            // 自动调整列宽
             for (int i = 0; i < headers.length; i++) {
                 sheet.autoSizeColumn(i);
             }
 
-            // 写入示例数据
-            Row exampleRow = sheet.createRow(1);
-            exampleRow.createCell(0).setCellValue("示例村庄");
-            exampleRow.createCell(1).setCellValue("浙江省杭州市余杭区良渚街道1号");
-            exampleRow.createCell(2).setCellValue("美丽的乡村");
-            exampleRow.createCell(3).setCellValue("张三");
-            exampleRow.createCell(4).setCellValue("13800000001");
-            exampleRow.createCell(5).setCellValue(100);
-            exampleRow.createCell(6).setCellValue(150);
-            exampleRow.createCell(7).setCellValue(1000.5);
-            exampleRow.createCell(8).setCellValue(500.2);
-            exampleRow.createCell(9).setCellValue(300.3);
-            exampleRow.createCell(10).setCellValue(200.0);
-            exampleRow.createCell(11).setCellValue(100.0);
-
-            // 转换为字节数组
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            workbook.write(outputStream);
+            // 保存到文件
+            FileOutputStream fileOut = new FileOutputStream(filePath);
+            workbook.write(fileOut);
+            fileOut.close();
             workbook.close();
 
-            byte[] bytes = outputStream.toByteArray();
-            return new org.springframework.core.io.ByteArrayResource(bytes);
+
+
+            // 返回文件资源
+            File file = new File(filePath);
+            return new org.springframework.core.io.FileSystemResource(file);
 
         } catch (Exception e) {
-            throw new RuntimeException("生成模板文件失败：" + e.getMessage());
+
+            throw new RuntimeException("导出失败：" + e.getMessage());
         }
     }
+
+    // 辅助方法：安全设置单元格值
+    private void setCellValue(Row row, int columnIndex, Object value) {
+        Cell cell = row.createCell(columnIndex);
+        if (value == null) {
+            cell.setCellValue("");
+        } else if (value instanceof String) {
+            cell.setCellValue((String) value);
+        } else if (value instanceof Integer) {
+            cell.setCellValue((Integer) value);
+        } else if (value instanceof Double) {
+            cell.setCellValue((Double) value);
+        } else if (value instanceof LocalDateTime) {
+            cell.setCellValue(((LocalDateTime) value).toString());
+        } else {
+            cell.setCellValue(value.toString());
+        }
+    }
+
+
 
     @Override
     public Map<String, Object> checkDeleteConstraints(Integer id) {

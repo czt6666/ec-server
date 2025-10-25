@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import org.springframework.core.io.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -150,23 +150,32 @@ public class village_controller {
             return Result.error("导入失败：" + e.getMessage());
         }
     }
-
     /**
-     * 下载村庄导入模板
+     * 导出村庄信息
      */
-    @GetMapping("/template")
-    @ApiOperation("下载村庄导入模板")
-    public ResponseEntity<Resource> downloadTemplate() {
+    /**
+     * 导出村庄信息
+     */
+    /**
+     * 导出村庄信息 - 关键方法
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出村庄信息")
+    public ResponseEntity<Resource> exportVillages() {
         try {
-            Resource resource = (Resource) villageServiceIml.getTemplateFile();
+            log.info("开始导出村庄信息");
+            Resource resource = villageServiceIml.exportVillages();
+            String fileName = "村庄信息_" + java.time.LocalDate.now() + ".xlsx";
+            log.info("导出成功，文件名：{}", fileName);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"村庄信息导入模板.xlsx\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                     .body(resource);
         } catch (Exception e) {
-            log.error("下载模板失败", e);
+            log.error("导出村庄失败", e);
             return ResponseEntity.notFound().build();
         }
     }
+
 
 }

@@ -13,11 +13,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
     
     @Value("${file.access.path}")
     private String accessPath;
-    
+
+    @Value("${file.export.path}")
+    private String exportPath;
+
+    @Value("${file.export.access.path}")
+    private String exportAccessPath;
+
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 配置静态资源映射
         registry.addResourceHandler(accessPath + "**")
                 .addResourceLocations("file:" + uploadPath);
+        registry.addResourceHandler(exportAccessPath + "**")
+                .addResourceLocations("file:" + exportPath);
     }
 }
