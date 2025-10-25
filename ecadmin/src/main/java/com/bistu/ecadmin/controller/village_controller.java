@@ -165,11 +165,9 @@ public class village_controller {
         try {
             log.info("开始导出村庄信息");
             Resource resource = villageServiceIml.exportVillages();
-            String fileName = "村庄信息_" + java.time.LocalDate.now() + ".xlsx";
-            log.info("导出成功，文件名：{}", fileName);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"村庄信息.xlsx\"")
                     .body(resource);
         } catch (Exception e) {
             log.error("导出村庄失败", e);
