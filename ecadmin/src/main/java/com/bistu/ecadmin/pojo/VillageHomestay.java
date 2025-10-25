@@ -46,9 +46,6 @@ public class VillageHomestay {
     @ApiModelProperty("民宿简介、特色亮点")
     private String description;
     
-    @ApiModelProperty("房价:元/月")
-    private BigDecimal price;
-    
     @ApiModelProperty("封面图URL")
     private String coverImage;
     
@@ -57,4 +54,12 @@ public class VillageHomestay {
     
     @ApiModelProperty("修改时间")
     private LocalDateTime updateTime;
+    @ApiModelProperty("纬度")
+    private Double latitude;        // 纬度
+    @ApiModelProperty("经度")
+    private Double longitude;// 经度
+    @ApiModelProperty("资质凭证")
+    private String qualificationImages;
+    @ApiModelProperty("链接地址")
+    private String linkAddress;     // 链接地址
 }
