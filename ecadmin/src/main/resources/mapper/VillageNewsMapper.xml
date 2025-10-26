@@ -4,14 +4,17 @@
 
     <!-- 新增乡村新闻 - 使用数据库自增ID -->
     <insert id="addVillageNews" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO village_news (title, author, village_name, theme_name, image_url, content)
-        VALUES (#{title}, #{author}, #{villageName}, #{themeName}, #{imageUrl}, #{content})
+        INSERT INTO village_news (title, author, village_name, theme_name, image_url, content, publish_status)
+        VALUES (#{title}, #{author}, #{villageName}, #{themeName}, #{imageUrl}, #{content}, #{publish_status, jdbcType=TINYINT})
     </insert>
     
     <!-- 更新乡村新闻 -->
     <update id="updateVillageNews" parameterType="com.alibaba.fastjson.JSONObject">
         UPDATE village_news 
         SET title = #{title}, author = #{author}, village_name = #{villageName}, theme_name = #{themeName}, image_url = #{imageUrl}, content = #{content}
+        <if test="publish_status != null">
+            , publish_status = #{publish_status}
+        </if>
         WHERE id = #{id}
     </update>
     
@@ -30,6 +33,9 @@
         <if test="keyword != null and keyword != ''">
             AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_name LIKE CONCAT('%', #{keyword}, '%') OR vn.theme_name LIKE CONCAT('%', #{keyword}, '%'))
         </if>
+        <if test="publish_status != null">
+            AND vn.publish_status = #{publish_status}
+        </if>
     </select>
     
     <!-- 分页查询乡村新闻列表 -->
@@ -42,11 +48,15 @@
             vn.theme_name as themeName,
             vn.image_url as imageUrl,
             vn.created_time as createTime,
+            vn.publish_status as publishStatus,
             vn.content
         FROM village_news vn
         WHERE vn.is_deleted = '0'
         <if test="keyword != null and keyword != ''">
             AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_name LIKE CONCAT('%', #{keyword}, '%') OR vn.theme_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="publish_status != null">
+            AND vn.publish_status = #{publish_status}
         </if>
         ORDER BY vn.id DESC
         LIMIT #{offSet,jdbcType=INTEGER}, #{pageRow,jdbcType=INTEGER}

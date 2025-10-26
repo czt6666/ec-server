@@ -77,6 +77,8 @@ public class VillageServiceImpl implements VillageService {
             int pageNum = jsonObject.getIntValue("pageNum");
             int pageRow = jsonObject.getIntValue("pageRow");
             String keyword = jsonObject.getString("keyword");
+            // 获取发布状态参数
+            Integer publishStatus = jsonObject.getInteger("publish_status");
             
             // 计算偏移量
             int offSet = (pageNum - 1) * pageRow;
@@ -86,6 +88,10 @@ public class VillageServiceImpl implements VillageService {
             params.put("offSet", offSet);
             params.put("pageRow", pageRow);
             params.put("keyword", keyword);
+            // 传递发布状态参数
+            if (publishStatus != null) {
+                params.put("publish_status", publishStatus);
+            }
             
             // 查询总记录数
             int totalCount = villageNewsDao.countVillageNews(params);
