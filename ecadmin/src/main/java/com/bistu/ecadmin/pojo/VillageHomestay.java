@@ -46,7 +46,7 @@ public class VillageHomestay {
     @ApiModelProperty("民宿简介、特色亮点")
     private String description;
     
-    @ApiModelProperty("封面图URL")
+    @ApiModelProperty("封面图")
     private String coverImage;
     
     @ApiModelProperty("创建时间")
