@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.NewsThemeDao">
+
+    <!-- 批量插入新闻主题关联 -->
+    <insert id="insertBatch">
+        INSERT INTO news_theme (news_id, theme_id) 
+        VALUES 
+        <foreach collection="themeIds" item="themeId" separator=",">
+            (#{newsId}, #{themeId})
+        </foreach>
+    </insert>
+    
+    <!-- 根据新闻ID删除关联关系 -->
+    <delete id="deleteByNewsId">
+        DELETE FROM news_theme WHERE news_id = #{newsId}
+    </delete>
+    
+    <!-- 根据主题名称列表查询主题ID列表 -->
+    <select id="selectIdsByNames" resultType="Integer">
+        SELECT id FROM village_news_theme 
+        WHERE name IN 
+        <foreach collection="themeNames" item="name" open="(" separator="," close=")">
+            #{name}
+        </foreach>
+        AND is_deleted = '0'
+    </select>
+    
+    <!-- 根据新闻ID列表查询主题名称 -->
+    <select id="selectThemeNamesByNewsIds" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT 
+            nt.news_id as newsId,
+            vnt.name as themeName
+        FROM news_theme nt
+        JOIN village_news_theme vnt ON nt.theme_id = vnt.id
+        WHERE nt.news_id IN 
+        <foreach collection="newsIds" item="newsId" open="(" separator="," close=")">
+            #{newsId}
+        </foreach>
+        AND vnt.is_deleted = '0'
+        ORDER BY nt.news_id
+    </select>
+
+</mapper>
