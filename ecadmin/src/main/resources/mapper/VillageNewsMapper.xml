@@ -4,14 +4,14 @@
 
     <!-- 新增乡村新闻 - 使用数据库自增ID -->
     <insert id="addVillageNews" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO village_news (title, author, village_name, image_url, content, publish_status)
-        VALUES (#{title}, #{author}, #{villageName},  #{imageUrl}, #{content}, #{publish_status, jdbcType=TINYINT})
+        INSERT INTO village_news (title, author, village_id, image_url, content, publish_status)
+        VALUES (#{title}, #{author}, #{villageId},  #{imageUrl}, #{content}, #{publish_status, jdbcType=TINYINT})
     </insert>
     
     <!-- 更新乡村新闻 -->
     <update id="updateVillageNews" parameterType="com.alibaba.fastjson.JSONObject">
         UPDATE village_news 
-        SET title = #{title}, author = #{author}, village_name = #{villageName}, image_url = #{imageUrl}, content = #{content}
+        SET title = #{title}, author = #{author}, village_id = #{villageId}, image_url = #{imageUrl}, content = #{content}
         <if test="publish_status != null">
             , publish_status = #{publish_status}
         </if>
@@ -31,7 +31,7 @@
         FROM village_news vn
         WHERE vn.is_deleted = '0'
         <if test="keyword != null and keyword != ''">
-            AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_name LIKE CONCAT('%', #{keyword}, '%') )
+            AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_id LIKE CONCAT('%', #{keyword}, '%') )
         </if>
         <if test="publish_status != null">
             AND vn.publish_status = #{publish_status}
@@ -44,7 +44,7 @@
             vn.id,
             vn.title,
             vn.author,
-            vn.village_name as villageName,
+            vn.village_id as villageId,
             vn.image_url as imageUrl,
             vn.created_time as createTime,
             vn.publish_status as publishStatus,
@@ -52,7 +52,7 @@
         FROM village_news vn
         WHERE vn.is_deleted = '0'
         <if test="keyword != null and keyword != ''">
-            AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_name LIKE CONCAT('%', #{keyword}, '%') )
+            AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_id LIKE CONCAT('%', #{keyword}, '%') )
         </if>
         <if test="publish_status != null">
             AND vn.publish_status = #{publish_status}
