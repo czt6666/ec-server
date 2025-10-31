@@ -179,7 +179,7 @@ private String exportAccessPath;
             // 创建标题行
             Row headerRow = sheet.createRow(0);
             String[] headers = {
-                    "ID", "村庄名称", "详细地址", "村庄描述", "村书记姓名", "联系方式",
+                    "村庄名称", "详细地址", "村庄描述", "村书记姓名", "联系方式",
                     "户数", "管理人数", "总面积(亩)", "耕地面积(亩)", "林地面积(亩)",
                     "水域面积(亩)", "建设用地面积(亩)", "纬度", "经度", "创建时间", "更新时间"
             };
@@ -194,22 +194,22 @@ private String exportAccessPath;
                 village village = villageList.get(i);
                 Row row = sheet.createRow(i + 1);
 
-                row.createCell(0).setCellValue(village.getId() != null ? village.getId() : 0);
-                row.createCell(1).setCellValue(village.getVillageName() != null ? village.getVillageName() : "");
-                row.createCell(2).setCellValue(village.getAddress() != null ? village.getAddress() : "");
-                row.createCell(3).setCellValue(village.getVillageDescription() != null ? village.getVillageDescription() : "");
-                row.createCell(4).setCellValue(village.getSecretaryName() != null ? village.getSecretaryName() : "");
-                row.createCell(5).setCellValue(village.getSecretaryPhone() != null ? village.getSecretaryPhone() : "");
-                row.createCell(6).setCellValue(village.getHouseholdCount() != null ? village.getHouseholdCount() : 0);
-                row.createCell(7).setCellValue(village.getManagerCount() != null ? village.getManagerCount() : 0);
-                row.createCell(8).setCellValue(String.valueOf(village.getTotalArea() != null ? village.getTotalArea() : 0.0));
-                row.createCell(9).setCellValue(String.valueOf(village.getFarmlandArea() != null ? village.getFarmlandArea() : 0.0));
-                row.createCell(10).setCellValue(String.valueOf(village.getForestArea() != null ? village.getForestArea() : 0.0));
-                row.createCell(11).setCellValue(String.valueOf(village.getWaterArea() != null ? village.getWaterArea() : 0.0));
-                row.createCell(12).setCellValue(String.valueOf(village.getConstructionArea() != null ? village.getConstructionArea() : 0.0));
+                //row.createCell(0).setCellValue(village.getId() != null ? village.getId() : 0);
+                row.createCell(0).setCellValue(village.getVillageName() != null ? village.getVillageName() : "");
+                row.createCell(1).setCellValue(village.getAddress() != null ? village.getAddress() : "");
+                row.createCell(2).setCellValue(village.getVillageDescription() != null ? village.getVillageDescription() : "");
+                row.createCell(3).setCellValue(village.getSecretaryName() != null ? village.getSecretaryName() : "");
+                row.createCell(4).setCellValue(village.getSecretaryPhone() != null ? village.getSecretaryPhone() : "");
+                row.createCell(5).setCellValue(village.getHouseholdCount() != null ? village.getHouseholdCount() : 0);
+                row.createCell(6).setCellValue(village.getManagerCount() != null ? village.getManagerCount() : 0);
+                row.createCell(7).setCellValue(String.valueOf(village.getTotalArea() != null ? village.getTotalArea() : 0.0));
+                row.createCell(8).setCellValue(String.valueOf(village.getFarmlandArea() != null ? village.getFarmlandArea() : 0.0));
+                row.createCell(9).setCellValue(String.valueOf(village.getForestArea() != null ? village.getForestArea() : 0.0));
+                row.createCell(10).setCellValue(String.valueOf(village.getWaterArea() != null ? village.getWaterArea() : 0.0));
+                row.createCell(11).setCellValue(String.valueOf(village.getConstructionArea() != null ? village.getConstructionArea() : 0.0));
 
-                row.createCell(15).setCellValue(village.getCreateTime() != null ? village.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
-                row.createCell(16).setCellValue(village.getUpdateTime() != null ? village.getUpdateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                row.createCell(14).setCellValue(village.getCreateTime() != null ? village.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                row.createCell(15).setCellValue(village.getUpdateTime() != null ? village.getUpdateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
             }
 
             // 自动调整列宽
