@@ -19,6 +19,11 @@ public interface VillageService {
     JSONObject deleteVillageNews(JSONObject jsonObject);
     
     /**
+     * 根据ID查询乡村新闻
+     */
+    JSONObject getVillageNewsById(Integer id);
+    
+    /**
      * 分页查询乡村新闻列表
      */
     JSONObject getVillageNewsList(JSONObject jsonObject);

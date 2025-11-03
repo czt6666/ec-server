@@ -199,4 +199,35 @@ public class VillageServiceImpl implements VillageService {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
+
+    @Override
+    public JSONObject getVillageNewsById(Integer id) {
+        try {
+            // 调用DAO根据ID查询乡村新闻
+            JSONObject news = villageNewsDao.getVillageNewsById(id);
+            
+            if (news != null) {
+                // 查询并设置主题名称
+                List<Integer> newsIds = Arrays.asList(id);
+                List<JSONObject> themeNameList = newsThemeDao.selectThemeNamesByNewsIds(newsIds);
+                
+                // 构建主题名称列表
+                List<String> themeNames = new ArrayList<>();
+                for (JSONObject theme : themeNameList) {
+                    themeNames.add(theme.getString("themeName"));
+                }
+                
+                // 设置拼接后的主题名称
+                String themeNameStr = String.join(",", themeNames);
+                news.put("themeName", themeNameStr);
+                
+                return CommonUtil.successJson(news);
+            } else {
+                return CommonUtil.errorJson(ErrorEnum.E_400, "未找到指定的新闻", new JSONObject());
+            }
+        } catch (Exception e) {
+            log.error("根据ID查询乡村新闻失败", e);
+            return CommonUtil.errorJson(ErrorEnum.E_400);
+        }
+    }
 }

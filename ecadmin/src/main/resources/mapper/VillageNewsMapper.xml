@@ -25,6 +25,21 @@
         WHERE id = #{id}
     </update>
     
+    <!-- 根据ID查询乡村新闻 -->
+    <select id="getVillageNewsById" resultType="com.alibaba.fastjson.JSONObject" parameterType="Integer">
+        SELECT 
+            vn.id,
+            vn.title,
+            vn.author,
+            vn.village_id as villageId,
+            vn.image_url as imageUrl,
+            vn.created_time as createTime,
+            vn.publish_status as publishStatus,
+            vn.content
+        FROM village_news vn
+        WHERE vn.id = #{id} AND vn.is_deleted = '0'
+    </select>
+    
     <!-- 查询乡村新闻数量 -->
     <select id="countVillageNews" resultType="Integer" parameterType="com.alibaba.fastjson.JSONObject">
         SELECT COUNT(0)

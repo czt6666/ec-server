@@ -25,6 +25,11 @@ public interface VillageNewsDao {
     int deleteVillageNews(JSONObject jsonObject);
     
     /**
+     * 根据ID查询乡村新闻
+     */
+    JSONObject getVillageNewsById(Integer id);
+    
+    /**
      * 查询乡村新闻数量
      */
     int countVillageNews(JSONObject jsonObject);
