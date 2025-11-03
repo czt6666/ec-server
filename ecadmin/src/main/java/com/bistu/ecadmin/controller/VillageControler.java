@@ -247,4 +247,12 @@ public class VillageControler {
         
         return villageService.getVillageNewsList(requestJson);
     }
+
+    /**
+     * 根据ID查询乡村新闻
+     */
+    @GetMapping("/news/detail")
+    public JSONObject getVillageNewsById(@RequestParam("id") Integer id) {
+        return villageService.getVillageNewsById(id);
+    }
 }

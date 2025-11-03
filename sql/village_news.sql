@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 22/10/2025 20:08:35
+ Date: 29/10/2025 20:15:09
 */
 
 SET NAMES utf8mb4;
@@ -26,7 +26,6 @@ CREATE TABLE `village_news` (
   `title` varchar(200) NOT NULL COMMENT '新闻标题',
   `author` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '编写用户',
   `village_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '隶属乡村ID',
-  `theme_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '主题名称',
   `image_url` varchar(1024) DEFAULT NULL COMMENT '封面图片URL（单张）',
   `content` mediumtext NOT NULL COMMENT '新闻内容',
   `published_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
@@ -37,9 +36,8 @@ CREATE TABLE `village_news` (
   PRIMARY KEY (`id`),
   KEY `idx_author_id` (`author`),
   KEY `idx_village_id` (`village_name`),
-  KEY `idx_theme_id` (`theme_name`),
   KEY `idx_published_at` (`published_time`),
   CONSTRAINT `village` FOREIGN KEY (`village_name`) REFERENCES `village` (`village_name`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='新闻表';
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='新闻表';
 
 SET FOREIGN_KEY_CHECKS = 1;
