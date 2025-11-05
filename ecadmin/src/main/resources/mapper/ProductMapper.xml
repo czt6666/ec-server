@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.ProductDao">
+
+    <!-- 新增商品 - 使用数据库自增ID -->
+    <insert id="addProduct" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO spu (title, intro, link, status, shop_id)
+        VALUES (#{title}, #{description}, #{productUrl}, #{status}, #{userId})
+    </insert>
+    
+    <!-- 更新商品 -->
+    <update id="updateProduct" parameterType="com.alibaba.fastjson.JSONObject">
+        UPDATE spu
+        SET 
+            title = #{title},
+            intro = #{description},
+            link = #{productUrl},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除商品 -->
+    <delete id="deleteProductById" parameterType="long">
+        DELETE FROM spu WHERE id = #{productId}
+    </delete>
+    
+    <!-- 批量新增预览图 -->
+    <insert id="batchAddPreviewImages" parameterType="java.util.List">
+        INSERT INTO spu_preview_img (spu_id, img_url, sort)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.spu_id}, #{item.img_url}, #{item.sort})
+        </foreach>
+    </insert>
+    
+    <!-- 批量新增详情图 -->
+    <insert id="batchAddDetailImages" parameterType="java.util.List">
+        INSERT INTO spu_detail_img (spu_id, type, content, sort)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.spu_id}, #{item.type}, #{item.content}, #{item.sort})
+        </foreach>
+    </insert>
+    
+    <!-- 批量新增规格 -->
+    <insert id="batchAddSpecifications" parameterType="java.util.List">
+        INSERT INTO sku (spu_id, specs, price, stock)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.spu_id}, #{item.specs}, #{item.price}, #{item.stock})
+        </foreach>
+    </insert>
+    
+    <!-- 删除商品的所有预览图 -->
+    <delete id="deletePreviewImagesByProductId" parameterType="long">
+        DELETE FROM spu_preview_img WHERE spu_id = #{productId}
+    </delete>
+    
+    <!-- 删除商品的所有详情图 -->
+    <delete id="deleteDetailImagesByProductId" parameterType="long">
+        DELETE FROM spu_detail_img WHERE spu_id = #{productId}
+    </delete>
+    
+    <!-- 删除商品的所有规格 -->
+    <delete id="deleteSpecificationsByProductId" parameterType="long">
+        DELETE FROM sku WHERE spu_id = #{productId}
+    </delete>
+    
+    <!-- 查询商品列表 -->
+    <select id="listProducts" parameterType="com.alibaba.fastjson.JSONObject" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT 
+            id,
+            title,
+            intro as description,
+            link as productUrl,
+            status,
+            create_time as createTime,
+            update_time as updateTime,
+            view_cnt as viewCount,
+            cart_add_cnt as cartCount
+        FROM spu
+        WHERE 1=1
+        <if test="title != null and title != ''">
+            AND title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <!-- 查询商品总数 -->
+    <select id="countProducts" parameterType="com.alibaba.fastjson.JSONObject" resultType="int">
+        SELECT COUNT(*) 
+        FROM spu
+        WHERE 1=1
+        <if test="title != null and title != ''">
+            AND title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </select>
+    
+    <!-- 根据商品ID查询预览图 -->
+    <select id="getPreviewImagesByProductId" parameterType="long" resultType="string">
+        SELECT img_url
+        FROM spu_preview_img
+        WHERE spu_id = #{productId}
+        ORDER BY sort ASC
+    </select>
+    
+    <!-- 根据商品ID查询详情图 -->
+    <select id="getDetailImagesByProductId" parameterType="long" resultType="string">
+        SELECT content
+        FROM spu_detail_img
+        WHERE spu_id = #{productId} AND type = 1
+        ORDER BY sort ASC
+    </select>
+    
+    <!-- 根据商品ID查询规格 -->
+    <select id="getSpecificationsByProductId" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT 
+            id,
+            specs as specName,
+            price,
+            stock
+        FROM sku
+        WHERE spu_id = #{productId}
+    </select>
+    
+    <!-- 根据商品ID查询商品基本信息 -->
+    <select id="getProductById" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT 
+            id,
+            title,
+            intro as description,
+            link as productUrl,
+            status,
+            shop_id as userId,
+            create_time as createTime,
+            update_time as updateTime
+        FROM spu
+        WHERE id = #{productId}
+    </select>
+
+</mapper>
