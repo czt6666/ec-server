@@ -10,6 +10,6 @@ public class CartPageDTO {
 
     @ApiModelProperty("每页大小")
     private Integer pageSize;
-    @ApiModelProperty("用户ID，必填")
+    @ApiModelProperty("用户ID，不必填")
     private Integer userId;
 }

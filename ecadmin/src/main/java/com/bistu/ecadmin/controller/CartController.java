@@ -36,15 +36,22 @@ public class CartController {
 	// com.bistu.ecadmin.controller.CartController
 	@GetMapping("/page")
 	public Result page(CartPageDTO req) {
-		if (req.getUserId() == null) {
-			return Result.error("userId不能为空");
+		if (req.getPage() == null || req.getPageSize() == null) {
+			return Result.error("分页参数不能为空");
 		}
 		int page = req.getPage();
 		int pageSize = req.getPageSize();
 		int offset = (page - 1) * pageSize;
 
-		List<Cart> list = cartService.listByUserPaged(req.getUserId(), offset, pageSize);
-		int total = cartService.countByUser(req.getUserId());
+		List<Cart> list;
+		int total;
+		if (req.getUserId() != null) {
+			list = cartService.listByUserPaged(req.getUserId(), offset, pageSize);
+			total = cartService.countByUser(req.getUserId());
+		} else {
+			list = cartService.listAllPaged(offset, pageSize);
+			total = cartService.countAll();
+		}
 
 		Map<String, Object> data = new HashMap<>();
 		data.put("list", list);

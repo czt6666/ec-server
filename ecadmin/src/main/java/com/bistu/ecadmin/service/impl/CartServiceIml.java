@@ -37,4 +37,14 @@ public class CartServiceIml implements CartService {
     public int countByUser(int userId) {
         return cartMapper.countByUserId(userId);
     }
+    // CartServiceImpl.java
+    @Override
+    public List<Cart> listAllPaged(int offset, int pageSize) {
+        return cartMapper.selectAllPaged(offset, pageSize);
+    }
+
+    @Override
+    public int countAll() {
+        return cartMapper.countAll();
+    }
 }

@@ -14,4 +14,7 @@ public interface CartService {
 	// 新增分页
 	List<Cart> listByUserPaged(int userId, int offset, int pageSize);
 	int countByUser(int userId);
+	// CartService.java
+	List<Cart> listAllPaged(int offset, int pageSize);
+	int countAll();
 }

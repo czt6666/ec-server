@@ -26,4 +26,8 @@ public interface CartMapper {
                                    @Param("pageSize") int pageSize);
 
     int countByUserId(@Param("userId") int userId);
+    List<Cart> selectAllPaged(@Param("offset") int offset,
+                                   @Param("pageSize") int pageSize);
+
+    int countAll();
 }

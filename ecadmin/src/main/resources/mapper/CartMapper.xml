@@ -42,5 +42,14 @@
     <select id="countByUserId" parameterType="int" resultType="int">
         select count(1) from cart where user_id = #{userId}
     </select>
+    <select id="selectAllPaged" resultMap="CartMap">
+        select id, user_id, sku_id, create_time, update_time
+        from cart
+        order by update_time desc, create_time desc
+            limit #{offset}, #{pageSize}
+    </select>
 
+    <select id="countAll" resultType="int">
+        select count(1) from cart
+    </select>
 </mapper>
