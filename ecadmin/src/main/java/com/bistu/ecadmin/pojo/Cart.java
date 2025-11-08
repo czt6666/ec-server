@@ -10,7 +10,7 @@ public class Cart {
     private Integer id;
     @ApiModelProperty(value = "前台用户ID")
     private Integer userId;
-    @ApiModelProperty(value = "商品ID")
+    @ApiModelProperty(value = "商品规格ID")
     private Integer skuId;
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;

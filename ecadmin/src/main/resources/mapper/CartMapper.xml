@@ -10,6 +10,27 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <!-- CartVO结果映射，包含商品信息 -->
+    <resultMap id="CartVOMap" type="com.bistu.ecadmin.pojo.CartVO">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="sku_id" property="skuId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <!-- SKU信息 -->
+        <result column="spu_id" property="spuId"/>
+        <result column="specs" property="specs"/>
+        <result column="price" property="price"/>
+        <result column="stock" property="stock"/>
+        <!-- SPU信息 -->
+        <result column="title" property="title"/>
+        <result column="intro" property="intro"/>
+        <result column="link" property="link"/>
+        <result column="status" property="status"/>
+        <!-- 预览图 -->
+        <result column="preview_image" property="previewImage"/>
+    </resultMap>
+
     <!-- 幂等加入购物车：若存在则触达更新时间 -->
     <insert id="insertOrTouch">
         insert into cart (user_id, sku_id)
@@ -17,6 +38,22 @@
             on duplicate key update update_time = current_timestamp
     </insert>
 
+    <!-- 更新商品加入购物车次数 -->
+    <update id="incrementCartAddCount">
+        UPDATE spu SET cart_add_cnt = cart_add_cnt + 1 WHERE id = #{spuId}
+    </update>
+
+    <!-- 根据 sku_id 查询 spu_id -->
+    <select id="getSpuIdBySkuId" parameterType="int" resultType="long">
+        SELECT spu_id FROM sku WHERE id = #{skuId}
+    </select>
+    <!-- 通过 skuId 查询商品状态 -->
+    <select id="getSpuStatusBySkuId" parameterType="int" resultType="int">
+        SELECT s.status
+        FROM sku k
+                 INNER JOIN spu s ON k.spu_id = s.id
+        WHERE k.id = #{skuId}
+    </select>
     <!-- 查询某用户购物车列表 -->
     <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="CartMap">
         select id, user_id, sku_id, create_time, update_time
@@ -25,12 +62,37 @@
         order by update_time desc, create_time desc
     </select>
 
+    <!-- 查询某用户购物车列表（关联商品信息）- 返回 CartVO -->
+    <select id="selectByUserIdWithProduct" parameterType="java.lang.Integer" resultMap="CartVOMap">
+        SELECT
+            c.id,
+            c.user_id,
+            c.sku_id,
+            c.create_time,
+            c.update_time,
+            s.spu_id,
+            s.specs,
+            s.price,
+            s.stock,
+            p.title,
+            p.intro,
+            p.link,
+            p.status,
+            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
+        FROM cart c
+            INNER JOIN sku s ON c.sku_id = s.id
+            INNER JOIN spu p ON s.spu_id = p.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.update_time DESC, c.create_time DESC
+    </select>
+
     <!-- 删除购物车中的某个 SKU -->
     <delete id="deleteByUserAndSku">
         delete from cart
         where user_id = #{userId}
           and sku_id = #{skuId}
     </delete>
+
     <select id="selectByUserIdPaged" resultMap="CartMap">
         select id, user_id, sku_id, create_time, update_time
         from cart
@@ -39,14 +101,64 @@
             limit #{offset}, #{pageSize}
     </select>
 
+    <!-- 分页查询某用户购物车列表（关联商品信息）- 返回 CartVO -->
+    <select id="selectByUserIdPagedWithProduct" resultMap="CartVOMap">
+        SELECT
+            c.id,
+            c.user_id,
+            c.sku_id,
+            c.create_time,
+            c.update_time,
+            s.spu_id,
+            s.specs,
+            s.price,
+            s.stock,
+            p.title,
+            p.intro,
+            p.link,
+            p.status,
+            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
+        FROM cart c
+            INNER JOIN sku s ON c.sku_id = s.id
+            INNER JOIN spu p ON s.spu_id = p.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.update_time DESC, c.create_time DESC
+            LIMIT #{offset}, #{pageSize}
+    </select>
+
     <select id="countByUserId" parameterType="int" resultType="int">
         select count(1) from cart where user_id = #{userId}
     </select>
+
     <select id="selectAllPaged" resultMap="CartMap">
         select id, user_id, sku_id, create_time, update_time
         from cart
         order by update_time desc, create_time desc
             limit #{offset}, #{pageSize}
+    </select>
+
+    <!-- 分页查询所有购物车列表（关联商品信息）- 返回 CartVO -->
+    <select id="selectAllPagedWithProduct" resultMap="CartVOMap">
+        SELECT
+            c.id,
+            c.user_id,
+            c.sku_id,
+            c.create_time,
+            c.update_time,
+            s.spu_id,
+            s.specs,
+            s.price,
+            s.stock,
+            p.title,
+            p.intro,
+            p.link,
+            p.status,
+            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
+        FROM cart c
+            INNER JOIN sku s ON c.sku_id = s.id
+            INNER JOIN spu p ON s.spu_id = p.id
+        ORDER BY c.update_time DESC, c.create_time DESC
+            LIMIT #{offset}, #{pageSize}
     </select>
 
     <select id="countAll" resultType="int">
