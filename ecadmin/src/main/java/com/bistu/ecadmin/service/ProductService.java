@@ -23,4 +23,9 @@ public interface ProductService {
      * 查询商品列表
      */
     PageResult listProducts(JSONObject params);
+    
+    /**
+     * 根据ID查询单个商品
+     */
+    JSONObject getProductById(Long productId);
 }
