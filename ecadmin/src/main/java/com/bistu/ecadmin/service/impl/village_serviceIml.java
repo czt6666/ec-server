@@ -184,7 +184,7 @@ private String exportAccessPath;
             String[] headers = {
                     "村庄名称", "详细地址", "村庄描述", "村书记姓名", "联系方式",
                     "户数", "管理人数", "总面积(亩)", "耕地面积(亩)", "林地面积(亩)",
-                    "水域面积(亩)", "建设用地面积(亩)", "纬度", "经度", "创建时间", "更新时间"
+                    "水域面积(亩)", "建设用地面积(亩)","创建时间", "更新时间"
             };
 
             for (int i = 0; i < headers.length; i++) {
@@ -197,7 +197,7 @@ private String exportAccessPath;
                 village village = villageList.get(i);
                 Row row = sheet.createRow(i + 1);
 
-                //row.createCell(0).setCellValue(village.getId() != null ? village.getId() : 0);
+
                 row.createCell(0).setCellValue(village.getVillageName() != null ? village.getVillageName() : "");
                 row.createCell(1).setCellValue(village.getAddress() != null ? village.getAddress() : "");
                 row.createCell(2).setCellValue(village.getVillageDescription() != null ? village.getVillageDescription() : "");
@@ -210,9 +210,8 @@ private String exportAccessPath;
                 row.createCell(9).setCellValue(String.valueOf(village.getForestArea() != null ? village.getForestArea() : 0.0));
                 row.createCell(10).setCellValue(String.valueOf(village.getWaterArea() != null ? village.getWaterArea() : 0.0));
                 row.createCell(11).setCellValue(String.valueOf(village.getConstructionArea() != null ? village.getConstructionArea() : 0.0));
-
-                row.createCell(14).setCellValue(village.getCreateTime() != null ? village.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
-                row.createCell(15).setCellValue(village.getUpdateTime() != null ? village.getUpdateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                row.createCell(12).setCellValue(village.getCreateTime() != null ? village.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
+                row.createCell(13).setCellValue(village.getUpdateTime() != null ? village.getUpdateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
             }
 
             // 自动调整列宽
