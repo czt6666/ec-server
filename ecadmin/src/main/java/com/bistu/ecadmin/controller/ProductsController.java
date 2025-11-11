@@ -90,4 +90,22 @@ public class ProductsController {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
+    
+    /**
+     * 根据ID查询单个商品
+     */
+    @GetMapping("/subject/detail")
+    public JSONObject getProductById(@RequestParam Long id) {
+        try {
+            // 验证必填参数
+            if (id == null || id <= 0) {
+                return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空");
+            }
+            
+            return productService.getProductById(id);
+        } catch (Exception e) {
+            log.error("查询商品详情失败", e);
+            return CommonUtil.errorJson(ErrorEnum.E_400);
+        }
+    }
 }
