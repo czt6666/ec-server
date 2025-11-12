@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.UserRoleMapper">
+
+    <resultMap id="UserRoleMap" type="com.bistu.ecadmin.pojo.UserRole">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_id" property="roleId"/>
+
+    </resultMap>
+
+    <!-- 绑定用户与角色 -->
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.UserRole"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ecadmin.sys_user_role
+            (user_id, role_id)
+        VALUES
+            (#{userId}, #{roleId})
+    </insert>
+
+    <!-- 按用户删除关联 -->
+    <delete id="deleteByUserId" parameterType="long">
+        DELETE FROM ecadmin.sys_user_role
+        WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 查询用户拥有的角色ID列表 -->
+    <select id="selectRoleIdsByUserId" parameterType="long" resultType="long">
+        SELECT role_id
+        FROM ecadmin.sys_user_role
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

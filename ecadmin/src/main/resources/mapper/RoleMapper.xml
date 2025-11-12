@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.RoleMapper">
+
+    <resultMap id="RoleMap" type="com.bistu.ecadmin.pojo.Role">
+        <id column="id" property="id"/>
+        <result column="role_name" property="roleName"/>
+        <result column="delete_status" property="deleteStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 根据角色名称查询有效角色 -->
+    <select id="selectByName" parameterType="string" resultMap="RoleMap">
+        SELECT id,
+               role_name,
+               delete_status,
+               create_time,
+               update_time
+        FROM ecadmin.sys_role
+        WHERE role_name = #{roleName}
+          AND delete_status = '1'
+            LIMIT 1
+    </select>
+
+    <!-- 查询所有有效角色 -->
+    <select id="selectAllEnabled" resultMap="RoleMap">
+        SELECT id,
+               role_name,
+               delete_status,
+               create_time,
+               update_time
+        FROM ecadmin.sys_role
+        WHERE delete_status = '1'
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
