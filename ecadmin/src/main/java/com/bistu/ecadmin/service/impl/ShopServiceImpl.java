@@ -1,16 +1,20 @@
 package com.bistu.ecadmin.service.impl;
 
+import com.bistu.ecadmin.dao.mapper.RoleMapper;
 import com.bistu.ecadmin.dao.mapper.ShopMapper;
-import com.bistu.ecadmin.pojo.PageResult;
-import com.bistu.ecadmin.pojo.Result;
-import com.bistu.ecadmin.pojo.Shop;
+import com.bistu.ecadmin.dao.mapper.UserMapper;
+import com.bistu.ecadmin.dao.mapper.UserRoleMapper;
+import com.bistu.ecadmin.pojo.*;
 import com.bistu.ecadmin.service.ShopService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -19,7 +23,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class ShopServiceImpl implements ShopService {
-
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private RoleMapper roleMapper;
+    @Autowired
+    private UserRoleMapper userRoleMapper;
     @Autowired
     private ShopMapper shopMapper;
 
@@ -43,17 +52,32 @@ public class ShopServiceImpl implements ShopService {
     @Transactional(rollbackFor = Exception.class)
     public Result<Shop> createShop(Shop shop) {
         try {
-            int count = shopMapper.countByShopName(shop.getShopName(), null);
-            if (count > 0) {
-                return Result.error("店铺名称已存在");
+            if (shop.getShopName() == null || shop.getShopName().trim().isEmpty()) {
+                return Result.error("店铺名称不能为空");
             }
             if (shop.getShopAbbreviation() == null || shop.getShopAbbreviation().trim().isEmpty()) {
                 return Result.error("店铺缩写不能为空");
             }
 
-            // 临时放开账号创建校验，后续接入用户体系后再恢复
-            shop.setUserId(null);
+            int count = shopMapper.countByShopName(shop.getShopName(), null);
+            if (count > 0) {
+                return Result.error("店铺名称已存在");
+            }
 
+            // 1. 创建默认账号（用户名=店铺缩写，密码=123456）
+            String username = shop.getShopAbbreviation().trim();
+            Long userId = createUserAccount(username, DEFAULT_PASSWORD, shop.getShopName());
+            if (userId == null) {
+                return Result.error("创建店铺失败：账号创建失败");
+            }
+
+            // 2. 分配“农产品商户”角色
+            assignRole(userId, MERCHANT_ROLE_NAME);
+
+            // 3. 回写账号ID
+            shop.setUserId(userId);
+
+            // 4. 生成展示顺序并保存店铺
             int maxDisplayNo = shopMapper.getMaxDisplayNo();
             shop.setDisplayNo(maxDisplayNo + 1);
 
@@ -61,15 +85,13 @@ public class ShopServiceImpl implements ShopService {
             if (result > 0) {
                 Shop createdShop = shopMapper.getShopById(shop.getId());
                 return Result.success(createdShop);
-            } else {
-                return Result.error("创建店铺失败");
             }
+            return Result.error("创建店铺失败");
         } catch (Exception e) {
             log.error("创建店铺失败", e);
             throw new RuntimeException("创建店铺失败：" + e.getMessage(), e);
         }
     }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Shop> updateShop(Shop shop) {
@@ -194,16 +216,33 @@ public class ShopServiceImpl implements ShopService {
      */
     private Long createUserAccount(String username, String password, String nickname) {
         try {
-            // TODO: 需要实现UserMapper相关方法
-            // 1. 检查用户名是否已存在
-            // 2. 加密密码
-            // 3. 创建用户
-            // 4. 返回用户ID
-            log.warn("UserMapper未实现，无法创建用户账号");
+            User existing = userMapper.selectByUsername(username);
+            if (existing != null) {
+                log.warn("用户名已存在: {}", username);
+                return null;
+            }
+
+            String encodedPassword = passwordEncoder != null
+                    ? passwordEncoder.encode(password)
+                    : DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(encodedPassword);
+            user.setNickname(nickname);
+            user.setDeleteStatus(1);
+            user.setCreateTime(LocalDateTime.now());
+            user.setUpdateTime(LocalDateTime.now());
+
+            int inserted = userMapper.insert(user);
+            if (inserted > 0 && user.getId() != null) {
+                return user.getId();
+            }
+            log.warn("创建用户失败: {}", username);
             return null;
         } catch (Exception e) {
             log.error("创建用户账号失败", e);
-            return null;
+            throw e;
         }
     }
 
@@ -212,14 +251,20 @@ public class ShopServiceImpl implements ShopService {
      */
     private boolean assignRole(Long userId, String roleName) {
         try {
-            // TODO: 需要实现RoleMapper和UserRoleMapper相关方法
-            // 1. 根据角色名称查询角色ID
-            // 2. 关联用户和角色
-            log.warn("RoleMapper和UserRoleMapper未实现，无法分配角色");
-            return false;
+            Role role = roleMapper.selectByName(roleName);
+            if (role == null) {
+                log.warn("角色不存在: {}", roleName);
+                return false;
+            }
+
+            UserRole bind = new UserRole();
+            bind.setUserId(userId);
+            bind.setRoleId(role.getId());
+
+            return userRoleMapper.insert(bind) > 0;
         } catch (Exception e) {
             log.error("分配角色失败", e);
-            return false;
+            throw e;
         }
     }
 }
