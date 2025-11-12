@@ -7,10 +7,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
-    
+
     @Value("${file.upload.path}")
     private String uploadPath;
-    
+
     @Value("${file.access.path}")
     private String accessPath;
 

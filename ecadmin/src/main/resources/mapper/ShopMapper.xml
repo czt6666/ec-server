@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.ShopMapper">
+
+    <resultMap id="ShopMap" type="com.bistu.ecadmin.pojo.Shop">
+        <id column="id" property="id"/>
+        <result column="shop_name" property="shopName"/>
+        <result column="shop_abbreviation" property="shopAbbreviation"/>
+        <result column="product_type" property="productType"/>
+        <result column="business_status" property="businessStatus"/>
+        <result column="village" property="village"/>
+        <result column="shop_intro" property="shopIntro"/>
+        <result column="shop_avatar" property="shopAvatar"/>
+        <result column="shop_address" property="shopAddress"/>
+        <result column="qualification_files" property="qualificationFiles"/>
+        <result column="user_id" property="userId"/>
+        <result column="display_no" property="displayNo"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="addShop" parameterType="com.bistu.ecadmin.pojo.Shop" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shop (
+            shop_name,
+            shop_abbreviation,
+            product_type,
+            business_status,
+            village,
+            shop_intro,
+            shop_avatar,
+            shop_address,
+            qualification_files,
+            user_id,
+            display_no
+        )
+        VALUES (
+                   #{shopName},
+                   #{shopAbbreviation},
+                   #{productType},
+                   #{businessStatus},
+                   #{village},
+                   #{shopIntro},
+                   #{shopAvatar},
+                   #{shopAddress},
+                   #{qualificationFiles},
+                   #{userId},
+                   #{displayNo}
+               )
+    </insert>
+
+    <update id="updateShop" parameterType="com.bistu.ecadmin.pojo.Shop">
+        UPDATE shop
+        SET
+        shop_name = #{shopName},
+        shop_abbreviation = #{shopAbbreviation},
+        product_type = #{productType},
+        business_status = #{businessStatus},
+        village = #{village},
+        shop_intro = #{shopIntro},
+        shop_avatar = #{shopAvatar},
+        shop_address = #{shopAddress},
+        qualification_files = #{qualificationFiles},
+        <if test="displayNo != null">
+            display_no = #{displayNo},
+        </if>
+        update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteShopById" parameterType="long">
+        DELETE FROM shop WHERE id = #{value}
+    </delete>
+
+    <select id="getShopById" parameterType="long" resultMap="ShopMap">
+        SELECT
+            id,
+            shop_name,
+            shop_abbreviation,
+            product_type,
+            business_status,
+            village,
+            shop_intro,
+            shop_avatar,
+            shop_address,
+            qualification_files,
+            user_id,
+            display_no,
+            create_time,
+            update_time
+        FROM shop
+        WHERE id = #{value}
+    </select>
+
+    <select id="getShopByUserId" parameterType="long" resultMap="ShopMap">
+        SELECT
+            id,
+            shop_name,
+            shop_abbreviation,
+            product_type,
+            business_status,
+            village,
+            shop_intro,
+            shop_avatar,
+            shop_address,
+            qualification_files,
+            user_id,
+            display_no,
+            create_time,
+            update_time
+        FROM shop
+        WHERE user_id = #{value}
+    </select>
+
+    <select id="listShops" resultMap="ShopMap">
+        SELECT
+        id,
+        shop_name,
+        shop_abbreviation,
+        product_type,
+        business_status,
+        village,
+        shop_intro,
+        shop_avatar,
+        shop_address,
+        qualification_files,
+        user_id,
+        display_no,
+        create_time,
+        update_time
+        FROM shop
+        WHERE 1 = 1
+        <if test="shopName != null and shopName != ''">
+            AND shop_name LIKE CONCAT('%', #{shopName}, '%')
+        </if>
+        <if test="productType != null and productType != ''">
+            AND product_type = #{productType}
+        </if>
+        <if test="businessStatus != null">
+            AND business_status = #{businessStatus}
+        </if>
+        <if test="village != null and village != ''">
+            AND village LIKE CONCAT('%', #{village}, '%')
+        </if>
+        ORDER BY display_no ASC, create_time DESC
+        <if test="offset != null and limit != null">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="countShops" resultType="int">
+        SELECT COUNT(*)
+        FROM shop
+        WHERE 1 = 1
+        <if test="shopName != null and shopName != ''">
+            AND shop_name LIKE CONCAT('%', #{shopName}, '%')
+        </if>
+        <if test="productType != null and productType != ''">
+            AND product_type = #{productType}
+        </if>
+        <if test="businessStatus != null">
+            AND business_status = #{businessStatus}
+        </if>
+        <if test="village != null and village != ''">
+            AND village LIKE CONCAT('%', #{village}, '%')
+        </if>
+    </select>
+
+    <select id="countByShopName" resultType="int">
+        SELECT COUNT(*)
+        FROM shop
+        WHERE shop_name = #{shopName}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="getMaxDisplayNo" resultType="int">
+        SELECT COALESCE(MAX(display_no), 0) FROM shop
+    </select>
+
+    <select id="getDisplayNoById" parameterType="long" resultType="int">
+        SELECT display_no FROM shop WHERE id = #{value}
+    </select>
+
+    <update id="resequenceDisplayNoAfterDelete" parameterType="int">
+        UPDATE shop
+        SET display_no = display_no - 1
+        WHERE display_no > #{displayNo}
+    </update>
+</mapper>
