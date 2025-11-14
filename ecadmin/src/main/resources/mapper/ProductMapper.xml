@@ -4,7 +4,7 @@
 
     <!-- 新增商品 - 使用数据库自增ID -->
     <insert id="addProduct" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO spu (title, intro, link, status, shop_id)
+        INSERT INTO spu (title, intro, link, status, user_id)
         VALUES (#{title}, #{description}, #{productUrl}, #{status}, #{userId})
     </insert>
     
@@ -24,6 +24,13 @@
     <delete id="deleteProductById" parameterType="long">
         DELETE FROM spu WHERE id = #{productId}
     </delete>
+    
+    <!-- 增加商品浏览次数 -->
+    <update id="incrementViewCount" parameterType="long">
+        UPDATE spu
+        SET view_cnt = view_cnt + 1
+        WHERE id = #{productId}
+    </update>
     
     <!-- 批量新增预览图 -->
     <insert id="batchAddPreviewImages" parameterType="java.util.List">
@@ -70,37 +77,52 @@
     <!-- 查询商品列表 -->
     <select id="listProducts" parameterType="com.alibaba.fastjson.JSONObject" resultType="com.alibaba.fastjson.JSONObject">
         SELECT 
-            id,
-            title,
-            intro as description,
-            link as productUrl,
-            status,
-            create_time as createTime,
-            update_time as updateTime,
-            view_cnt as viewCount,
-            cart_add_cnt as cartCount
-        FROM spu
+            s.id,
+            s.title,
+            s.intro as description,
+            s.link as productUrl,
+            s.status,
+            s.create_time as createTime,
+            s.update_time as updateTime,
+            s.view_cnt as viewCount,
+            s.cart_add_cnt as cartCount,
+            sh.shop_name as shopName
+        FROM spu s
+        LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE 1=1
         <if test="title != null and title != ''">
-            AND title LIKE CONCAT('%', #{title}, '%')
+            AND s.title LIKE CONCAT('%', #{title}, '%')
         </if>
         <if test="status != null">
-            AND status = #{status}
+            AND s.status = #{status}
         </if>
-        ORDER BY create_time DESC
+        <if test="userId != null">
+            AND s.user_id = #{userId}
+        </if>
+        <if test="shopName != null and shopName != ''">
+            AND sh.shop_name LIKE CONCAT('%', #{shopName}, '%')
+        </if>
+        ORDER BY s.create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
     
     <!-- 查询商品总数 -->
     <select id="countProducts" parameterType="com.alibaba.fastjson.JSONObject" resultType="int">
         SELECT COUNT(*) 
-        FROM spu
+        FROM spu s
+        LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE 1=1
         <if test="title != null and title != ''">
-            AND title LIKE CONCAT('%', #{title}, '%')
+            AND s.title LIKE CONCAT('%', #{title}, '%')
         </if>
         <if test="status != null">
-            AND status = #{status}
+            AND s.status = #{status}
+        </if>
+        <if test="userId != null">
+            AND s.user_id = #{userId}
+        </if>
+        <if test="shopName != null and shopName != ''">
+            AND sh.shop_name LIKE CONCAT('%', #{shopName}, '%')
         </if>
     </select>
     
@@ -134,16 +156,18 @@
     <!-- 根据商品ID查询商品基本信息 -->
     <select id="getProductById" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
         SELECT 
-            id,
-            title,
-            intro as description,
-            link as productUrl,
-            status,
-            shop_id as userId,
-            create_time as createTime,
-            update_time as updateTime
-        FROM spu
-        WHERE id = #{productId}
+            s.id,
+            s.title,
+            s.intro as description,
+            s.link as productUrl,
+            s.status,
+            s.user_id as userId,
+            s.create_time as createTime,
+            s.update_time as updateTime,
+            sh.shop_name as storeName
+        FROM spu s
+        LEFT JOIN shop sh ON s.user_id = sh.user_id
+        WHERE s.id = #{productId}
     </select>
 
 </mapper>

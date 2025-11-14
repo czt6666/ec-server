@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -75,13 +77,25 @@ public class ProductsController {
     public JSONObject listProducts(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                    @RequestParam(required = false, defaultValue = "10") Integer pageRow,
                                    @RequestParam(required = false) String title,
-                                   @RequestParam(required = false) Integer status) {
+                                   @RequestParam(required = false) Integer status,
+                                   @RequestParam(required = false) Long userId,
+                                   @RequestParam(required = false) String shopName) {
         try {
             JSONObject params = new JSONObject();
             params.put("pageNum", pageNum);
             params.put("pageRow", pageRow);
             params.put("title", title);
             params.put("status", status);
+            
+            // 添加userId参数
+            if (userId != null) {
+                params.put("userId", userId);
+            }
+            
+            // 添加shopName参数
+            if (shopName != null && !shopName.isEmpty()) {
+                params.put("shopName", shopName);
+            }
             
             PageResult result = productService.listProducts(params);
             return CommonUtil.successJson(result);
@@ -92,19 +106,18 @@ public class ProductsController {
     }
     
     /**
-     * 根据ID查询单个商品
+     * 增加商品浏览次数
      */
-    @GetMapping("/subject/detail")
-    public JSONObject getProductById(@RequestParam Long id) {
+    @PostMapping("/subject/view")
+    public JSONObject incrementViewCount(@RequestBody JSONObject requestJson) {
         try {
             // 验证必填参数
-            if (id == null || id <= 0) {
-                return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空");
-            }
+            CommonUtil.hasAllRequired(requestJson, "id");
             
-            return productService.getProductById(id);
+            Long productId = requestJson.getLong("id");
+            return productService.incrementViewCount(productId);
         } catch (Exception e) {
-            log.error("查询商品详情失败", e);
+            log.error("增加商品浏览次数失败", e);
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }

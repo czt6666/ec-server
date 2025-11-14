@@ -25,6 +25,11 @@ public interface ProductDao {
     int deleteProductById(Long productId);
     
     /**
+     * 增加商品浏览次数
+     */
+    int incrementViewCount(Long productId);
+    
+    /**
      * 批量新增预览图
      */
     int batchAddPreviewImages(List<JSONObject> previewImages);

@@ -25,7 +25,7 @@ public interface ProductService {
     PageResult listProducts(JSONObject params);
     
     /**
-     * 根据ID查询单个商品
+     * 增加商品浏览次数
      */
-    JSONObject getProductById(Long productId);
+    JSONObject incrementViewCount(Long productId);
 }
