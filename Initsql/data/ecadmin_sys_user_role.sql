@@ -1,0 +1,12 @@
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (9, 10005, 1);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (10, 10005, 2);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (11, 10008, 4);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (12, 10003, 1);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (13, 10007, 1);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (14, 10009, 5);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (15, 10010, 6);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (16, 10010, 5);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (17, 10010, 1);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (18, 10011, 1);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (19, 10004, 2);
+INSERT INTO ecadmin.sys_user_role (id, user_id, role_id) VALUES (20, 10004, 3);
