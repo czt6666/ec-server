@@ -22,7 +22,7 @@
                delete_status,
                create_time,
                update_time
-        FROM ecadmin.sys_user
+        FROM sys_user
         WHERE username = #{username}
           AND delete_status = '1'
             LIMIT 1
@@ -37,7 +37,7 @@
                delete_status,
                create_time,
                update_time
-        FROM ecadmin.sys_user
+        FROM sys_user
         WHERE id = #{id}
           AND delete_status = '1'
     </select>
@@ -45,7 +45,7 @@
     <!-- 新增用户 -->
     <insert id="insert" parameterType="com.bistu.ecadmin.pojo.User"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO ecadmin.sys_user
+        INSERT INTO sys_user
             (username, password, nickname, delete_status, create_time, update_time)
         VALUES
             (#{username}, #{password}, #{nickname}, #{deleteStatus}, NOW(), NOW())
@@ -53,7 +53,7 @@
 
     <!-- 修改密码 -->
     <update id="updatePassword" parameterType="map">
-        UPDATE ecadmin.sys_user
+        UPDATE sys_user
         SET password    = #{password},
             update_time = NOW()
         WHERE id = #{userId}
@@ -62,7 +62,7 @@
 
     <!-- 逻辑禁用用户 -->
     <update id="disableById" parameterType="long">
-        UPDATE ecadmin.sys_user
+        UPDATE sys_user
         SET delete_status = '2',
             update_time   = NOW()
         WHERE id = #{id}

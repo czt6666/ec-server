@@ -13,7 +13,7 @@
     <!-- 绑定用户与角色 -->
     <insert id="insert" parameterType="com.bistu.ecadmin.pojo.UserRole"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO ecadmin.sys_user_role
+        INSERT INTO sys_user_role
             (user_id, role_id)
         VALUES
             (#{userId}, #{roleId})
@@ -21,14 +21,14 @@
 
     <!-- 按用户删除关联 -->
     <delete id="deleteByUserId" parameterType="long">
-        DELETE FROM ecadmin.sys_user_role
+        DELETE FROM sys_user_role
         WHERE user_id = #{userId}
     </delete>
 
     <!-- 查询用户拥有的角色ID列表 -->
     <select id="selectRoleIdsByUserId" parameterType="long" resultType="long">
         SELECT role_id
-        FROM ecadmin.sys_user_role
+        FROM sys_user_role
         WHERE user_id = #{userId}
     </select>
 
