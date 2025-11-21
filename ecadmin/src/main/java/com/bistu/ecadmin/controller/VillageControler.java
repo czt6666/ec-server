@@ -3,6 +3,10 @@ package com.bistu.ecadmin.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.bistu.common.util.CommonUtil;
 import com.bistu.ecadmin.service.VillageService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +26,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/village")
 @Slf4j
+@Api(tags = "乡村新闻管理")
 public class VillageControler {
 
     @Autowired
@@ -38,11 +43,9 @@ public class VillageControler {
     /**
      * 上传图片
      */
-    /**
-     * 上传图片
-     */
     @PostMapping(value = "/news/uploadImage", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+    @ApiOperation("上传乡村新闻图片")
     public Map<String, Object> uploadImage(@RequestParam("file") MultipartFile file) {
         Map<String, Object> response = new HashMap<>();
         
@@ -124,6 +127,7 @@ public class VillageControler {
      * 新增乡村新闻
      */
     @PostMapping(value = "/news/add", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    @ApiOperation("新增乡村新闻")
     public JSONObject addVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -173,6 +177,7 @@ public class VillageControler {
      * 更新乡村新闻
      */
     @PostMapping(value = "/news/update", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    @ApiOperation("更新乡村新闻")
     public JSONObject updateVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -217,6 +222,7 @@ public class VillageControler {
      * 删除乡村新闻
      */
     @PostMapping(value = "/news/delete", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    @ApiOperation("删除乡村新闻")
     public JSONObject deleteVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -231,6 +237,12 @@ public class VillageControler {
      * 分页查询乡村新闻列表
      */
     @GetMapping("/news/list")
+    @ApiOperation("分页查询乡村新闻列表")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "pageNum", value = "页码", defaultValue = "1", dataType = "int", paramType = "query"),
+        @ApiImplicitParam(name = "pageRow", value = "每页数量", defaultValue = "10", dataType = "int", paramType = "query"),
+        @ApiImplicitParam(name = "keyword", value = "搜索关键词", defaultValue = "", dataType = "String", paramType = "query")
+    })
     public JSONObject getVillageNewsList(HttpServletRequest request) {
         JSONObject requestJson = CommonUtil.request2Json(request);
         
@@ -252,7 +264,16 @@ public class VillageControler {
      * 根据ID查询乡村新闻
      */
     @GetMapping("/news/detail")
-    public JSONObject getVillageNewsById(@RequestParam("id") Integer id) {
+    @ApiOperation("根据ID查询乡村新闻详情")
+    @ApiImplicitParam(name = "id", value = "新闻ID", required = true, dataType = "Integer", paramType = "query")
+    public JSONObject getVillageNewsById(@RequestParam(value = "id", defaultValue = "0") Integer id) {
+        // 添加默认值检查，避免空值导致的问题
+        if (id == null || id <= 0) {
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("code", 400);
+            errorResponse.put("msg", "无效的新闻ID");
+            return errorResponse;
+        }
         return villageService.getVillageNewsById(id);
     }
 }

@@ -7,6 +7,8 @@ import com.bistu.ecadmin.pojo.village;
 import com.bistu.ecadmin.service.impl.village_serviceIml;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -27,15 +29,19 @@ import java.util.Map;
 public class village_controller {
     @Autowired
     private village_serviceIml villageServiceIml;
+    
     @GetMapping("/list")
     @ApiOperation("按条件简单列表（不分页）")
     public Result village_list(village v){
-
         List<village> list = villageServiceIml.list(v);
         return Result.success(list);
-
     }
+    
     @ApiOperation("分页查询村庄")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "page", value = "页码", defaultValue = "1", dataType = "Integer", paramType = "query"),
+        @ApiImplicitParam(name = "pageSize", value = "每页数量", defaultValue = "5", dataType = "Integer", paramType = "query")
+    })
     @GetMapping("/page")
     public Result<PageResult> page(@RequestParam(defaultValue = "1") Integer page,
                                    @RequestParam(defaultValue = "5") Integer pageSize) {
@@ -45,6 +51,7 @@ public class village_controller {
         // 其他条件不再接收，默认不填
         return Result.success(villageServiceIml.page(dto));
     }
+    
     /**
      * 新增村庄
      */
@@ -58,6 +65,7 @@ public class village_controller {
             return Result.error("添加失败：" + e.getMessage());
         }
     }
+    
     // 在 VillageController 中添加
     /**
      * 修改村庄
@@ -84,6 +92,7 @@ public class village_controller {
             return Result.error("查询失败：" + e.getMessage());
         }
     }
+    
     /**
      * 删除村庄（带级联删除）
      */
@@ -122,6 +131,7 @@ public class village_controller {
             return Result.error("删除失败：" + e.getMessage());
         }
     }
+    
     /**
      * 检查删除约束
      */
@@ -136,6 +146,7 @@ public class village_controller {
             return Result.error("检查失败：" + e.getMessage());
         }
     }
+    
     /**
      * 导入村庄信息
      */
@@ -150,14 +161,9 @@ public class village_controller {
             return Result.error("导入失败：" + e.getMessage());
         }
     }
+    
     /**
      * 导出村庄信息
-     */
-    /**
-     * 导出村庄信息
-     */
-    /**
-     * 导出村庄信息 - 关键方法
      */
     @GetMapping("/export")
     @ApiOperation("导出村庄信息")
@@ -174,6 +180,4 @@ public class village_controller {
             return ResponseEntity.notFound().build();
         }
     }
-
-
 }
