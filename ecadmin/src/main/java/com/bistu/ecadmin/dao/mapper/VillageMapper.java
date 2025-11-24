@@ -33,23 +33,28 @@ public interface VillageMapper {
     // 删除村庄
     void delete(Integer id);
     // 级联删除相关方法
-    @Delete("DELETE FROM village_news WHERE village_name = #{villageName}")
-    void deleteVillageNewsByVillageName(@Param("villageName") String villageName);
+    @Delete("DELETE FROM village_news WHERE village_id = #{villageId}")
+    void deleteVillageNewsByVillageId(@Param("villageId") Integer villageId);
 
     @Delete("DELETE FROM village_homestay WHERE village_id = #{villageId}")
     void deleteVillageHomestayByVillageId(@Param("villageId") Integer villageId);
 
     // 检查关联数据是否存在
-    @Select("SELECT COUNT(*) FROM village_news WHERE village_name = #{villageName}")
-    int countVillageNewsByVillageName(@Param("villageName") String villageName);
+    @Select("SELECT COUNT(*) FROM village_news WHERE village_id = #{villageId}")
+    int countVillageNewsByVillageId(@Param("villageId") Integer villageId);
 
     @Select("SELECT COUNT(*) FROM village_homestay WHERE village_id = #{villageId}")
     int countVillageHomestayByVillageId(@Param("villageId") Integer villageId);
 
     // 获取关联数据信息
-    @Select("SELECT COUNT(*) FROM village_news WHERE village_name = #{villageName}")
-    int getVillageNewsCount(@Param("villageName") String villageName);
+    @Select("SELECT COUNT(*) FROM village_news WHERE village_id = #{villageId}")
+    int getVillageNewsCount(@Param("villageId") Integer villageId);
 
     @Select("SELECT COUNT(*) FROM village_homestay WHERE village_id = #{villageId}")
     int getVillageHomestayCount(@Param("villageId") Integer villageId);
+
+    @Select("SELECT COUNT(*) FROM village WHERE village_name = #{villageName} " +
+            "AND (#{excludeId} IS NULL OR id <> #{excludeId})")
+    int countVillageByName(@Param("villageName") String villageName,
+                           @Param("excludeId") Integer excludeId);
 }

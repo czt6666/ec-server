@@ -53,6 +53,14 @@ private String exportAccessPath;
 
     @Override
     public void add(village village) {
+        if (village.getVillageName() == null || village.getVillageName().trim().isEmpty()) {
+            throw new RuntimeException("村庄名称不能为空");
+        }
+        int exists = villageMapper.countVillageByName(village.getVillageName().trim(), null);
+        if (exists > 0) {
+            throw new RuntimeException("村庄名称已存在");
+        }
+
         // 设置创建时间和更新时间
         LocalDateTime now = LocalDateTime.now();
         village.setCreateTime(now);
@@ -68,6 +76,12 @@ private String exportAccessPath;
 
     @Override
     public void update(village village) {
+        if (village.getVillageName() != null && !village.getVillageName().trim().isEmpty()) {
+            int exists = villageMapper.countVillageByName(village.getVillageName().trim(), village.getId());
+            if (exists > 0) {
+                throw new RuntimeException("村庄名称已存在");
+            }
+        }
         // 设置更新时间
         village.setUpdateTime(LocalDateTime.now());
         villageMapper.update(village);
@@ -88,7 +102,7 @@ private String exportAccessPath;
 
         try {
             // 先删除关联的子表数据
-            villageMapper.deleteVillageNewsByVillageName(village.getVillageName());
+            villageMapper.deleteVillageNewsByVillageId(id);
             villageMapper.deleteVillageHomestayByVillageId(id);
 
             // 最后删除村庄主记录
@@ -269,7 +283,7 @@ private String exportAccessPath;
         }
 
         // 检查关联数据
-        int newsCount = villageMapper.countVillageNewsByVillageName(village.getVillageName());
+        int newsCount = villageMapper.countVillageNewsByVillageId(id);
         int homestayCount = villageMapper.countVillageHomestayByVillageId(id);
 
         List<String> constraints = new ArrayList<>();
@@ -301,7 +315,7 @@ private String exportAccessPath;
 
         try {
             // 先删除关联的子表数据
-            villageMapper.deleteVillageNewsByVillageName(village.getVillageName());
+            villageMapper.deleteVillageNewsByVillageId(id);
             villageMapper.deleteVillageHomestayByVillageId(id);
 
             // 最后删除村庄主记录
