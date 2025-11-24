@@ -315,4 +315,51 @@ public class ProductServiceImpl implements ProductService {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
+    
+    @Override
+    public JSONObject getProductById(Long productId) {
+        try {
+            // 检查商品ID是否有效
+            if (productId == null || productId <= 0) {
+                return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空", new JSONObject());
+            }
+            
+            // 查询商品基本信息
+            JSONObject product = productDao.getProductById(productId);
+            if (product == null) {
+                return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
+            }
+            
+            // 获取预览图
+            List<String> previewImages = productDao.getPreviewImagesByProductId(productId);
+            // 确保返回的预览图URL是完整的
+            for (int i = 0; i < previewImages.size(); i++) {
+                String imgUrl = previewImages.get(i);
+                if (!imgUrl.startsWith("http") && !imgUrl.startsWith("/uploads/")) {
+                    previewImages.set(i, "/uploads/" + imgUrl);
+                }
+            }
+            product.put("previewImages", previewImages);
+            
+            // 获取详情图
+            List<String> detailImages = productDao.getDetailImagesByProductId(productId);
+            // 确保返回的详情图URL是完整的
+            for (int i = 0; i < detailImages.size(); i++) {
+                String imgUrl = detailImages.get(i);
+                if (!imgUrl.startsWith("http") && !imgUrl.startsWith("/uploads/")) {
+                    detailImages.set(i, "/uploads/" + imgUrl);
+                }
+            }
+            product.put("detailImages", detailImages);
+            
+            // 获取规格
+            List<JSONObject> specifications = productDao.getSpecificationsByProductId(productId);
+            product.put("specifications", specifications);
+            
+            return CommonUtil.successJson(product);
+        } catch (Exception e) {
+            log.error("查询商品详情失败", e);
+            return CommonUtil.errorJson(ErrorEnum.E_400);
+        }
+    }
 }

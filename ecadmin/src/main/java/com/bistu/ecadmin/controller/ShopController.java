@@ -4,6 +4,10 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.Shop;
 import com.bistu.ecadmin.service.ShopService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/ecadmin/shop")
 @Slf4j
+@Api(tags = "店铺管理")
 public class ShopController {
 
     @Autowired
@@ -23,6 +28,7 @@ public class ShopController {
      * 新增店铺
      */
     @PostMapping("/add")
+    @ApiOperation("新增店铺")
     public Result<Shop> createShop(@RequestBody Shop shop) {
         try {
             return shopService.createShop(shop);
@@ -36,6 +42,7 @@ public class ShopController {
      * 更新店铺
      */
     @PostMapping("/update")
+    @ApiOperation("更新店铺")
     public Result<Shop> updateShop(@RequestBody Shop shop) {
         try {
             return shopService.updateShop(shop);
@@ -49,6 +56,8 @@ public class ShopController {
      * 删除店铺
      */
     @DeleteMapping("/{id}")
+    @ApiOperation("删除店铺")
+    @ApiImplicitParam(name = "id", value = "店铺ID", required = true, dataType = "Long", paramType = "path")
     public Result<String> deleteShop(@PathVariable Long id) {
         try {
             return shopService.deleteShop(id);
@@ -62,6 +71,15 @@ public class ShopController {
      * 查询店铺列表（分页）
      */
     @GetMapping("/list")
+    @ApiOperation("查询店铺列表（分页）")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "pageNum", value = "页码", defaultValue = "1", dataType = "Integer", paramType = "query"),
+        @ApiImplicitParam(name = "pageSize", value = "每页数量", defaultValue = "10", dataType = "Integer", paramType = "query"),
+        @ApiImplicitParam(name = "shopName", value = "店铺名称", dataType = "String", paramType = "query"),
+        @ApiImplicitParam(name = "productType", value = "商品类型", dataType = "String", paramType = "query"),
+        @ApiImplicitParam(name = "businessStatus", value = "营业状态", dataType = "Integer", paramType = "query"),
+        @ApiImplicitParam(name = "village", value = "所属村庄", dataType = "String", paramType = "query")
+    })
     public Result<PageResult> listShops(
             @RequestParam(required = false, defaultValue = "1") Integer pageNum,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize,
@@ -81,6 +99,8 @@ public class ShopController {
      * 根据ID查询店铺详情
      */
     @GetMapping("/{id}")
+    @ApiOperation("根据ID查询店铺详情")
+    @ApiImplicitParam(name = "id", value = "店铺ID", required = true, dataType = "Long", paramType = "path")
     public Result<Shop> getShopById(@PathVariable Long id) {
         try {
             return shopService.getShopById(id);

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +35,13 @@ public class FileController {
 
     @Value("${file.export.access.path}")
     private String exportAccessPath;
+    
+    // 添加服务器地址配置
+    @Value("${server.address:localhost}")
+    private String serverAddress;
+    
+    @Value("${server.port:8020}")
+    private String serverPort;
 
     @GetMapping("/getConfig")
     @ApiOperation("获取文件配置")
@@ -46,11 +54,26 @@ public class FileController {
             config.put("exportAccessPath", exportAccessPath);
             config.put("maxFileSize", maxFileSize);
             config.put("allowedTypes", new String[]{"jpg", "jpeg", "png", "gif", "pdf", "doc", "docx", "xlsx", "xls"});
-            config.put("baseUrl", "http://localhost:8020");
+            
+            // 动态生成baseUrl而不是硬编码为localhost
+            String baseUrl = "http://" + (serverAddress.equals("0.0.0.0") ? getLocalIpAddress() : serverAddress) + ":" + serverPort;
+            config.put("baseUrl", baseUrl);
+            
             return Result.success(config);
         } catch (Exception e) {
             log.error("获取文件配置失败", e);
             return Result.error("获取配置失败：" + e.getMessage());
+        }
+    }
+
+    // 添加获取本机IP地址的方法
+    private String getLocalIpAddress() {
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            return inetAddress.getHostAddress();
+        } catch (Exception e) {
+            log.warn("无法获取本机IP地址，使用默认值", e);
+            return "localhost";
         }
     }
 

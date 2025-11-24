@@ -146,5 +146,6 @@
         <!-- 存入数据库的同时，输出到控制台 -->
         <appender-ref ref="Console"/>
     </logger>
-
+    <!-- 在<configuration>标签内添加这一行来抑制Swagger的警告 -->
+    <logger name="io.swagger.models.parameters.AbstractSerializableParameter" level="ERROR"/>
 </configuration>
