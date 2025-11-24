@@ -1,5 +1,5 @@
 package com.bistu.ecadmin.controller;
-
+import com.alibaba.fastjson.JSONObject;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.Shop;
@@ -11,6 +11,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 店铺管理控制器
@@ -107,6 +109,21 @@ public class ShopController {
         } catch (Exception e) {
             log.error("查询店铺详情失败", e);
             return Result.error("查询店铺详情失败：" + e.getMessage());
+        }
+    }
+    @GetMapping("/{shopId}/products")
+    @ApiOperation("获取商家下的所有商品")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "shopId", value = "店铺ID", required = true, dataType = "Long", paramType = "path"),
+            @ApiImplicitParam(name = "status", value = "商品状态（可选）", dataType = "Integer", paramType = "query")
+    })
+    public Result<List<JSONObject>> listProductsByShop(@PathVariable Long shopId,
+                                                       @RequestParam(required = false) Integer status) {
+        try {
+            return shopService.listProductsByShop(shopId, status);
+        } catch (Exception e) {
+            log.error("查询商家商品失败", e);
+            return Result.error("查询商家商品失败：" + e.getMessage());
         }
     }
 }

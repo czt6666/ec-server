@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.ShopProductMapper">
+
+    <select id="listProductsByShopId" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        s.id,
+        s.title,
+        s.intro AS description,
+        s.link AS productUrl,
+        s.status,
+        s.create_time AS createTime,
+        s.update_time AS updateTime,
+        s.user_id AS userId,
+        sh.id AS shopId,
+        sh.shop_name AS shopName,
+        sh.shop_avatar AS shopAvatar
+        FROM spu s
+        LEFT JOIN shop sh ON s.user_id = sh.user_id
+        WHERE sh.id = #{shopId}
+        <if test="status != null">
+            AND s.status = #{status}
+        </if>
+        ORDER BY s.create_time DESC
+    </select>
+
+</mapper>

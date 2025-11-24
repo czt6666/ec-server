@@ -1,8 +1,12 @@
 package com.bistu.ecadmin.service;
 
+
+import com.alibaba.fastjson.JSONObject;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.Shop;
+
+import java.util.List;
 
 /**
  * 店铺服务接口
@@ -50,4 +54,5 @@ public interface ShopService {
      * @return 店铺信息
      */
     Result<Shop> getShopById(Long shopId);
+    Result<List<JSONObject>> listProductsByShop(Long shopId, Integer status);
 }

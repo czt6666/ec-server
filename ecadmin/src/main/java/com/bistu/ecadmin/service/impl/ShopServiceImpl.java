@@ -1,9 +1,7 @@
 package com.bistu.ecadmin.service.impl;
 
-import com.bistu.ecadmin.dao.mapper.RoleMapper;
-import com.bistu.ecadmin.dao.mapper.ShopMapper;
-import com.bistu.ecadmin.dao.mapper.UserMapper;
-import com.bistu.ecadmin.dao.mapper.UserRoleMapper;
+import com.alibaba.fastjson.JSONObject;
+import com.bistu.ecadmin.dao.mapper.*;
 import com.bistu.ecadmin.pojo.*;
 import com.bistu.ecadmin.service.ShopService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +13,7 @@ import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,13 +31,11 @@ public class ShopServiceImpl implements ShopService {
     @Autowired
     private ShopMapper shopMapper;
 
-    // TODO: 需要注入UserMapper、RoleMapper、UserRoleMapper
-    // @Autowired
-    // private UserMapper userMapper;
-    // @Autowired
-    // private RoleMapper roleMapper;
-    // @Autowired
-    // private UserRoleMapper userRoleMapper;
+    @Autowired
+    private ShopProductMapper shopProductMapper;
+
+
+
 
     @Autowired(required = false)
     private PasswordEncoder passwordEncoder; // 密码加密器，如果没有可以手动加密
@@ -265,6 +262,25 @@ public class ShopServiceImpl implements ShopService {
         } catch (Exception e) {
             log.error("分配角色失败", e);
             throw e;
+        }
+    }
+
+    @Override
+    public Result<List<JSONObject>> listProductsByShop(Long shopId, Integer status) {
+        try {
+            if (shopId == null || shopId <= 0) {
+                return Result.error("店铺ID不能为空");
+            }
+            Shop shop = shopMapper.getShopById(shopId);
+            if (shop == null) {
+                return Result.error("店铺不存在");
+            }
+
+            List<JSONObject> products = shopProductMapper.listProductsByShopId(shopId, status);
+            return Result.success(products == null ? Collections.emptyList() : products);
+        } catch (Exception e) {
+            log.error("查询商家商品失败", e);
+            return Result.error("查询商家商品失败：" + e.getMessage());
         }
     }
 }
