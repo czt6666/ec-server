@@ -28,4 +28,9 @@ public interface ProductService {
      * 增加商品浏览次数
      */
     JSONObject incrementViewCount(Long productId);
+    
+    /**
+     * 根据商品ID查询商品详情
+     */
+    JSONObject getProductById(Long productId);
 }

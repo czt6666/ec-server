@@ -86,7 +86,8 @@
             s.update_time as updateTime,
             s.view_cnt as viewCount,
             s.cart_add_cnt as cartCount,
-            sh.shop_name as shopName
+            sh.shop_name as shopName,
+            sh.shop_avatar as shopAvatar
         FROM spu s
         LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE 1=1
@@ -164,7 +165,8 @@
             s.user_id as userId,
             s.create_time as createTime,
             s.update_time as updateTime,
-            sh.shop_name as storeName
+            sh.shop_name as storeName,
+            sh.shop_avatar as shopAvatar
         FROM spu s
         LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE s.id = #{productId}
