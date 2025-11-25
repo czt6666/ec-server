@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.RestaurantMapper">
+
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.Restaurant" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO restaurant (
+            user_id, village_id, name, business_start_time, business_end_time,
+            logo_url, address, coordinate_lat, coordinate_lng, phone, notice,
+            license_urls, status, create_time, update_time
+        )
+        VALUES (
+                   #{userId}, #{villageId}, #{name}, #{businessStartTime}, #{businessEndTime},
+                   #{logoUrl}, #{address}, #{coordinateLat}, #{coordinateLng}, #{phone}, #{notice},
+                   #{licenseUrls}, #{status}, NOW(), NOW()
+               )
+    </insert>
+
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.Restaurant">
+        UPDATE restaurant
+        SET user_id = #{userId},
+            village_id = #{villageId},
+            name = #{name},
+            business_start_time = #{businessStartTime},
+            business_end_time = #{businessEndTime},
+            logo_url = #{logoUrl},
+            address = #{address},
+            coordinate_lat = #{coordinateLat},
+            coordinate_lng = #{coordinateLng},
+            phone = #{phone},
+            notice = #{notice},
+            license_urls = #{licenseUrls},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM restaurant WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultType="com.bistu.ecadmin.pojo.Restaurant">
+        SELECT * FROM restaurant WHERE id = #{id}
+    </select>
+
+    <select id="list" parameterType="com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO"
+            resultType="com.bistu.ecadmin.pojo.Restaurant">
+        SELECT *
+        FROM restaurant
+        WHERE 1 = 1
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="villageId != null">
+            AND village_id = #{villageId}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" parameterType="com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM restaurant
+        WHERE 1 = 1
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="villageId != null">
+            AND village_id = #{villageId}
+        </if>
+    </select>
+
+    <select id="listNamesByUserId" resultType="string">
+        SELECT name
+        FROM restaurant
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

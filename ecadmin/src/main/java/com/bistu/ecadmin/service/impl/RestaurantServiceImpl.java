@@ -1,0 +1,130 @@
+package com.bistu.ecadmin.service.impl;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO;
+import com.bistu.ecadmin.dao.mapper.RestaurantMapper;
+import com.bistu.ecadmin.dao.mapper.UserMapper;
+import com.bistu.ecadmin.dao.mapper.VillageMapper;
+import com.bistu.ecadmin.pojo.PageResult;
+import com.bistu.ecadmin.pojo.Restaurant;
+import com.bistu.ecadmin.service.RestaurantService;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalTime;
+import java.util.List;
+
+@Service
+@Slf4j
+public class RestaurantServiceImpl implements RestaurantService {
+
+    @Autowired
+    private RestaurantMapper restaurantMapper;
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private VillageMapper villageMapper;
+
+    @Override
+    public PageResult list(RestaurantQueryDTO dto) {
+        dto.setPageNum(dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum());
+        dto.setPageSize(dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize());
+        dto.setOffset((dto.getPageNum() - 1) * dto.getPageSize());
+
+        List<Restaurant> records = restaurantMapper.list(dto);
+        int total = restaurantMapper.count(dto);
+        return new PageResult(total, records);
+    }
+
+    @Override
+    public Restaurant getById(Long id) {
+        return restaurantMapper.selectById(id);
+    }
+
+    @Override
+    public void create(Restaurant restaurant) {
+        validate(restaurant, null);
+        restaurantMapper.insert(restaurant);
+    }
+
+    @Override
+    public void update(Restaurant restaurant) {
+        validate(restaurant, restaurant.getId());
+        restaurantMapper.update(restaurant);
+    }
+
+    @Override
+    public void delete(Long id) {
+        restaurantMapper.deleteById(id);
+    }
+
+    @Override
+    public List<String> listNamesByUser(Long userId) {
+        return restaurantMapper.listNamesByUserId(userId);
+    }
+
+    private void validate(Restaurant r, Long excludeId) {
+        if (r == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        if (StringUtils.isBlank(r.getName()) || r.getName().length() > 100) {
+            throw new IllegalArgumentException("门店名称不能为空且不超过100字符");
+        }
+        if (r.getUserId() == null || userMapper.selectById(r.getUserId()) == null) {
+            throw new IllegalArgumentException("关联用户不存在");
+        }
+        if (r.getVillageId() == null || villageMapper.getById(r.getVillageId()) == null) {
+            throw new IllegalArgumentException("所属村不存在");
+        }
+        if (StringUtils.isBlank(r.getBusinessStartTime()) || !isHHmm(r.getBusinessStartTime())) {
+            throw new IllegalArgumentException("开始营业时间格式不正确");
+        }
+        if (StringUtils.isBlank(r.getBusinessEndTime()) || !isHHmm(r.getBusinessEndTime())) {
+            throw new IllegalArgumentException("结束营业时间格式不正确");
+        }
+        if (StringUtils.isBlank(r.getAddress()) || r.getAddress().length() > 200) {
+            throw new IllegalArgumentException("门店地址不能为空且不超过200字符");
+        }
+        if (StringUtils.length(r.getPhone()) > 20) {
+            throw new IllegalArgumentException("联系电话不超过20字符");
+        }
+        if (StringUtils.length(r.getNotice()) > 500) {
+            throw new IllegalArgumentException("门店公告不超过500字符");
+        }
+        checkLicenseLimit(r.getLicenseUrls());
+    }
+
+    private boolean isHHmm(String time) {
+        try {
+            LocalTime.parse(time);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void checkLicenseLimit(String licenseJson) {
+        if (StringUtils.isBlank(licenseJson)) {
+            return;
+        }
+        JSONArray arr = JSONArray.parseArray(licenseJson);
+        long businessCount = arr.stream()
+                .map(o -> (JSONObject) o)
+                .filter(obj -> "business".equals(obj.getString("type")))
+                .count();
+        long foodCount = arr.stream()
+                .map(o -> (JSONObject) o)
+                .filter(obj -> "food".equals(obj.getString("type")))
+                .count();
+        if (businessCount > 15) {
+            throw new IllegalArgumentException("营业执照最多上传15张");
+        }
+        if (foodCount > 15) {
+            throw new IllegalArgumentException("食品经营许可证最多上传15张");
+        }
+    }
+}
