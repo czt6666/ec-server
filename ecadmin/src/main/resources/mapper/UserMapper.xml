@@ -68,8 +68,6 @@
         WHERE id = #{id}
           AND delete_status = '1'
     </update>
-
-    <!-- 查询启用状态的全部用户（仅返回id和username） -->
     <select id="listActiveUsers" resultMap="UserMap">
         SELECT id,
                username,
@@ -82,5 +80,4 @@
         WHERE delete_status = '1'
         ORDER BY create_time DESC
     </select>
-
 </mapper>

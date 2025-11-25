@@ -60,4 +60,6 @@ public class Restaurant implements Serializable {
 
     @ApiModelProperty("更新时间")
     private LocalDateTime updateTime;
+    private String villageName;
+    private String userName;
 }

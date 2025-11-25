@@ -45,35 +45,55 @@
 
     <select id="list" parameterType="com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO"
             resultType="com.bistu.ecadmin.pojo.Restaurant">
-        SELECT *
-        FROM restaurant
+        SELECT
+        r.id,
+        r.user_id          AS userId,
+        r.village_id       AS villageId,
+        r.name,
+        r.business_start_time AS businessStartTime,
+        r.business_end_time   AS businessEndTime,
+        r.logo_url         AS logoUrl,
+        r.address,
+        r.coordinate_lat   AS coordinateLat,
+        r.coordinate_lng   AS coordinateLng,
+        r.phone,
+        r.notice,
+        r.license_urls     AS licenseUrls,
+        r.status,
+        r.create_time      AS createTime,
+        r.update_time      AS updateTime,
+        v.village_name     AS villageName,
+        u.username         AS userName
+        FROM restaurant r
+        LEFT JOIN village v ON r.village_id = v.id
+        LEFT JOIN sys_user u ON r.user_id = u.id
         WHERE 1 = 1
         <if test="name != null and name != ''">
-            AND name LIKE CONCAT('%', #{name}, '%')
+            AND r.name LIKE CONCAT('%', #{name}, '%')
         </if>
         <if test="status != null">
-            AND status = #{status}
+            AND r.status = #{status}
         </if>
         <if test="villageId != null">
-            AND village_id = #{villageId}
+            AND r.village_id = #{villageId}
         </if>
-        ORDER BY create_time DESC
+        ORDER BY r.create_time DESC
         LIMIT #{offset}, #{pageSize}
     </select>
 
     <select id="count" parameterType="com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO"
             resultType="int">
         SELECT COUNT(*)
-        FROM restaurant
+        FROM restaurant r
         WHERE 1 = 1
         <if test="name != null and name != ''">
-            AND name LIKE CONCAT('%', #{name}, '%')
+            AND r.name LIKE CONCAT('%', #{name}, '%')
         </if>
         <if test="status != null">
-            AND status = #{status}
+            AND r.status = #{status}
         </if>
         <if test="villageId != null">
-            AND village_id = #{villageId}
+            AND r.village_id = #{villageId}
         </if>
     </select>
 
