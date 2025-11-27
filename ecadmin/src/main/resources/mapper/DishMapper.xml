@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.DishMapper">
+
+    <resultMap id="BaseResultMap" type="com.bistu.ecadmin.pojo.Dish">
+        <id column="id" property="id"/>
+        <result column="restaurant_id" property="restaurantId"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="dish_name" property="dishName"/>
+        <result column="cover_img_url" property="coverImgUrl"/>
+        <result column="dish_status" property="dishStatus"/>
+        <result column="price" property="price"/>
+        <result column="unit" property="unit"/>
+        <result column="summary" property="summary"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <!-- DishDTOMap映射，包含关联的餐厅名称和分类名称 -->
+    <resultMap id="DishDTOMap" type="com.bistu.ecadmin.dao.DTO.DishDTO">
+        <id column="id" property="id"/>
+        <result column="restaurant_id" property="restaurantId"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="restaurant_name" property="restaurantName"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="dish_name" property="dishName"/>
+        <result column="cover_img_url" property="coverImgUrl"/>
+        <result column="dish_status" property="dishStatus"/>
+        <result column="price" property="price"/>
+        <result column="unit" property="unit"/>
+        <result column="summary" property="summary"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 根据ID查询菜品 -->
+    <select id="getDishById" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM dish
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <!-- 新增菜品 -->
+    <insert id="addDish" parameterType="com.bistu.ecadmin.pojo.Dish">
+        INSERT INTO dish (restaurant_id, category_id, dish_name, cover_img_url, dish_status, price, unit, summary, create_time, update_time, is_deleted)
+        VALUES (#{restaurantId}, #{categoryId}, #{dishName}, #{coverImgUrl}, #{dishStatus}, #{price}, #{unit}, #{summary}, NOW(), NOW(), 0)
+    </insert>
+
+    <!-- 更新菜品 -->
+    <update id="updateDish" parameterType="com.bistu.ecadmin.pojo.Dish">
+        UPDATE dish
+        SET restaurant_id = #{restaurantId},
+            category_id = #{categoryId},
+            dish_name = #{dishName},
+            cover_img_url = #{coverImgUrl},
+            dish_status = #{dishStatus},
+            price = #{price},
+            unit = #{unit},
+            summary = #{summary},
+            update_time = NOW()
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 删除菜品（逻辑删除） -->
+    <update id="deleteDish" parameterType="long">
+        UPDATE dish
+        SET is_deleted = 1,
+            update_time = NOW()
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <!-- 分页查询菜品列表，通过联合查询返回真正的restaurant_name和category_name -->
+    <select id="listDishes" resultMap="DishDTOMap">
+        SELECT 
+            d.id,
+            d.restaurant_id,
+            d.category_id,
+            r.name AS restaurant_name,
+            dc.category_name,
+            d.dish_name,
+            d.cover_img_url,
+            d.dish_status,
+            d.price,
+            d.unit,
+            d.summary,
+            d.create_time,
+            d.update_time
+        FROM dish d
+        LEFT JOIN restaurant r ON d.restaurant_id = r.id
+        LEFT JOIN dish_category dc ON d.category_id = dc.id
+        WHERE d.is_deleted = 0
+        <if test="dishName != null and dishName != ''">
+            AND d.dish_name LIKE CONCAT('%', #{dishName}, '%')
+        </if>
+        <if test="restaurantName != null and restaurantName != ''">
+            AND r.name LIKE CONCAT('%', #{restaurantName}, '%')
+        </if>
+        <if test="categoryName != null and categoryName != ''">
+            AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
+        </if>
+        <if test="status != null">
+            AND d.dish_status = #{status}
+        </if>
+        ORDER BY r.create_time DESC, d.create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="listDishesByRestaurantId" resultMap="DishDTOMap">
+        SELECT 
+            d.id,
+            d.restaurant_id,
+            d.category_id,
+            r.name AS restaurant_name,
+            dc.category_name,
+            d.dish_name,
+            d.cover_img_url,
+            d.dish_status,
+            d.price,
+            d.unit,
+            d.summary,
+            d.create_time,
+            d.update_time
+        FROM dish d
+        LEFT JOIN restaurant r ON d.restaurant_id = r.id
+        LEFT JOIN dish_category dc ON d.category_id = dc.id
+        WHERE d.is_deleted = 0
+        AND d.restaurant_id = #{restaurantId}
+        <if test="dishName != null and dishName != ''">
+            AND d.dish_name LIKE CONCAT('%', #{dishName}, '%')
+        </if>
+        <if test="categoryName != null and categoryName != ''">
+            AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
+        </if>
+        <if test="status != null">
+            AND d.dish_status = #{status}
+        </if>
+        ORDER BY r.create_time DESC, d.create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 查询菜品总数，通过联合查询计算真正的总数 -->
+    <select id="countDishes" resultType="int">
+        SELECT COUNT(*)
+        FROM dish d
+        LEFT JOIN restaurant r ON d.restaurant_id = r.id
+        LEFT JOIN dish_category dc ON d.category_id = dc.id
+        WHERE d.is_deleted = 0
+        <if test="dishName != null and dishName != ''">
+            AND d.dish_name LIKE CONCAT('%', #{dishName}, '%')
+        </if>
+        <if test="restaurantName != null and restaurantName != ''">
+            AND r.name LIKE CONCAT('%', #{restaurantName}, '%')
+        </if>
+        <if test="categoryName != null and categoryName != ''">
+            AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
+        </if>
+        <if test="status != null">
+            AND d.dish_status = #{status}
+        </if>
+    </select>
+
+    <!-- 根据餐厅ID查询菜品总数，通过联合查询计算真正的总数 -->
+    <select id="countDishesByRestaurantId" resultType="int">
+        SELECT COUNT(*)
+        FROM dish d
+        LEFT JOIN restaurant r ON d.restaurant_id = r.id
+        LEFT JOIN dish_category dc ON d.category_id = dc.id
+        WHERE d.is_deleted = 0
+        AND d.restaurant_id = #{restaurantId}
+        <if test="dishName != null and dishName != ''">
+            AND d.dish_name LIKE CONCAT('%', #{dishName}, '%')
+        </if>
+        <if test="categoryName != null and categoryName != ''">
+            AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
+        </if>
+        <if test="status != null">
+            AND d.dish_status = #{status}
+        </if>
+    </select>
+</mapper>

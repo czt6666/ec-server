@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.DishCategoryMapper">
+
+    <resultMap id="DishCategoryDTOMap" type="com.bistu.ecadmin.dao.DTO.DishCategoryDTO">
+        <id property="id" column="id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="restaurantName" column="restaurant_name"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="dishCreateTime" column="dish_create_time"/>
+    </resultMap>
+
+    <insert id="addDishCategory" parameterType="com.bistu.ecadmin.pojo.DishCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dish_category (
+            restaurant_id,
+            category_name,
+            sort_num
+        )
+        VALUES (
+                   #{restaurantId},
+                   #{categoryName},
+                   #{sortNum}
+               )
+    </insert>
+    
+    <!-- 根据店铺名称查询restaurantId -->
+    <select id="getRestaurantIdByName" parameterType="string" resultType="long">
+        SELECT id 
+        FROM restaurant 
+        WHERE name = #{restaurantName} 
+        LIMIT 1
+    </select>
+    
+    <!-- 根据用户ID查询餐厅ID -->
+    <select id="getRestaurantIdByUserId" parameterType="long" resultType="long">
+        SELECT id 
+        FROM restaurant 
+        WHERE user_id = #{userId} 
+        LIMIT 1
+    </select>
+    
+    <!-- 分页查询菜品分类列表 -->
+    <select id="listDishCategoriesPaged" resultMap="DishCategoryDTOMap">
+        SELECT 
+            dc.id,
+            dc.category_name,
+            r.name AS restaurant_name,
+            dc.update_time,
+            (SELECT MIN(d.create_time) FROM dish d WHERE d.category_id = dc.id AND d.is_deleted = 0) AS dish_create_time
+        FROM dish_category dc
+        LEFT JOIN restaurant r ON dc.restaurant_id = r.id
+        WHERE dc.is_deleted = 0
+        <if test="categoryName != null and categoryName != ''">
+            AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
+        </if>
+        <if test="restaurantId != null">
+            AND dc.restaurant_id = #{restaurantId}
+        </if>
+        <if test="status != null">
+            AND dc.status = #{status}
+        </if>
+        ORDER BY r.create_time DESC, dc.sort_num ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+    
+    <!-- 查询菜品分类总数 -->
+    <select id="countDishCategories" resultType="int">
+        SELECT COUNT(*)
+        FROM dish_category dc
+        LEFT JOIN restaurant r ON dc.restaurant_id = r.id
+        WHERE dc.is_deleted = 0
+        <if test="categoryName != null and categoryName != ''">
+            AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
+        </if>
+        <if test="restaurantId != null">
+            AND dc.restaurant_id = #{restaurantId}
+        </if>
+        <if test="status != null">
+            AND dc.status = #{status}
+        </if>
+    </select>
+    
+    <!-- 更新菜品分类 -->
+    <update id="updateDishCategory" parameterType="com.bistu.ecadmin.pojo.DishCategory">
+        UPDATE dish_category 
+        SET 
+            <if test="restaurantId != null">restaurant_id = #{restaurantId},</if>
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="sortNum != null">sort_num = #{sortNum},</if>
+            <!-- 移除这行，因为实体类中没有status字段 -->
+            <!-- <if test="status != null">status = #{status},</if> -->
+            update_time = NOW()
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+    
+    <!-- 删除菜品分类（逻辑删除） -->
+    <update id="deleteDishCategory">
+        UPDATE dish_category 
+        SET is_deleted = 1, update_time = NOW() 
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+    
+    <!-- 根据ID查询菜品分类 -->
+    <select id="getDishCategoryById" parameterType="long" resultType="com.bistu.ecadmin.pojo.DishCategory">
+        SELECT * 
+        FROM dish_category 
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+</mapper>
