@@ -1,6 +1,7 @@
 package com.bistu.ecadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bistu.ecadmin.dao.DTO.SortRequest;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.service.DishService;
 import io.swagger.annotations.Api;
@@ -9,6 +10,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 菜品Controller
@@ -106,5 +109,24 @@ public class DishController {
     })
     public Result<?> deleteDish(@RequestBody JSONObject params) {
         return dishService.deleteDish(params);
+    }
+    
+    @PostMapping("/updateSort")
+    @ApiOperation("更新菜品排序")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "sortRequests", value = "排序请求列表", required = true, dataType = "List", paramType = "body")
+    })
+    public Result<?> updateDishSort(@RequestBody List<SortRequest> sortRequests) {
+        try {
+            // 遍历排序请求列表
+            for (SortRequest request : sortRequests) {
+                // 根据ID更新菜品的sortNum字段
+                dishService.updateSortNum(request.getId(), request.getSortNum());
+            }
+            
+            return Result.success("排序更新成功");
+        } catch (Exception e) {
+            return Result.error("排序更新失败: " + e.getMessage());
+        }
     }
 }

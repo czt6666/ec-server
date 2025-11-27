@@ -55,6 +55,11 @@ public class Dish {
     private String summary;
 
     /**
+     * 排序号
+     */
+    private Integer sortNum;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

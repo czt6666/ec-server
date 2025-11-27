@@ -12,6 +12,7 @@
         <result column="price" property="price"/>
         <result column="unit" property="unit"/>
         <result column="summary" property="summary"/>
+        <result column="sort_num" property="sortNum"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="is_deleted" property="isDeleted"/>
@@ -42,8 +43,8 @@
 
     <!-- 新增菜品 -->
     <insert id="addDish" parameterType="com.bistu.ecadmin.pojo.Dish">
-        INSERT INTO dish (restaurant_id, category_id, dish_name, cover_img_url, dish_status, price, unit, summary, create_time, update_time, is_deleted)
-        VALUES (#{restaurantId}, #{categoryId}, #{dishName}, #{coverImgUrl}, #{dishStatus}, #{price}, #{unit}, #{summary}, NOW(), NOW(), 0)
+        INSERT INTO dish (restaurant_id, category_id, dish_name, cover_img_url, dish_status, price, unit, summary, sort_num, create_time, update_time, is_deleted)
+        VALUES (#{restaurantId}, #{categoryId}, #{dishName}, #{coverImgUrl}, #{dishStatus}, #{price}, #{unit}, #{summary}, #{sortNum}, NOW(), NOW(), 0)
     </insert>
 
     <!-- 更新菜品 -->
@@ -57,6 +58,7 @@
             price = #{price},
             unit = #{unit},
             summary = #{summary},
+            sort_num = #{sortNum},
             update_time = NOW()
         WHERE id = #{id} AND is_deleted = 0
     </update>
@@ -101,7 +103,7 @@
         <if test="status != null">
             AND d.dish_status = #{status}
         </if>
-        ORDER BY r.create_time DESC, d.create_time DESC
+        ORDER BY r.create_time DESC, d.sort_num ASC, d.create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -134,7 +136,7 @@
         <if test="status != null">
             AND d.dish_status = #{status}
         </if>
-        ORDER BY r.create_time DESC, d.create_time DESC
+        ORDER BY d.sort_num ASC, d.create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -177,4 +179,12 @@
             AND d.dish_status = #{status}
         </if>
     </select>
+
+    <!-- 更新菜品排序号 -->
+    <update id="updateSortNum">
+        UPDATE dish
+        SET sort_num = #{sortNum},
+            update_time = NOW()
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
 </mapper>

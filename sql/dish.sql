@@ -42,3 +42,11 @@ CREATE TABLE `dish` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜品信息表';
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- 给dish表添加sort_num字段
+ALTER TABLE `dish` 
+ADD COLUMN `sort_num` INT NOT NULL DEFAULT 0 COMMENT '排序号' AFTER `summary`;
+
+-- 为sort_num字段创建索引，提高排序查询效率
+ALTER TABLE `dish` 
+ADD INDEX `idx_sort_num` (`sort_num`) COMMENT '排序号索引';

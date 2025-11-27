@@ -319,4 +319,10 @@ public class DishServiceImpl implements DishService {
             return Result.error("删除菜品失败：" + e.getMessage());
         }
     }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int updateSortNum(Long id, Integer sortNum) {
+        return dishMapper.updateSortNum(id, sortNum);
+    }
 }

@@ -100,4 +100,12 @@ public interface DishMapper {
                                   @Param("categoryName") String categoryName,
                                   @Param("dishName") String dishName,
                                   @Param("status") Integer status);
+    
+    /**
+     * 更新菜品排序号
+     * @param id 菜品ID
+     * @param sortNum 排序号
+     * @return 影响行数
+     */
+    int updateSortNum(@Param("id") Long id, @Param("sortNum") Integer sortNum);
 }

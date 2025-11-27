@@ -42,4 +42,12 @@ public interface DishService {
      * @return Result对象
      */
     Result<?> deleteDish(JSONObject params);
+    
+    /**
+     * 更新菜品排序号
+     * @param id 菜品ID
+     * @param sortNum 排序号
+     * @return 影响行数
+     */
+    int updateSortNum(Long id, Integer sortNum);
 }
