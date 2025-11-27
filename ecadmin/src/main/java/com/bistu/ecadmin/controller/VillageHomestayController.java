@@ -30,7 +30,8 @@ public class VillageHomestayController {
                                    @RequestParam(required = false) String address,
                                    @RequestParam(required = false) Integer status,
                                    @RequestParam(required = false) Integer starLevel,
-                                   @RequestParam(required = false) String contactName) {
+                                   @RequestParam(required = false) String contactName,
+                                   @RequestParam(required = false) String keyword) {
         VillageHomestayPageQueryDTO dto = new VillageHomestayPageQueryDTO();
         dto.setPage(page);
         dto.setPageSize(pageSize);
@@ -40,6 +41,7 @@ public class VillageHomestayController {
         dto.setStatus(status);
         dto.setStarLevel(starLevel);
         dto.setContactName(contactName);
+        dto.setKeyword(keyword);
         return Result.success(villageHomestayService.page(dto));
     }
     

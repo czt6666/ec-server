@@ -47,6 +47,11 @@
             <if test="contactName != null and contactName != ''">
                 and contact_name like concat('%', #{contactName}, '%')
             </if>
+            <if test="keyword != null and keyword != ''">
+                and (homestay_name like concat('%', #{keyword}, '%') 
+                     or address like concat('%', #{keyword}, '%') 
+                     or contact_name like concat('%', #{keyword}, '%'))
+            </if>
         </where>
         order by id asc
     </select>
@@ -126,6 +131,11 @@
             </if>
             <if test="contactName != null and contactName != ''">
                 and contact_name like concat('%', #{contactName}, '%')
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (homestay_name like concat('%', #{keyword}, '%') 
+                     or address like concat('%', #{keyword}, '%') 
+                     or contact_name like concat('%', #{keyword}, '%'))
             </if>
         </where>
     </select>

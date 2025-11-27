@@ -32,4 +32,7 @@ public class VillageHomestayPageQueryDTO implements Serializable {
     
     @ApiModelProperty("负责人姓名（模糊查询）")
     private String contactName;
+    
+    @ApiModelProperty("关键词搜索（支持民宿名称、地址、负责人姓名）")
+    private String keyword;
 }
