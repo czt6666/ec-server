@@ -40,7 +40,25 @@
     </delete>
 
     <select id="selectById" resultType="com.bistu.ecadmin.pojo.Restaurant">
-        SELECT * FROM restaurant WHERE id = #{id}
+        SELECT
+            id,
+            user_id AS userId,
+            village_id AS villageId,
+            name,
+            business_start_time AS businessStartTime,
+            business_end_time AS businessEndTime,
+            logo_url AS logoUrl,
+            address,
+            coordinate_lat AS coordinateLat,
+            coordinate_lng AS coordinateLng,
+            phone,
+            notice,
+            license_urls AS licenseUrls,
+            status,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM restaurant
+        WHERE id = #{id}
     </select>
 
     <select id="list" parameterType="com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO"
@@ -98,9 +116,12 @@
     </select>
 
     <select id="listNamesByUserId" resultType="string">
-        SELECT name
+        SELECT name AS '饭馆名字'
         FROM restaurant
-        WHERE user_id = #{userId}
+        WHERE 1 = 1
+        <if test="userId != null and userId != 10011">
+            AND user_id = #{userId}
+        </if>
         ORDER BY create_time DESC
     </select>
 
