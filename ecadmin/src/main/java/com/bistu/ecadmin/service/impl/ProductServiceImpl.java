@@ -330,6 +330,14 @@ public class ProductServiceImpl implements ProductService {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
             
+            // 处理shopAvatar字段，如果存在且不以http或/uploads/开头，则添加/uploads/前缀
+            if (product.containsKey("shopAvatar") && product.getString("shopAvatar") != null) {
+                String shopAvatar = product.getString("shopAvatar");
+                if (!shopAvatar.startsWith("http") && !shopAvatar.startsWith("/uploads/")) {
+                    product.put("shopAvatar", "/uploads/" + shopAvatar);
+                }
+            }
+            
             // 获取预览图
             List<String> previewImages = productDao.getPreviewImagesByProductId(productId);
             // 确保返回的预览图URL是完整的
