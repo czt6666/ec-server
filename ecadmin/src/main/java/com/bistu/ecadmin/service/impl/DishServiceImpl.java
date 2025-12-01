@@ -62,6 +62,9 @@ public class DishServiceImpl implements DishService {
             
             dish.setSummary(params.getString("description"));
             
+            // 设置sortNum默认值为0
+            dish.setSortNum(0);
+            
             // 参数验证
             if (dish.getRestaurantId() == null) {
                 return Result.error("餐厅ID不能为空");
