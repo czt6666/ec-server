@@ -73,4 +73,6 @@ public class Shop {
      */
     private LocalDateTime updateTime;
     private int displayNo;
+    private Double latitude;
+    private Double longitude;
 }
