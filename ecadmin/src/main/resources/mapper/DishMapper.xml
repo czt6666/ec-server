@@ -50,7 +50,8 @@
     <!-- 更新菜品 -->
     <update id="updateDish" parameterType="com.bistu.ecadmin.pojo.Dish">
         UPDATE dish
-        SET restaurant_id = #{restaurantId},
+        SET 
+            restaurant_id = #{restaurantId},
             category_id = #{categoryId},
             dish_name = #{dishName},
             cover_img_url = #{coverImgUrl},
@@ -58,7 +59,7 @@
             price = #{price},
             unit = #{unit},
             summary = #{summary},
-            sort_num = #{sortNum},
+            <if test="sortNum != null">sort_num = #{sortNum},</if>
             update_time = NOW()
         WHERE id = #{id} AND is_deleted = 0
     </update>

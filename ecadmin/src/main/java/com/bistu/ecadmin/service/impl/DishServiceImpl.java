@@ -62,6 +62,9 @@ public class DishServiceImpl implements DishService {
             
             dish.setSummary(params.getString("description"));
             
+            // 设置sortNum默认值为0
+            dish.setSortNum(0);
+            
             // 参数验证
             if (dish.getRestaurantId() == null) {
                 return Result.error("餐厅ID不能为空");
@@ -255,6 +258,11 @@ public class DishServiceImpl implements DishService {
             }
             
             dish.setSummary(params.getString("description"));
+            
+            // 处理sortNum字段，只有在参数中包含该字段时才设置
+            if (params.containsKey("sortNum")) {
+                dish.setSortNum(params.getInteger("sortNum"));
+            }
             
             // 参数验证
             if (dish.getRestaurantId() == null) {
