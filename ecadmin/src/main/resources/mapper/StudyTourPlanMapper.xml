@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.StudyTourPlanDao">
+
+    <!-- 更新研学方案 -->
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.StudyTourPlan">
+        UPDATE study_tour_plan
+        <set>
+            <if test="planName != null and planName != ''">
+                plan_name = #{planName},
+            </if>
+            <if test="baseId != null">
+                base_id = #{baseId},
+            </if>
+            <if test="route != null and route != ''">
+                route = #{route},
+            </if>
+            <if test="briefIntro != null and briefIntro != ''">
+                brief_intro = #{briefIntro},
+            </if>
+            <if test="details != null and details != ''">
+                details = #{details},
+            </if>
+            <if test="suitableCrowd != null and suitableCrowd != ''">
+                suitable_crowd = #{suitableCrowd},
+            </if>
+            <if test="duration != null and duration != ''">
+                duration = #{duration},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 分页查询研学方案 -->
+    <select id="list" resultType="com.bistu.ecadmin.pojo.StudyTourPlan">
+        SELECT 
+            id,
+            plan_name AS planName,
+            base_id AS baseId,
+            route,
+            brief_intro AS briefIntro,
+            details,
+            suitable_crowd AS suitableCrowd,
+            duration,
+            status,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM study_tour_plan
+        <where>
+            <if test="planName != null and planName != ''">
+                AND plan_name LIKE CONCAT('%', #{planName}, '%')
+            </if>
+            <if test="baseId != null">
+                AND base_id = #{baseId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
