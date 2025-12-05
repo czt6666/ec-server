@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.StationMapper">
+
+    <resultMap id="StationMap" type="com.bistu.ecadmin.pojo.Station">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="registered_address" property="registeredAddress"/>
+        <result column="business_address" property="businessAddress"/>
+        <result column="registered_lat" property="registeredLatitude"/>
+        <result column="registered_lng" property="registeredLongitude"/>
+        <result column="business_lat" property="businessLatitude"/>
+        <result column="business_lng" property="businessLongitude"/>
+        <result column="unified_social_credit_code" property="unifiedSocialCreditCode"/>
+        <result column="legal_representative" property="legalRepresentative"/>
+        <result column="registered_capital" property="registeredCapital"/>
+        <result column="establishment_date" property="establishmentDate"/>
+        <result column="business_term" property="businessTerm"/>
+        <result column="official_phone" property="officialPhone"/>
+        <result column="emergency_contact" property="emergencyContact"/>
+        <result column="emergency_phone" property="emergencyPhone"/>
+        <result column="official_email" property="officialEmail"/>
+        <result column="subject_type_id" property="subjectTypeId"/>
+        <result column="service_mode" property="serviceMode"/>
+        <result column="elderly_license_no" property="elderlyLicenseNo"/>
+        <result column="medical_license_no" property="medicalLicenseNo"/>
+        <result column="food_license_no" property="foodLicenseNo"/>
+        <result column="fire_acceptance_no" property="fireAcceptanceNo"/>
+        <result column="business_status" property="businessStatus"/>
+        <result column="total_beds" property="totalBeds"/>
+        <result column="room_config" property="roomConfig"/>
+        <result column="care_level" property="careLevel"/>
+        <result column="price_range" property="priceRange"/>
+        <result column="environment_photos" property="environmentPhotos"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 分页查询驿站列表（支持模糊查询） -->
+    <select id="pageQuery" parameterType="com.bistu.ecadmin.dao.DTO.StationPageQueryDTO" resultMap="StationMap">
+        select *
+        from elderly_service_subject
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="status != null">
+                and business_status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%')
+                     or registered_address like concat('%', #{keyword}, '%')
+                     or business_address like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <!-- 根据ID查询驿站详情 -->
+    <select id="selectById" parameterType="java.lang.Long" resultMap="StationMap">
+        select * from elderly_service_subject where id = #{id}
+    </select>
+
+    <!-- 新增驿站 -->
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.Station" useGeneratedKeys="true" keyProperty="id">
+        insert into elderly_service_subject (
+            name, registered_address, business_address, registered_lat, registered_lng, business_lat, business_lng,
+            unified_social_credit_code, legal_representative, registered_capital,
+            establishment_date, business_term,
+            official_phone, emergency_contact, emergency_phone, official_email,
+            subject_type_id, service_mode, elderly_license_no, medical_license_no, food_license_no, fire_acceptance_no,
+            business_status, total_beds, room_config, care_level, price_range,
+            environment_photos, create_time
+        ) values (
+            #{name}, #{registeredAddress}, #{businessAddress}, #{registeredLatitude}, #{registeredLongitude}, #{businessLatitude}, #{businessLongitude},
+            #{unifiedSocialCreditCode}, #{legalRepresentative}, #{registeredCapital},
+            #{establishmentDate}, #{businessTerm},
+            #{officialPhone}, #{emergencyContact}, #{emergencyPhone}, #{officialEmail},
+            #{subjectTypeId}, #{serviceMode}, #{elderlyLicenseNo}, #{medicalLicenseNo}, #{foodLicenseNo}, #{fireAcceptanceNo},
+            #{businessStatus}, #{totalBeds}, #{roomConfig}, #{careLevel}, #{priceRange},
+            #{environmentPhotos}, #{createTime}
+        )
+    </insert>
+
+    <!-- 更新驿站 -->
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.Station">
+        update elderly_service_subject
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="registeredAddress != null">registered_address = #{registeredAddress},</if>
+            <if test="businessAddress != null">business_address = #{businessAddress},</if>
+            <if test="registeredLatitude != null">registered_lat = #{registeredLatitude},</if>
+            <if test="registeredLongitude != null">registered_lng = #{registeredLongitude},</if>
+            <if test="businessLatitude != null">business_lat = #{businessLatitude},</if>
+            <if test="businessLongitude != null">business_lng = #{businessLongitude},</if>
+            <if test="unifiedSocialCreditCode != null">unified_social_credit_code = #{unifiedSocialCreditCode},</if>
+            <if test="legalRepresentative != null">legal_representative = #{legalRepresentative},</if>
+            <if test="registeredCapital != null">registered_capital = #{registeredCapital},</if>
+            <if test="establishmentDate != null">establishment_date = #{establishmentDate},</if>
+            <if test="businessTerm != null">business_term = #{businessTerm},</if>
+            <if test="officialPhone != null">official_phone = #{officialPhone},</if>
+            <if test="emergencyContact != null">emergency_contact = #{emergencyContact},</if>
+            <if test="emergencyPhone != null">emergency_phone = #{emergencyPhone},</if>
+            <if test="officialEmail != null">official_email = #{officialEmail},</if>
+            <if test="subjectTypeId != null">subject_type_id = #{subjectTypeId},</if>
+            <if test="serviceMode != null">service_mode = #{serviceMode},</if>
+            <if test="elderlyLicenseNo != null">elderly_license_no = #{elderlyLicenseNo},</if>
+            <if test="medicalLicenseNo != null">medical_license_no = #{medicalLicenseNo},</if>
+            <if test="foodLicenseNo != null">food_license_no = #{foodLicenseNo},</if>
+            <if test="fireAcceptanceNo != null">fire_acceptance_no = #{fireAcceptanceNo},</if>
+            <if test="businessStatus != null">business_status = #{businessStatus},</if>
+            <if test="totalBeds != null">total_beds = #{totalBeds},</if>
+            <if test="roomConfig != null">room_config = #{roomConfig},</if>
+            <if test="careLevel != null">care_level = #{careLevel},</if>
+            <if test="priceRange != null">price_range = #{priceRange},</if>
+            <if test="environmentPhotos != null">environment_photos = #{environmentPhotos},</if>
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 删除驿站 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from elderly_service_subject where id = #{id}
+    </delete>
+
+    <!-- 统计驿站总数 -->
+    <select id="count" parameterType="com.bistu.ecadmin.dao.DTO.StationPageQueryDTO" resultType="long">
+        select count(*)
+        from elderly_service_subject
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="status != null">
+                and business_status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%')
+                     or registered_address like concat('%', #{keyword}, '%')
+                     or business_address like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <!-- 按名称统计数量（用于重名校验） -->
+    <select id="countByName" resultType="long">
+        select count(*) from elderly_service_subject
+        where name = #{name}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+    </select>
+
+</mapper>
+

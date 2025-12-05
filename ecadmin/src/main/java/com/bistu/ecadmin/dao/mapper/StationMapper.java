@@ -1,0 +1,51 @@
+package com.bistu.ecadmin.dao.mapper;
+
+import com.bistu.ecadmin.dao.DTO.StationPageQueryDTO;
+import com.bistu.ecadmin.pojo.Station;
+import com.github.pagehelper.Page;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+@Mapper
+public interface StationMapper {
+
+    /**
+     * 分页查询驿站列表（支持模糊查询）
+     */
+    Page<Station> pageQuery(StationPageQueryDTO dto);
+
+    /**
+     * 根据ID查询驿站详情
+     */
+    Station selectById(@Param("id") Long id);
+
+    /**
+     * 新增驿站
+     */
+    int insert(Station station);
+
+    /**
+     * 更新驿站
+     */
+    int update(Station station);
+
+    /**
+     * 删除驿站
+     */
+    int deleteById(@Param("id") Long id);
+
+    /**
+     * 统计驿站总数
+     */
+    long count(StationPageQueryDTO dto);
+
+    /**
+     * 按名称统计数量（用于重名校验）
+     * @param name 名称
+     * @param excludeId 排除的ID（更新时传自身ID）
+     */
+    long countByName(@Param("name") String name, @Param("excludeId") Long excludeId);
+}
+
