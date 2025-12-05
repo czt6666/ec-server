@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.StudyTourActivityDao">
+
+    <!-- 更新研学活动 -->
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.StudyTourActivity">
+        UPDATE study_tour_activity
+        <set>
+            <if test="activityName != null and activityName != ''">
+                activity_name = #{activityName},
+            </if>
+            <if test="planId != null">
+                plan_id = #{planId},
+            </if>
+            <if test="applyStartDate != null">
+                apply_start_date = #{applyStartDate},
+            </if>
+            <if test="applyEndDate != null">
+                apply_end_date = #{applyEndDate},
+            </if>
+            <if test="activityStartDate != null">
+                activity_start_date = #{activityStartDate},
+            </if>
+            <if test="activityEndDate != null">
+                activity_end_date = #{activityEndDate},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="recruitNum != null">
+                recruit_num = #{recruitNum},
+            </if>
+            <if test="registeredNum != null">
+                registered_num = #{registeredNum},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 分页查询研学活动 -->
+    <select id="list" resultType="com.bistu.ecadmin.pojo.StudyTourActivity">
+        SELECT 
+            id,
+            activity_name AS activityName,
+            plan_id AS planId,
+            apply_start_date AS applyStartDate,
+            apply_end_date AS applyEndDate,
+            activity_start_date AS activityStartDate,
+            activity_end_date AS activityEndDate,
+            price,
+            recruit_num AS recruitNum,
+            registered_num AS registeredNum,
+            status,
+            remark,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM study_tour_activity
+        <where>
+            <if test="activityName != null and activityName != ''">
+                AND activity_name LIKE CONCAT('%', #{activityName}, '%')
+            </if>
+            <if test="planId != null">
+                AND plan_id = #{planId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

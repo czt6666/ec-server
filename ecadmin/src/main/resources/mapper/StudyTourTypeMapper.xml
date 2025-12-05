@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.StudyTourTypeDao">
+
+    <!-- 
+        注意：此Mapper文件中的SQL映射已被注释掉，因为对应的StudyTourTypeDao接口中已使用注解方式定义了相同的方法。
+        如果需要使用XML方式，请移除接口中的相关注解，并取消下面相应SQL映射的注释。
+    -->
+
+    <!-- 插入研学类型 -->
+    <!--
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO study_tour_type (type_name, sort, status, create_time)
+        VALUES (#{typeName}, #{sort}, #{status}, #{createTime})
+    </insert>
+    -->
+
+    <!-- 根据ID查询研学类型 -->
+    <!--
+    <select id="selectById" resultType="com.bistu.ecadmin.pojo.StudyTourType">
+        SELECT * FROM study_tour_type WHERE id = #{id}
+    </select>
+    -->
+
+    <!-- 查询研学类型列表 -->
+    <!--
+    <select id="selectList" resultType="com.bistu.ecadmin.pojo.StudyTourType">
+        SELECT * FROM study_tour_type
+        <where>
+            <if test="typeName != null and typeName != ''">
+                AND type_name LIKE CONCAT('%', #{typeName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY sort ASC, create_time DESC
+    </select>
+    -->
+
+    <!-- 查询研学类型数量 -->
+    <!--
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM study_tour_type
+        <where>
+            <if test="typeName != null and typeName != ''">
+                AND type_name LIKE CONCAT('%', #{typeName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+    -->
+
+    <!-- 更新研学类型 -->
+    <!--
+    <update id="update">
+        UPDATE study_tour_type
+        SET type_name = #{typeName},
+            sort = #{sort},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+    -->
+
+    <!-- 根据ID删除研学类型 -->
+    <!--
+    <delete id="deleteById">
+        DELETE FROM study_tour_type WHERE id = #{id}
+    </delete>
+    -->
+
+    <!-- 更新研学类型状态 -->
+    <!--
+    <update id="updateStatus">
+        UPDATE study_tour_type
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+    -->
+
+    <!-- 根据类型名称查询研学类型 -->
+    <!--
+    <select id="selectByTypeName" resultType="com.bistu.ecadmin.pojo.StudyTourType">
+        SELECT * FROM study_tour_type WHERE type_name = #{typeName}
+    </select>
+    -->
+
+</mapper>
