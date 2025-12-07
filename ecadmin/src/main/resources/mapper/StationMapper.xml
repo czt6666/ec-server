@@ -152,5 +152,11 @@
         </if>
     </select>
 
+    <!-- 查询所有驿站（用于导出） -->
+    <select id="listAll" resultMap="StationMap">
+        select * from elderly_service_subject
+        order by create_time desc
+    </select>
+
 </mapper>
 

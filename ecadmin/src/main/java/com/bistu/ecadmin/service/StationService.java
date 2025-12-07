@@ -3,6 +3,10 @@ package com.bistu.ecadmin.service;
 import com.bistu.ecadmin.dao.DTO.StationPageQueryDTO;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Station;
+import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 public interface StationService {
 
@@ -30,5 +34,16 @@ public interface StationService {
      * 删除驿站
      */
     boolean deleteById(Long id);
+
+    /**
+     * 导入驿站信息
+     */
+    Map<String, Object> importStations(MultipartFile file);
+
+    /**
+     * 导出驿站信息
+     */
+    Resource exportStations();
 }
+
 

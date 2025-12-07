@@ -7,12 +7,21 @@ import com.bistu.ecadmin.pojo.Station;
 import com.bistu.ecadmin.service.StationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/ecadmin/station")
 @Api(tags = "驿站主体信息管理")
+@Slf4j
 public class StationController {
 
     @Autowired
@@ -61,5 +70,40 @@ public class StationController {
         boolean success = stationService.deleteById(id);
         return success ? Result.success() : Result.error("删除失败");
     }
+
+    /**
+     * 导入驿站信息
+     */
+    @PostMapping("/import")
+    @ApiOperation("导入驿站信息")
+    public Result<Map<String, Object>> importStations(@RequestParam("file") MultipartFile file) {
+        try {
+            Map<String, Object> result = stationService.importStations(file);
+            return Result.success(result);
+        } catch (Exception e) {
+            log.error("导入驿站失败", e);
+            return Result.error("导入失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 导出驿站信息
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出驿站信息")
+    public ResponseEntity<Resource> exportStations() {
+        try {
+            log.info("开始导出驿站信息");
+            Resource resource = stationService.exportStations();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"驿站信息.xlsx\"")
+                    .body(resource);
+        } catch (Exception e) {
+            log.error("导出驿站失败", e);
+            throw new RuntimeException("导出失败：" + e.getMessage());
+        }
+    }
 }
+
 

@@ -47,5 +47,10 @@ public interface StationMapper {
      * @param excludeId 排除的ID（更新时传自身ID）
      */
     long countByName(@Param("name") String name, @Param("excludeId") Long excludeId);
+
+    /**
+     * 查询所有驿站（用于导出）
+     */
+    List<Station> listAll();
 }
 
