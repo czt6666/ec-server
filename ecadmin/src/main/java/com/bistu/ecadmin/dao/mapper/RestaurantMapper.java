@@ -23,4 +23,8 @@ public interface RestaurantMapper {
     int count(RestaurantQueryDTO dto);
 
     List<String> listNamesByUserId(@Param("userId") Long userId);
+
+    Long getIdByName(@Param("name") String name);
+    
+    List<Restaurant> listByUserId(@Param("userId") Long userId);
 }

@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 25/11/2025 14:23:38
+ Date: 08/12/2025 18:40:06
 */
 
 SET NAMES utf8mb4;
@@ -25,6 +25,7 @@ CREATE TABLE `dish_category` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（分类唯一标识）',
   `restaurant_id` bigint unsigned NOT NULL COMMENT '关联门店ID（关联restaurant表的id）',
   `category_name` varchar(50) NOT NULL COMMENT '菜品分类名称（最多50字符）',
+  `image_url` varchar(255) DEFAULT '' COMMENT '分类图片（存储图片地址）',
   `sort_num` int NOT NULL DEFAULT '0' COMMENT '排序号（拖拽调整后的值，数字越小越靠前）',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -34,6 +35,9 @@ CREATE TABLE `dish_category` (
   KEY `idx_restaurant_id` (`restaurant_id`) COMMENT '门店聚合查询索引',
   KEY `idx_sort_num` (`restaurant_id`,`sort_num`) COMMENT '门店内分类排序索引',
   KEY `idx_category_name` (`category_name`) COMMENT '分类名称搜索索引'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜品分类表（无分类编码）';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜品分类表（无分类编码）';
+
+-- 添加图片URL字段
+ALTER TABLE `dish_category` ADD COLUMN `image_url` varchar(255) DEFAULT '' COMMENT '分类图片（存储图片地址）' AFTER `category_name`;
 
 SET FOREIGN_KEY_CHECKS = 1;

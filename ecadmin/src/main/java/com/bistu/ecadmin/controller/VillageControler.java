@@ -77,24 +77,23 @@ public class VillageControler {
             // 生成新的文件名，避免重复
             String newFileName = UUID.randomUUID().toString().replace("-", "") + fileSuffix;
             
-            // 按日期创建文件夹
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/");
-            String datePath = sdf.format(new Date());
+            // 不再按日期创建文件夹，直接使用上传路径
+            String datePath = "";
             
-            // 创建文件夹
-            File folder = new File(uploadPath + datePath);
+            // 创建文件夹（如果不存在）
+            File folder = new File(uploadPath);
             if (!folder.exists()) {
                 folder.mkdirs();
             }
             
             // 文件存储路径
-            String filePath = uploadPath + datePath + newFileName;
+            String filePath = uploadPath + newFileName;
             
             // 保存文件
             file.transferTo(new File(filePath));
             
             // 返回访问路径
-            String fileAccessUrl = accessPath + datePath + newFileName;
+            String fileAccessUrl = accessPath + newFileName;
             
             // 构造前端期望的返回格式
             data.put("url", fileAccessUrl);

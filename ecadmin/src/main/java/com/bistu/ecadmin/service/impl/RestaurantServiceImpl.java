@@ -67,6 +67,16 @@ public class RestaurantServiceImpl implements RestaurantService {
         return restaurantMapper.listNamesByUserId(userId);
     }
 
+    @Override
+    public Long getIdByName(String name) {
+        return restaurantMapper.getIdByName(name);
+    }
+    
+    @Override
+    public List<Restaurant> listByUser(Long userId) {
+        return restaurantMapper.listByUserId(userId);
+    }
+
     private void validate(Restaurant r, Long excludeId) {
         if (r == null) {
             throw new IllegalArgumentException("参数不能为空");

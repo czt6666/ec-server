@@ -78,4 +78,28 @@ public class RestaurantController {
     public Result<List<String>> listNames(@PathVariable Long userId) {
         return Result.success(restaurantService.listNamesByUser(userId));
     }
+
+    @GetMapping("/name/{name}/id")
+    @ApiOperation("通过餐厅名称获取餐厅ID")
+    @ApiImplicitParam(name = "name", value = "餐厅名称", required = true, dataType = "String", paramType = "path")
+    public Result<Long> getIdByName(@PathVariable String name) {
+        try {
+            Long id = restaurantService.getIdByName(name);
+            if (id != null) {
+                return Result.success(id);
+            } else {
+                return Result.error("未找到指定名称的餐厅");
+            }
+        } catch (Exception e) {
+            log.error("通过餐厅名称获取餐厅ID失败", e);
+            return Result.error("获取餐厅ID失败：" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/user/{userId}/list")
+    @ApiOperation("查询指定用户的所有饭馆（包含ID和名称）")
+    @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "path")
+    public Result<List<Restaurant>> listByUser(@PathVariable Long userId) {
+        return Result.success(restaurantService.listByUser(userId));
+    }
 }

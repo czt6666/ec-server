@@ -19,6 +19,11 @@ public class DishCategoryDTO {
     private String categoryName;
 
     /**
+     * 分类图片URL
+     */
+    private String imageUrl;
+
+    /**
      * 餐厅名称
      */
     private String restaurantName;

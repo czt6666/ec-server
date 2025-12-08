@@ -50,7 +50,9 @@ public class DishCategoryServiceImpl implements DishCategoryService {
         }
         
         dishCategory.setCategoryName(params.getString("categoryName"));
-        // 修改这行代码，使用getIntValue()方法并手动设置默认值
+        // 设置图片URL
+        dishCategory.setImageUrl(params.getString("imageUrl"));
+        // 修改这行代码，使用 getIntValue() 方法并手动设置默认值
         Integer sortNum = params.containsKey("sortNum") ? params.getIntValue("sortNum") : 0;
         dishCategory.setSortNum(sortNum);
         
@@ -179,6 +181,11 @@ public class DishCategoryServiceImpl implements DishCategoryService {
             
             if (params.containsKey("sortNum")) {
                 dishCategory.setSortNum(params.getIntValue("sortNum"));
+            }
+            
+            // 设置图片URL
+            if (params.containsKey("imageUrl")) {
+                dishCategory.setImageUrl(params.getString("imageUrl"));
             }
             
             // 移除这行代码，因为DishCategory实体类中没有status字段
