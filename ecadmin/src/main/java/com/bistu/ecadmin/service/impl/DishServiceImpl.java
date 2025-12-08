@@ -120,9 +120,13 @@ public class DishServiceImpl implements DishService {
             // 权限控制逻辑
             Long restaurantId = null;
             boolean isAdmin = false;
+            boolean skipAuth = false; // 是否跳过权限验证
             
-            // 如果提供了userId，则进行权限控制
-            if (userId != null) {
+            // 如果没有提供userId，则跳过权限验证，查询所有菜品
+            if (userId == null) {
+                skipAuth = true;
+            } else {
+                // 如果提供了userId，则进行权限控制
                 // 查询用户的角色ID列表
                 List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(userId);
                 
@@ -142,8 +146,9 @@ public class DishServiceImpl implements DishService {
             int total;
             List<DishDTO> dishes;
             
-            if (isAdmin) {
-                // 管理员查询所有菜品
+            // 如果跳过权限验证或用户是管理员，则查询所有菜品
+            if (skipAuth || isAdmin) {
+                // 查询所有菜品
                 total = dishMapper.countDishes(restaurantName, categoryName, dishName, status);
                 dishes = dishMapper.listDishes(offset, pageSize, restaurantName, categoryName, dishName, status);
             } else {
