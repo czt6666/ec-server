@@ -66,7 +66,7 @@ public class DishController {
         @ApiImplicitParam(name = "categoryName", value = "分类名称", dataType = "String", paramType = "query"),
         @ApiImplicitParam(name = "dishName", value = "菜品名称", dataType = "String", paramType = "query"),
         @ApiImplicitParam(name = "status", value = "菜品状态", dataType = "Integer", paramType = "query"),
-        @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "query")
+        @ApiImplicitParam(name = "userId", value = "用户ID", required = false, dataType = "Long", paramType = "query")
     })
     public Result<?> listDishes(@RequestParam(required = false) Integer page,
                                 @RequestParam(required = false) Integer pageSize,
