@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.RouteThemeMapper">
+
+    <resultMap id="BaseResultMap" type="com.bistu.ecadmin.pojo.RouteTheme">
+        <id column="id" property="id"/>
+        <result column="theme_name" property="themeName"/>
+        <result column="theme_code" property="themeCode"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, theme_name, theme_code, sort, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.RouteTheme" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO route_theme_dict (theme_name, theme_code, sort, status)
+        VALUES (#{themeName}, #{themeCode}, #{sort}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.RouteTheme">
+        UPDATE route_theme_dict
+        <set>
+            <if test="themeName != null">theme_name = #{themeName},</if>
+            <if test="themeCode != null">theme_code = #{themeCode},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM route_theme_dict WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM route_theme_dict WHERE id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="string" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM route_theme_dict WHERE theme_name = #{themeName}
+    </select>
+
+    <select id="page" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM route_theme_dict
+        <where>
+            <if test="themeName != null and themeName != ''">
+                AND theme_name LIKE CONCAT('%', #{themeName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY sort ASC, create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM route_theme_dict
+        <where>
+            <if test="themeName != null and themeName != ''">
+                AND theme_name LIKE CONCAT('%', #{themeName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+
+
+

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.TourCompanyMapper">
+
+    <resultMap id="BaseResultMap" type="com.bistu.ecadmin.pojo.TourCompany">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="registered_address" property="registeredAddress"/>
+        <result column="registered_latitude" property="registeredLatitude"/>
+        <result column="registered_longitude" property="registeredLongitude"/>
+        <result column="business_address" property="businessAddress"/>
+        <result column="business_latitude" property="businessLatitude"/>
+        <result column="business_longitude" property="businessLongitude"/>
+        <result column="business_scope" property="businessScope"/>
+        <result column="business_status" property="businessStatus"/>
+        <result column="unified_social_credit_code" property="unifiedSocialCreditCode"/>
+        <result column="legal_representative" property="legalRepresentative"/>
+        <result column="registered_capital" property="registeredCapital"/>
+        <result column="establishment_date" property="establishmentDate"/>
+        <result column="business_term" property="businessTerm"/>
+        <result column="official_phone" property="officialPhone"/>
+        <result column="emergency_contact" property="emergencyContact"/>
+        <result column="emergency_phone" property="emergencyPhone"/>
+        <result column="official_email" property="officialEmail"/>
+        <result column="intro" property="intro"/>
+        <result column="logo_url" property="logoUrl"/>
+        <result column="website" property="website"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, short_name, registered_address, registered_latitude, registered_longitude,
+        business_address, business_latitude, business_longitude, business_scope, business_status,
+        unified_social_credit_code, legal_representative, registered_capital, establishment_date,
+        business_term, official_phone, emergency_contact, emergency_phone, official_email,
+        intro, logo_url, website, create_time, update_time, status
+    </sql>
+
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.TourCompany" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tour_company
+        (name, short_name, registered_address, registered_latitude, registered_longitude,
+         business_address, business_latitude, business_longitude, business_scope, business_status,
+         unified_social_credit_code, legal_representative, registered_capital, establishment_date,
+         business_term, official_phone, emergency_contact, emergency_phone, official_email,
+         intro, logo_url, website, status)
+        VALUES
+        (#{name}, #{shortName}, #{registeredAddress}, #{registeredLatitude}, #{registeredLongitude},
+         #{businessAddress}, #{businessLatitude}, #{businessLongitude}, #{businessScope}, #{businessStatus},
+         #{unifiedSocialCreditCode}, #{legalRepresentative}, #{registeredCapital}, #{establishmentDate},
+         #{businessTerm}, #{officialPhone}, #{emergencyContact}, #{emergencyPhone}, #{officialEmail},
+         #{intro}, #{logoUrl}, #{website}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.TourCompany">
+        UPDATE tour_company
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="shortName != null">short_name = #{shortName},</if>
+            <if test="registeredAddress != null">registered_address = #{registeredAddress},</if>
+            <if test="registeredLatitude != null">registered_latitude = #{registeredLatitude},</if>
+            <if test="registeredLongitude != null">registered_longitude = #{registeredLongitude},</if>
+            <if test="businessAddress != null">business_address = #{businessAddress},</if>
+            <if test="businessLatitude != null">business_latitude = #{businessLatitude},</if>
+            <if test="businessLongitude != null">business_longitude = #{businessLongitude},</if>
+            <if test="businessScope != null">business_scope = #{businessScope},</if>
+            <if test="businessStatus != null">business_status = #{businessStatus},</if>
+            <if test="unifiedSocialCreditCode != null">unified_social_credit_code = #{unifiedSocialCreditCode},</if>
+            <if test="legalRepresentative != null">legal_representative = #{legalRepresentative},</if>
+            <if test="registeredCapital != null">registered_capital = #{registeredCapital},</if>
+            <if test="establishmentDate != null">establishment_date = #{establishmentDate},</if>
+            <if test="businessTerm != null">business_term = #{businessTerm},</if>
+            <if test="officialPhone != null">official_phone = #{officialPhone},</if>
+            <if test="emergencyContact != null">emergency_contact = #{emergencyContact},</if>
+            <if test="emergencyPhone != null">emergency_phone = #{emergencyPhone},</if>
+            <if test="officialEmail != null">official_email = #{officialEmail},</if>
+            <if test="intro != null">intro = #{intro},</if>
+            <if test="logoUrl != null">logo_url = #{logoUrl},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM tour_company WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM tour_company WHERE id = #{id}
+    </select>
+
+    <select id="countByName" resultType="int">
+        SELECT COUNT(*) FROM tour_company
+        WHERE name = #{name}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="page" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM tour_company
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="status != null">
+                AND business_status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM tour_company
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="status != null">
+                AND business_status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+

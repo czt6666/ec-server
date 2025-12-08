@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.TourRouteMapper">
+
+    <resultMap id="BaseResultMap" type="com.bistu.ecadmin.pojo.TourRoute">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="route_type" property="routeType"/>
+        <result column="theme_tags" property="themeTags"/>
+        <result column="origin_address" property="originAddress"/>
+        <result column="origin_lat" property="originLat"/>
+        <result column="origin_lng" property="originLng"/>
+        <result column="dest_address" property="destAddress"/>
+        <result column="dest_lat" property="destLat"/>
+        <result column="dest_lng" property="destLng"/>
+        <result column="days" property="days"/>
+        <result column="difficulty" property="difficulty"/>
+        <result column="itinerary" property="itinerary"/>
+        <result column="biz_status" property="bizStatus"/>
+        <result column="target_crowd" property="targetCrowd"/>
+        <result column="price_range" property="priceRange"/>
+        <result column="safety_measures" property="safetyMeasures"/>
+        <result column="service_guarantee" property="serviceGuarantee"/>
+        <result column="cost_included" property="costIncluded"/>
+        <result column="cost_excluded" property="costExcluded"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, route_type, theme_tags, origin_address, origin_lat, origin_lng, dest_address, dest_lat, dest_lng,
+        days, difficulty, itinerary, biz_status, target_crowd, price_range,
+        safety_measures, service_guarantee, cost_included, cost_excluded,
+        create_time, update_time, status
+    </sql>
+
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.TourRoute" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tour_route
+        (name, route_type, theme_tags, origin_address, origin_lat, origin_lng, dest_address, dest_lat, dest_lng,
+         days, difficulty, itinerary, biz_status, target_crowd, price_range,
+         safety_measures, service_guarantee, cost_included, cost_excluded, status)
+        VALUES
+        (#{name}, #{routeType}, #{themeTags}, #{originAddress}, #{originLat}, #{originLng}, #{destAddress}, #{destLat}, #{destLng},
+         #{days}, #{difficulty}, #{itinerary}, #{bizStatus}, #{targetCrowd}, #{priceRange},
+         #{safetyMeasures}, #{serviceGuarantee}, #{costIncluded}, #{costExcluded}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.TourRoute">
+        UPDATE tour_route
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="routeType != null">route_type = #{routeType},</if>
+            <if test="themeTags != null">theme_tags = #{themeTags},</if>
+            <if test="originAddress != null">origin_address = #{originAddress},</if>
+            <if test="originLat != null">origin_lat = #{originLat},</if>
+            <if test="originLng != null">origin_lng = #{originLng},</if>
+            <if test="destAddress != null">dest_address = #{destAddress},</if>
+            <if test="destLat != null">dest_lat = #{destLat},</if>
+            <if test="destLng != null">dest_lng = #{destLng},</if>
+            <if test="days != null">days = #{days},</if>
+            <if test="difficulty != null">difficulty = #{difficulty},</if>
+            <if test="itinerary != null">itinerary = #{itinerary},</if>
+            <if test="bizStatus != null">biz_status = #{bizStatus},</if>
+            <if test="targetCrowd != null">target_crowd = #{targetCrowd},</if>
+            <if test="priceRange != null">price_range = #{priceRange},</if>
+            <if test="safetyMeasures != null">safety_measures = #{safetyMeasures},</if>
+            <if test="serviceGuarantee != null">service_guarantee = #{serviceGuarantee},</if>
+            <if test="costIncluded != null">cost_included = #{costIncluded},</if>
+            <if test="costExcluded != null">cost_excluded = #{costExcluded},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM tour_route WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM tour_route WHERE id = #{id}
+    </select>
+
+    <select id="countByName" resultType="int">
+        SELECT COUNT(*) FROM tour_route
+        WHERE name = #{name}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="page" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM tour_route
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="bizStatus != null">
+                AND biz_status = #{bizStatus}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM tour_route
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="bizStatus != null">
+                AND biz_status = #{bizStatus}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+

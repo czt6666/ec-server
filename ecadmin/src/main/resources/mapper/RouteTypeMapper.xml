@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.RouteTypeMapper">
+
+    <resultMap id="BaseResultMap" type="com.bistu.ecadmin.pojo.RouteType">
+        <id column="id" property="id"/>
+        <result column="type_name" property="typeName"/>
+        <result column="type_code" property="typeCode"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, type_name, type_code, sort, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.RouteType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO route_type_dict (type_name, type_code, sort, status)
+        VALUES (#{typeName}, #{typeCode}, #{sort}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.RouteType">
+        UPDATE route_type_dict
+        <set>
+            <if test="typeName != null">type_name = #{typeName},</if>
+            <if test="typeCode != null">type_code = #{typeCode},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM route_type_dict WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM route_type_dict WHERE id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="string" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM route_type_dict WHERE type_name = #{typeName}
+    </select>
+
+    <select id="page" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM route_type_dict
+        <where>
+            <if test="typeName != null and typeName != ''">
+                AND type_name LIKE CONCAT('%', #{typeName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY sort ASC, create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM route_type_dict
+        <where>
+            <if test="typeName != null and typeName != ''">
+                AND type_name LIKE CONCAT('%', #{typeName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>
+
+
+
