@@ -19,4 +19,8 @@ public interface RestaurantService {
     void delete(Long id);
 
     List<String> listNamesByUser(Long userId);
+
+    Long getIdByName(String name);
+    
+    List<Restaurant> listByUser(Long userId);
 }

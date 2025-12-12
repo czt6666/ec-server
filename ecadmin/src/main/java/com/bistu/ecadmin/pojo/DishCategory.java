@@ -24,6 +24,11 @@ public class DishCategory {
     private String categoryName;
 
     /**
+     * 分类图片URL
+     */
+    private String imageUrl;
+
+    /**
      * 排序号
      */
     private Integer sortNum;

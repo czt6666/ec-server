@@ -5,6 +5,7 @@
     <resultMap id="DishCategoryDTOMap" type="com.bistu.ecadmin.dao.DTO.DishCategoryDTO">
         <id property="id" column="id"/>
         <result property="categoryName" column="category_name"/>
+        <result property="imageUrl" column="image_url"/>
         <result property="restaurantName" column="restaurant_name"/>
         <result property="updateTime" column="update_time"/>
         <result property="dishCreateTime" column="dish_create_time"/>
@@ -14,11 +15,13 @@
         INSERT INTO dish_category (
             restaurant_id,
             category_name,
+            image_url,
             sort_num
         )
         VALUES (
                    #{restaurantId},
                    #{categoryName},
+                   #{imageUrl},
                    #{sortNum}
                )
     </insert>
@@ -44,6 +47,7 @@
         SELECT 
             dc.id,
             dc.category_name,
+            dc.image_url,
             r.name AS restaurant_name,
             dc.update_time,
             (SELECT MIN(d.create_time) FROM dish d WHERE d.category_id = dc.id AND d.is_deleted = 0) AS dish_create_time
@@ -86,6 +90,7 @@
         SET 
             <if test="restaurantId != null">restaurant_id = #{restaurantId},</if>
             <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="imageUrl != null and imageUrl != ''">image_url = #{imageUrl},</if>
             <if test="sortNum != null">sort_num = #{sortNum},</if>
             <!-- 移除这行，因为实体类中没有status字段 -->
             <!-- <if test="status != null">status = #{status},</if> -->

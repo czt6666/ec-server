@@ -125,4 +125,21 @@
         ORDER BY create_time DESC
     </select>
 
+    <select id="getIdByName" resultType="long">
+        SELECT id
+        FROM restaurant
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+    
+    <select id="listByUserId" resultType="com.bistu.ecadmin.pojo.Restaurant">
+        SELECT id, name
+        FROM restaurant
+        WHERE 1 = 1
+        <if test="userId != null and userId != 10011">
+            AND user_id = #{userId}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
 </mapper>

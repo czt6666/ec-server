@@ -31,6 +31,7 @@ public class DishCategoryController {
         @ApiImplicitParam(name = "categoryName", value = "菜品分类", required = true, dataType = "String", paramType = "body"),
         @ApiImplicitParam(name = "restaurantId", value = "餐厅ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "sortNum", value = "排序号", required = false, dataType = "Integer", paramType = "body"),
+        @ApiImplicitParam(name = "imageUrl", value = "分类图片URL", required = false, dataType = "String", paramType = "body"),
         @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "body")
     })
     public Result<?> addDishCategory(@RequestBody JSONObject params) {
@@ -64,6 +65,7 @@ public class DishCategoryController {
         @ApiImplicitParam(name = "id", value = "分类ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "categoryName", value = "菜品分类", required = false, dataType = "String", paramType = "body"),
         @ApiImplicitParam(name = "restaurantName", value = "餐厅名称", required = false, dataType = "String", paramType = "body"),
+        @ApiImplicitParam(name = "imageUrl", value = "分类图片URL", required = false, dataType = "String", paramType = "body"),
         // 移除这行，因为实体类中没有status字段
         // @ApiImplicitParam(name = "status", value = "状态", required = false, dataType = "Integer", paramType = "body"),
         @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "body")
