@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.UserCollectMapper">
+
+    <resultMap id="BaseResultMap" type="com.bistu.ecadmin.pojo.UserCollect">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="target_type" property="targetType"/>
+        <result column="target_id" property="targetId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, target_type, target_id, create_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.UserCollect" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_collect (user_id, target_type, target_id)
+        VALUES (#{userId}, #{targetType}, #{targetId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM user_collect
+        WHERE user_id = #{userId}
+          AND target_type = #{targetType}
+          AND target_id = #{targetId}
+    </delete>
+
+    <select id="exists" resultType="int">
+        SELECT COUNT(1) FROM user_collect
+        WHERE user_id = #{userId}
+          AND target_type = #{targetType}
+          AND target_id = #{targetId}
+    </select>
+
+    <select id="selectOne" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM user_collect
+        WHERE user_id = #{userId}
+          AND target_type = #{targetType}
+          AND target_id = #{targetId}
+        LIMIT 1
+    </select>
+
+    <select id="page" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM user_collect
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="targetType != null and targetType != ''">
+                AND target_type = #{targetType}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM user_collect
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="targetType != null and targetType != ''">
+                AND target_type = #{targetType}
+            </if>
+        </where>
+    </select>
+
+    <select id="countByTarget" resultType="int">
+        SELECT COUNT(*) FROM user_collect
+        WHERE target_type = #{targetType}
+          AND target_id = #{targetId}
+    </select>
+
+    <select id="hotspotPage" resultType="com.bistu.ecadmin.pojo.UserCollectHotspot">
+        SELECT 
+            uc.target_type AS targetType, 
+            uc.target_id AS targetId, 
+            COUNT(*) AS collectCount,
+            MAX(COALESCE(
+                tr.name,                                    -- 旅游线路
+                ess.name,                                  -- 养老驿站
+                stp.plan_name,                             -- 研学方案
+                sta.activity_name,                         -- 研学活动
+                vh.homestay_name,                          -- 民宿
+                spu.title,                                 -- 农产品
+                r.name                                     -- 餐饮
+            )) AS targetName
+        FROM user_collect uc
+        LEFT JOIN tour_route tr ON uc.target_type = 'tour_route' AND CAST(uc.target_id AS UNSIGNED) = tr.id
+        LEFT JOIN elderly_service_subject ess ON uc.target_type = 'elderly_station' AND CAST(uc.target_id AS UNSIGNED) = ess.id
+        LEFT JOIN study_tour_plan stp ON uc.target_type = 'study_plan' AND CAST(uc.target_id AS UNSIGNED) = stp.id
+        LEFT JOIN study_tour_activity sta ON uc.target_type = 'study_activity' AND CAST(uc.target_id AS UNSIGNED) = sta.id
+        LEFT JOIN village_homestay vh ON uc.target_type = 'homestay' AND CAST(uc.target_id AS UNSIGNED) = vh.id
+        LEFT JOIN spu ON uc.target_type = 'product' AND CAST(uc.target_id AS UNSIGNED) = spu.id
+        LEFT JOIN restaurant r ON uc.target_type = 'restaurant' AND CAST(uc.target_id AS UNSIGNED) = r.id
+        <where>
+            <if test="targetType != null and targetType != ''">
+                AND uc.target_type = #{targetType}
+            </if>
+            <if test="days != null and days &gt; 0">
+                AND uc.create_time >= DATE_SUB(NOW(), INTERVAL #{days} DAY)
+            </if>
+        </where>
+        GROUP BY uc.target_type, uc.target_id
+        ORDER BY collectCount DESC, MAX(uc.create_time) DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="hotspotCount" resultType="int">
+        SELECT COUNT(DISTINCT CONCAT(target_type, '_', target_id))
+        FROM user_collect
+        <where>
+            <if test="targetType != null and targetType != ''">
+                AND target_type = #{targetType}
+            </if>
+            <if test="days != null and days &gt; 0">
+                AND create_time >= DATE_SUB(NOW(), INTERVAL #{days} DAY)
+            </if>
+        </where>
+    </select>
+
+</mapper>
+
