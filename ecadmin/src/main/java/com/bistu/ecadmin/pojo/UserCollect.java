@@ -25,5 +25,14 @@ public class UserCollect implements Serializable {
 
     @ApiModelProperty("创建时间")
     private LocalDateTime createTime;
+
+    @ApiModelProperty("收藏对象名称（扩展字段，查询列表时返回）")
+    private String targetName;
+
+    @ApiModelProperty("该对象的收藏总数（扩展字段，查询列表时返回）")
+    private Long collectCount;
+
+    @ApiModelProperty("当前用户是否已收藏（扩展字段，查询列表时返回，列表中的记录都是true）")
+    private Boolean isCollected;
 }
 

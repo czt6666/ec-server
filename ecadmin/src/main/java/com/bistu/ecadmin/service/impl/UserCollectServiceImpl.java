@@ -59,11 +59,13 @@ public class UserCollectServiceImpl implements UserCollectService {
     }
 
     @Override
-    public Result<PageResult<UserCollect>> list(Integer page, Integer limit, Long userId, String targetType) {
+    public Result<PageResult<UserCollect>> list(Integer page, Integer limit, Long userId, String targetType, Long currentUserId) {
         int p = (page == null || page < 1) ? 1 : page;
         int l = (limit == null || limit < 1) ? 10 : limit;
         int offset = (p - 1) * l;
-        List<UserCollect> list = userCollectMapper.page(userId, targetType, offset, l);
+        // 如果传了userId查询某个用户的收藏列表，则currentUserId默认为userId（列表中的记录都是该用户收藏的）
+        Long currentUid = (currentUserId != null) ? currentUserId : userId;
+        List<UserCollect> list = userCollectMapper.page(userId, targetType, currentUid, offset, l);
         int total = userCollectMapper.count(userId, targetType);
         PageResult<UserCollect> pr = new PageResult<>();
         pr.setRecords(list);
@@ -96,7 +98,7 @@ public class UserCollectServiceImpl implements UserCollectService {
     }
 
     @Override
-    public Result<PageResult<com.bistu.ecadmin.pojo.UserCollectHotspot>> hotspot(Integer page, Integer limit, String targetType, Integer days) {
+    public Result<PageResult<com.bistu.ecadmin.pojo.UserCollectHotspot>> hotspot(Integer page, Integer limit, String targetType, Integer days, Long userId) {
         // 如果传了 targetType，则验证其合法性
         if (StringUtils.hasText(targetType) && !ALLOWED_TYPES.contains(targetType)) {
             return Result.error("targetType 非法");
@@ -104,7 +106,7 @@ public class UserCollectServiceImpl implements UserCollectService {
         int p = (page == null || page < 1) ? 1 : page;
         int l = (limit == null || limit < 1) ? 10 : limit;
         int offset = (p - 1) * l;
-        List<com.bistu.ecadmin.pojo.UserCollectHotspot> list = userCollectMapper.hotspotPage(targetType, days, offset, l);
+        List<com.bistu.ecadmin.pojo.UserCollectHotspot> list = userCollectMapper.hotspotPage(targetType, days, userId, offset, l);
         int total = userCollectMapper.hotspotCount(targetType, days);
         PageResult<com.bistu.ecadmin.pojo.UserCollectHotspot> pr = new PageResult<>();
         pr.setRecords(list);

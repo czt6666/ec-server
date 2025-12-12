@@ -10,6 +10,9 @@
         <result column="target_type" property="targetType"/>
         <result column="target_id" property="targetId"/>
         <result column="create_time" property="createTime"/>
+        <result column="target_name" property="targetName"/>
+        <result column="collect_count" property="collectCount"/>
+        <result column="is_collected" property="isCollected"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -44,16 +47,63 @@
     </select>
 
     <select id="page" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/> FROM user_collect
+        SELECT 
+            uc.id,
+            uc.user_id,
+            uc.target_type,
+            uc.target_id,
+            uc.create_time,
+            -- 对象名称
+            COALESCE(
+                tr.name,                                    -- 旅游线路
+                ess.name,                                  -- 养老驿站
+                stp.plan_name,                             -- 研学方案
+                sta.activity_name,                         -- 研学活动
+                vh.homestay_name,                          -- 民宿
+                spu.title,                                 -- 农产品
+                r.name                                     -- 餐饮
+            ) AS target_name,
+            -- 收藏总数（子查询）
+            (SELECT COUNT(*) FROM user_collect uc2 
+             WHERE uc2.target_type = uc.target_type 
+               AND uc2.target_id = uc.target_id) AS collect_count,
+            -- 当前用户是否收藏（如果查询的是某个用户的收藏列表，则都是true；否则根据currentUserId判断）
+            <choose>
+                <when test="userId != null">
+                    -- 查询的是某个用户的收藏列表，列表中的记录都是该用户收藏的
+                    1 AS is_collected
+                </when>
+                <when test="currentUserId != null">
+                    -- 查询所有收藏记录，根据currentUserId判断是否收藏
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM user_collect uc3 
+                        WHERE uc3.user_id = #{currentUserId} 
+                          AND uc3.target_type = uc.target_type 
+                          AND uc3.target_id = uc.target_id
+                    ) THEN 1 ELSE 0 END AS is_collected
+                </when>
+                <otherwise>
+                    -- 没有传currentUserId，返回null
+                    NULL AS is_collected
+                </otherwise>
+            </choose>
+        FROM user_collect uc
+        LEFT JOIN tour_route tr ON uc.target_type = 'tour_route' AND CAST(uc.target_id AS UNSIGNED) = tr.id
+        LEFT JOIN elderly_service_subject ess ON uc.target_type = 'elderly_station' AND CAST(uc.target_id AS UNSIGNED) = ess.id
+        LEFT JOIN study_tour_plan stp ON uc.target_type = 'study_plan' AND CAST(uc.target_id AS UNSIGNED) = stp.id
+        LEFT JOIN study_tour_activity sta ON uc.target_type = 'study_activity' AND CAST(uc.target_id AS UNSIGNED) = sta.id
+        LEFT JOIN village_homestay vh ON uc.target_type = 'homestay' AND CAST(uc.target_id AS UNSIGNED) = vh.id
+        LEFT JOIN spu ON uc.target_type = 'product' AND CAST(uc.target_id AS UNSIGNED) = spu.id
+        LEFT JOIN restaurant r ON uc.target_type = 'restaurant' AND CAST(uc.target_id AS UNSIGNED) = r.id
         <where>
             <if test="userId != null">
-                AND user_id = #{userId}
+                AND uc.user_id = #{userId}
             </if>
             <if test="targetType != null and targetType != ''">
-                AND target_type = #{targetType}
+                AND uc.target_type = #{targetType}
             </if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY uc.create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -88,7 +138,20 @@
                 vh.homestay_name,                          -- 民宿
                 spu.title,                                 -- 农产品
                 r.name                                     -- 餐饮
-            )) AS targetName
+            )) AS targetName,
+            <choose>
+                <when test="userId != null">
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM user_collect uc2 
+                        WHERE uc2.user_id = #{userId} 
+                          AND uc2.target_type = uc.target_type 
+                          AND uc2.target_id = uc.target_id
+                    ) THEN 1 ELSE 0 END AS isCollected
+                </when>
+                <otherwise>
+                    NULL AS isCollected
+                </otherwise>
+            </choose>
         FROM user_collect uc
         LEFT JOIN tour_route tr ON uc.target_type = 'tour_route' AND CAST(uc.target_id AS UNSIGNED) = tr.id
         LEFT JOIN elderly_service_subject ess ON uc.target_type = 'elderly_station' AND CAST(uc.target_id AS UNSIGNED) = ess.id

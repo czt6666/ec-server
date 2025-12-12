@@ -12,10 +12,10 @@ public interface UserCollectService {
 
     Result<UserCollect> get(Long userId, String targetType, String targetId);
 
-    Result<PageResult<UserCollect>> list(Integer page, Integer limit, Long userId, String targetType);
+    Result<PageResult<UserCollect>> list(Integer page, Integer limit, Long userId, String targetType, Long currentUserId);
 
     Result<Integer> countByTarget(String targetType, String targetId);
 
-    Result<PageResult<com.bistu.ecadmin.pojo.UserCollectHotspot>> hotspot(Integer page, Integer limit, String targetType, Integer days);
+    Result<PageResult<com.bistu.ecadmin.pojo.UserCollectHotspot>> hotspot(Integer page, Integer limit, String targetType, Integer days, Long userId);
 }
 

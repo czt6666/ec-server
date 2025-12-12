@@ -25,6 +25,7 @@ public interface UserCollectMapper {
 
     List<UserCollect> page(@Param("userId") Long userId,
                            @Param("targetType") String targetType,
+                           @Param("currentUserId") Long currentUserId,
                            @Param("offset") int offset,
                            @Param("limit") int limit);
 
@@ -36,6 +37,7 @@ public interface UserCollectMapper {
 
     List<com.bistu.ecadmin.pojo.UserCollectHotspot> hotspotPage(@Param("targetType") String targetType,
                                                                 @Param("days") Integer days,
+                                                                @Param("userId") Long userId,
                                                                 @Param("offset") int offset,
                                                                 @Param("limit") int limit);
 
