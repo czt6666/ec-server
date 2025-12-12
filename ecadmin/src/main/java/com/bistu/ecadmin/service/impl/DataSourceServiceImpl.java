@@ -49,6 +49,11 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
     
     @Override
+    public Long countTodayDataSources() {
+        return dataSourceDao.countTodayDataSources();
+    }
+
+    @Override
     public boolean updateFrequency(Long id, String frequency) {
         DataSource dataSource = dataSourceDao.findById(id);
         if (dataSource != null) {
@@ -78,5 +83,18 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public void syncAllDataSourceCounts() {
         dataSourceSyncService.syncAllDataSourceCounts();
+    }
+    
+    @Override
+    public boolean isHealthy() {
+        try {
+            // 最简单的健康检查：尝试查询数据源数量
+            // 如果能成功查询，说明数据库连接正常
+            dataSourceDao.findAll();
+            return true;
+        } catch (Exception e) {
+            // 如果查询过程中出现任何异常，认为系统不健康
+            return false;
+        }
     }
 }

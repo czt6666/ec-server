@@ -62,6 +62,11 @@
         SELECT COUNT(*) FROM ${tableName}
     </select>
     
+    <!-- 统计今日新增的数据源数量 -->
+    <select id="countTodayDataSources" resultType="long">
+        SELECT COUNT(*) FROM data_sources WHERE DATE(created_at) = CURDATE()
+    </select>
+    
     <!-- 根据同步频率查找数据源 -->
     <select id="findBySyncFrequency" resultMap="DataSourceMap">
         SELECT * FROM data_sources WHERE sync_frequency = #{cronExpression} AND status = 1

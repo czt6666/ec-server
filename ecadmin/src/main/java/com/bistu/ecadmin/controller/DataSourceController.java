@@ -159,11 +159,18 @@ public class DataSourceController {
             })
             .sum();
         
+        // 获取今日新增数据源数量
+        Long todayRecords = dataSourceService.countTodayDataSources();
+        
+        // 执行健康检查
+        String systemStatus = dataSourceService.isHealthy() ? "normal" : "abnormal";
+        
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalSources", totalSources);
         stats.put("activeSources", activeSources);
         stats.put("totalRecords", totalRecords);
-        stats.put("systemStatus", "normal"); // 简化处理，实际应检查系统状态
+        stats.put("todayRecords", todayRecords);
+        stats.put("systemStatus", systemStatus);
         
         return Result.success(stats);
     }

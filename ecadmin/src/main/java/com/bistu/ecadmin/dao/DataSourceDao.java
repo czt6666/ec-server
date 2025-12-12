@@ -26,6 +26,12 @@ public interface DataSourceDao {
     Long countByTableName(@Param("tableName") String tableName);
     
     /**
+     * 统计今日新增的数据源数量
+     * @return 今日新增的数据源数量
+     */
+    Long countTodayDataSources();
+    
+    /**
      * 查找需要同步的数据源（根据同步频率）
      * @param cronExpression cron表达式
      * @return 数据源列表

@@ -27,6 +27,12 @@ public interface DataSourceService {
     Long countByTableName(String tableName);
     
     /**
+     * 统计今日新增的数据源数量
+     * @return 今日新增的数据源数量
+     */
+    Long countTodayDataSources();
+    
+    /**
      * 同步单个数据源的记录数
      * @param dataSourceId 数据源ID
      * @return 是否同步成功
@@ -37,4 +43,10 @@ public interface DataSourceService {
      * 同步所有数据源的记录数
      */
     void syncAllDataSourceCounts();
+    
+    /**
+     * 简单的健康检查
+     * @return true表示健康，false表示不健康
+     */
+    boolean isHealthy();
 }
