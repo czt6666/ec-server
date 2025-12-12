@@ -81,7 +81,11 @@
             r.name AS restaurant_name,
             dc.category_name,
             d.dish_name,
-            d.cover_img_url,
+            <!-- 修改这行，为coverImgUrl字段拼接/uploads/前缀 -->
+            CASE 
+                WHEN d.cover_img_url IS NOT NULL AND d.cover_img_url != '' THEN CONCAT('/uploads/', d.cover_img_url)
+                ELSE d.cover_img_url
+            END AS cover_img_url,
             d.dish_status,
             d.price,
             d.unit,
@@ -116,7 +120,11 @@
             r.name AS restaurant_name,
             dc.category_name,
             d.dish_name,
-            d.cover_img_url,
+            <!-- 修改这行，为coverImgUrl字段拼接/uploads/前缀 -->
+            CASE 
+                WHEN d.cover_img_url IS NOT NULL AND d.cover_img_url != '' THEN CONCAT('/uploads/', d.cover_img_url)
+                ELSE d.cover_img_url
+            END AS cover_img_url,
             d.dish_status,
             d.price,
             d.unit,
