@@ -31,6 +31,7 @@
         <result column="room_config" property="roomConfig"/>
         <result column="care_level" property="careLevel"/>
         <result column="price_range" property="priceRange"/>
+        <result column="introduction" property="introduction"/>
         <result column="environment_photos" property="environmentPhotos"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
@@ -77,7 +78,7 @@
             establishment_date, business_term,
             official_phone, emergency_contact, emergency_phone, official_email,
             subject_type_id, service_mode, elderly_license_no, medical_license_no, food_license_no, fire_acceptance_no,
-            business_status, total_beds, room_config, care_level, price_range,
+            business_status, total_beds, room_config, care_level, price_range, introduction,
             environment_photos, create_time
         ) values (
             #{name}, #{registeredAddress}, #{businessAddress}, #{registeredLatitude}, #{registeredLongitude}, #{businessLatitude}, #{businessLongitude},
@@ -86,7 +87,7 @@
             #{officialPhone}, #{emergencyContact}, #{emergencyPhone}, #{officialEmail},
             #{subjectTypeId}, #{serviceMode}, #{elderlyLicenseNo}, #{medicalLicenseNo}, #{foodLicenseNo}, #{fireAcceptanceNo},
             #{businessStatus}, #{totalBeds}, #{roomConfig}, #{careLevel}, #{priceRange},
-            #{environmentPhotos}, #{createTime}
+            #{introduction}, #{environmentPhotos}, #{createTime}
         )
     </insert>
 
@@ -121,6 +122,7 @@
             <if test="roomConfig != null">room_config = #{roomConfig},</if>
             <if test="careLevel != null">care_level = #{careLevel},</if>
             <if test="priceRange != null">price_range = #{priceRange},</if>
+            <if test="introduction != null">introduction = #{introduction},</if>
             <if test="environmentPhotos != null">environment_photos = #{environmentPhotos},</if>
             update_time = now()
         </set>

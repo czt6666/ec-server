@@ -96,7 +96,7 @@ public class StationServiceImpl implements StationService {
             if (originalFilename == null || (!originalFilename.toLowerCase().endsWith(".xlsx") && !originalFilename.toLowerCase().endsWith(".xls"))) {
                 throw new RuntimeException("文件格式错误：只支持 .xlsx 或 .xls 格式的 Excel 文件");
             }
-            
+
             Workbook workbook;
             try {
                 workbook = WorkbookFactory.create(file.getInputStream());
@@ -106,11 +106,11 @@ public class StationServiceImpl implements StationService {
                 }
                 throw new RuntimeException("文件解析失败：请确保上传的是有效的 Excel 文件。错误信息：" + e.getMessage());
             }
-            
+
             if (workbook.getNumberOfSheets() == 0) {
                 throw new RuntimeException("Excel 文件中没有工作表");
             }
-            
+
             Sheet sheet = workbook.getSheetAt(0);
 
             // 跳过标题行
@@ -201,7 +201,7 @@ public class StationServiceImpl implements StationService {
                     "统一社会信用代码", "法定代表人", "注册资本(万元)", "成立日期", "营业期限",
                     "官方联系电话", "紧急联系人", "紧急联系电话", "官方邮箱", "主体类型ID", "服务模式",
                     "养老机构设立许可证编号", "医疗机构执业许可证编号", "食品经营许可证编号", "消防验收合格证明编号",
-                    "营业状态", "总床数", "房型配置", "护理等级", "价格区间", "环境照片", "创建时间"
+                    "营业状态", "总床数", "房型配置", "护理等级", "价格区间", "驿站简介", "环境照片", "创建时间"
             };
 
             CellStyle headerStyle = workbook.createCellStyle();
@@ -244,6 +244,7 @@ public class StationServiceImpl implements StationService {
                 row.createCell(colIndex++).setCellValue(station.getRoomConfig() != null ? station.getRoomConfig() : "");
                 row.createCell(colIndex++).setCellValue(station.getCareLevel() != null ? station.getCareLevel() : "");
                 row.createCell(colIndex++).setCellValue(station.getPriceRange() != null ? station.getPriceRange() : "");
+                row.createCell(colIndex++).setCellValue(station.getIntroduction() != null ? station.getIntroduction() : "");
                 row.createCell(colIndex++).setCellValue(station.getEnvironmentPhotos() != null ? station.getEnvironmentPhotos() : "");
                 row.createCell(colIndex++).setCellValue(station.getCreateTime() != null ? station.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "");
             }
@@ -437,6 +438,12 @@ public class StationServiceImpl implements StationService {
             Cell priceRangeCell = row.getCell(colIndex++);
             if (priceRangeCell != null) {
                 station.setPriceRange(getCellStringValue(priceRangeCell));
+            }
+
+            // 机构简介
+            Cell introductionCell = row.getCell(colIndex++);
+            if (introductionCell != null) {
+                station.setIntroduction(getCellStringValue(introductionCell));
             }
 
             // 环境照片

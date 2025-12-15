@@ -100,6 +100,9 @@ public class Station implements Serializable {
     @ApiModelProperty("价格区间（如：2000-5000元/月）")
     private String priceRange;
 
+    @ApiModelProperty("机构简介")
+    private String introduction;
+
     @ApiModelProperty("环境照片（多个URL用逗号分隔）")
     private String environmentPhotos;
 
