@@ -87,7 +87,13 @@
             s.view_cnt as viewCount,
             s.cart_add_cnt as cartCount,
             sh.shop_name as shopName,
-            sh.shop_avatar as shopAvatar
+            sh.shop_avatar as shopAvatar,
+            COALESCE((
+                SELECT COUNT(*)
+                FROM user_collect uc
+                WHERE uc.target_type = 'product'
+                  AND uc.target_id = CAST(s.id AS CHAR)
+            ), 0) AS collectNumber
         FROM spu s
         LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE 1=1

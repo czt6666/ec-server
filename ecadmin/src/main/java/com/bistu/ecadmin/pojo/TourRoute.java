@@ -83,5 +83,8 @@ public class TourRoute implements Serializable {
 
     @ApiModelProperty("逻辑状态：1正常 0删除")
     private Integer status;
+    
+    @ApiModelProperty("收藏数量")
+    private Long collectNumber;
 }
 

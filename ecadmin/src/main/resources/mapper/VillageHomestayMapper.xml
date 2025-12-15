@@ -22,38 +22,46 @@
         <result column="link_address" property="linkAddress"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
+        <result column="collect_number" property="collectNumber"/>
     </resultMap>
 
     <!-- 分页查询民宿列表（支持模糊查询） -->
     <select id="pageQuery" parameterType="com.bistu.ecadmin.dao.DTO.VillageHomestayPageQueryDTO" resultMap="VillageHomestayMap">
-        select *
-        from village_homestay
+        select
+            vh.*,
+            COALESCE((
+                select count(*)
+                from user_collect uc
+                where uc.target_type = 'homestay'
+                  and uc.target_id = CAST(vh.id AS CHAR)
+            ), 0) as collect_number
+        from village_homestay vh
         <where>
             <if test="villageId != null">
-                and village_id = #{villageId}
+                and vh.village_id = #{villageId}
             </if>
             <if test="homestayName != null and homestayName != ''">
-                and homestay_name like concat('%', #{homestayName}, '%')
+                and vh.homestay_name like concat('%', #{homestayName}, '%')
             </if>
             <if test="address != null and address != ''">
-                and address like concat('%', #{address}, '%')
+                and vh.address like concat('%', #{address}, '%')
             </if>
             <if test="status != null">
-                and status = #{status}
+                and vh.status = #{status}
             </if>
             <if test="starLevel != null">
-                and star_level = #{starLevel}
+                and vh.star_level = #{starLevel}
             </if>
             <if test="contactName != null and contactName != ''">
-                and contact_name like concat('%', #{contactName}, '%')
+                and vh.contact_name like concat('%', #{contactName}, '%')
             </if>
             <if test="keyword != null and keyword != ''">
-                and (homestay_name like concat('%', #{keyword}, '%') 
-                     or address like concat('%', #{keyword}, '%') 
-                     or contact_name like concat('%', #{keyword}, '%'))
+                and (vh.homestay_name like concat('%', #{keyword}, '%') 
+                     or vh.address like concat('%', #{keyword}, '%') 
+                     or vh.contact_name like concat('%', #{keyword}, '%'))
             </if>
         </where>
-        order by id asc
+        order by vh.id asc
     </select>
 
     <!-- 根据ID查询民宿详情 -->

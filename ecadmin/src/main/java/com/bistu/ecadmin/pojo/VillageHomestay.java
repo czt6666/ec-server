@@ -62,4 +62,6 @@ public class VillageHomestay {
     private String qualificationImages;
     @ApiModelProperty("链接地址")
     private String linkAddress;     // 链接地址
+    @ApiModelProperty("收藏数量")
+    private Long collectNumber;
 }

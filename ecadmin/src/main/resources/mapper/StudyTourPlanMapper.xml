@@ -48,7 +48,13 @@
             duration,
             status,
             create_time AS createTime,
-            update_time AS updateTime
+            update_time AS updateTime,
+            COALESCE((
+                SELECT COUNT(*)
+                FROM user_collect uc
+                WHERE uc.target_type = 'study_plan'
+                  AND uc.target_id = CAST(study_tour_plan.id AS CHAR)
+            ), 0) AS collectNumber
         FROM study_tour_plan
         <where>
             <if test="planName != null and planName != ''">

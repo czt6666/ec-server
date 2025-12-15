@@ -21,4 +21,5 @@ public class StudyTourActivity {
     private String remark;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private Long collectNumber;
 }

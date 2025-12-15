@@ -108,5 +108,8 @@ public class Station implements Serializable {
 
     @ApiModelProperty("更新时间")
     private LocalDateTime updateTime;
+    
+    @ApiModelProperty("收藏数量")
+    private Long collectNumber;
 }
 

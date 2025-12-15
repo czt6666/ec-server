@@ -60,7 +60,13 @@
             status,
             remark,
             create_time AS createTime,
-            update_time AS updateTime
+            update_time AS updateTime,
+            COALESCE((
+                SELECT COUNT(*)
+                FROM user_collect uc
+                WHERE uc.target_type = 'study_activity'
+                  AND uc.target_id = CAST(study_tour_activity.id AS CHAR)
+            ), 0) AS collectNumber
         FROM study_tour_activity
         <where>
             <if test="activityName != null and activityName != ''">

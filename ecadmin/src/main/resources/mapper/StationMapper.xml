@@ -34,26 +34,34 @@
         <result column="environment_photos" property="environmentPhotos"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
+        <result column="collect_number" property="collectNumber"/>
     </resultMap>
 
     <!-- 分页查询驿站列表（支持模糊查询） -->
     <select id="pageQuery" parameterType="com.bistu.ecadmin.dao.DTO.StationPageQueryDTO" resultMap="StationMap">
-        select *
-        from elderly_service_subject
+        select 
+            ess.*,
+            COALESCE((
+                select count(*)
+                from user_collect uc
+                where uc.target_type = 'elderly_station'
+                  and uc.target_id = CAST(ess.id AS CHAR)
+            ), 0) as collect_number
+        from elderly_service_subject ess
         <where>
             <if test="name != null and name != ''">
-                and name like concat('%', #{name}, '%')
+                and ess.name like concat('%', #{name}, '%')
             </if>
             <if test="status != null">
-                and business_status = #{status}
+                and ess.business_status = #{status}
             </if>
             <if test="keyword != null and keyword != ''">
-                and (name like concat('%', #{keyword}, '%')
-                     or registered_address like concat('%', #{keyword}, '%')
-                     or business_address like concat('%', #{keyword}, '%'))
+                and (ess.name like concat('%', #{keyword}, '%')
+                     or ess.registered_address like concat('%', #{keyword}, '%')
+                     or ess.business_address like concat('%', #{keyword}, '%'))
             </if>
         </where>
-        order by create_time desc
+        order by ess.create_time desc
     </select>
 
     <!-- 根据ID查询驿站详情 -->
