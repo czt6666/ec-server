@@ -12,13 +12,13 @@ import java.util.Map;
  * JWT工具类
  */
 public class JwtUtil {
-    
-    // 密钥（实际项目中应该从配置文件读取）
-    private static final String SECRET = "ec-admin-secret-key-2024";
-    
+
+    // 密钥
+    private static final String SECRET = "ec-admin-secret-key-2025";
+
     // Token过期时间（7天）
     private static final long EXPIRATION = 7 * 24 * 60 * 60 * 1000L;
-    
+
     /**
      * 生成Token
      * @param userId 用户ID
@@ -27,7 +27,7 @@ public class JwtUtil {
     public static String generateToken(Long userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userId.toString())
@@ -36,7 +36,7 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }
-    
+
     /**
      * 从Token中获取用户ID
      * @param token Token字符串
@@ -48,7 +48,7 @@ public class JwtUtil {
                     .setSigningKey(SECRET)
                     .parseClaimsJws(token)
                     .getBody();
-            
+
             Object userIdObj = claims.get("userId");
             if (userIdObj instanceof Integer) {
                 return ((Integer) userIdObj).longValue();
@@ -62,7 +62,7 @@ public class JwtUtil {
             return null;
         }
     }
-    
+
     /**
      * 验证Token是否有效
      * @param token Token字符串
@@ -77,4 +77,6 @@ public class JwtUtil {
         }
     }
 }
+
+
 
