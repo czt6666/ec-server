@@ -46,7 +46,7 @@ public class StationController {
     @GetMapping("/{id}")
     @ApiOperation("根据ID查询驿站详情")
     public Result<Station> getById(@PathVariable Long id) {
-        Station station = stationService.getById(id);
+        Station station = stationService.getById(id, null);
         return Result.success(station);
     }
 

@@ -22,4 +22,5 @@ public class StudyTourActivity {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Long collectNumber;
+    private Integer isCollect;
 }

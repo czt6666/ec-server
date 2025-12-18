@@ -32,5 +32,5 @@ public interface ProductService {
     /**
      * 根据商品ID查询商品详情
      */
-    JSONObject getProductById(Long productId);
+    JSONObject getProductById(Long productId, Long currentUserId);
 }

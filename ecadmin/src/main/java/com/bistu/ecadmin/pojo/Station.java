@@ -114,5 +114,8 @@ public class Station implements Serializable {
     
     @ApiModelProperty("收藏数量")
     private Long collectNumber;
+    
+    @ApiModelProperty("当前用户是否已收藏：0-未收藏，1-已收藏")
+    private Integer isCollect;
 }
 

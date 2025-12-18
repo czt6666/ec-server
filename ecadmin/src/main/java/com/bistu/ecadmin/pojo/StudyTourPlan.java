@@ -17,4 +17,5 @@ public class StudyTourPlan {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Long collectNumber;
+    private Integer isCollect;
 }

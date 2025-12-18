@@ -93,7 +93,13 @@
                 FROM user_collect uc
                 WHERE uc.target_type = 'product'
                   AND uc.target_id = CAST(s.id AS CHAR)
-            ), 0) AS collectNumber
+            ), 0) AS collectNumber,
+            CASE WHEN #{currentUserId} IS NOT NULL AND EXISTS (
+                SELECT 1 FROM user_collect uc2
+                WHERE uc2.user_id = #{currentUserId}
+                  AND uc2.target_type = 'product'
+                  AND uc2.target_id = CAST(s.id AS CHAR)
+            ) THEN 1 ELSE 0 END AS isCollect
         FROM spu s
         LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE 1=1
@@ -161,7 +167,7 @@
     </select>
     
     <!-- 根据商品ID查询商品基本信息 -->
-    <select id="getProductById" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+    <select id="getProductById" resultType="com.alibaba.fastjson.JSONObject">
         SELECT 
             s.id,
             s.title,
@@ -172,7 +178,19 @@
             s.create_time as createTime,
             s.update_time as updateTime,
             sh.shop_name as storeName,
-            sh.shop_avatar as shopAvatar
+            sh.shop_avatar as shopAvatar,
+            COALESCE((
+                SELECT COUNT(*)
+                FROM user_collect uc
+                WHERE uc.target_type = 'product'
+                  AND uc.target_id = CAST(s.id AS CHAR)
+            ), 0) AS collectNumber,
+            CASE WHEN #{currentUserId} IS NOT NULL AND EXISTS (
+                SELECT 1 FROM user_collect uc2
+                WHERE uc2.user_id = #{currentUserId}
+                  AND uc2.target_type = 'product'
+                  AND uc2.target_id = CAST(s.id AS CHAR)
+            ) THEN 1 ELSE 0 END AS isCollect
         FROM spu s
         LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE s.id = #{productId}

@@ -35,4 +35,7 @@ public class VillageHomestayPageQueryDTO implements Serializable {
     
     @ApiModelProperty("关键词搜索（支持民宿名称、地址、负责人姓名）")
     private String keyword;
+    
+    @ApiModelProperty("当前用户ID（用于判断是否收藏）")
+    private Long userId;
 }

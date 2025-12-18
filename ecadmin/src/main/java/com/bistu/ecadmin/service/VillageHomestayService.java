@@ -17,7 +17,7 @@ public interface VillageHomestayService {
     /**
      * 根据ID查询民宿详情
      */
-    VillageHomestay getById(Integer id);
+    VillageHomestay getById(Integer id, Long userId);
     
     /**
      * 新增民宿

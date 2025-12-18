@@ -103,7 +103,7 @@ public class ProductsController {
             params.put("title", title);
             params.put("status", status);
             
-            // 添加userId参数
+            // 添加userId参数（商品所属用户ID）
             if (userId != null) {
                 params.put("userId", userId);
             }
@@ -147,7 +147,7 @@ public class ProductsController {
     @ApiImplicitParam(name = "id", value = "商品ID", required = true, dataType = "Long", paramType = "query")
     public JSONObject getProductById(@RequestParam Long id) {
         try {
-            return productService.getProductById(id);
+            return productService.getProductById(id, null);
         } catch (Exception e) {
             log.error("查询商品详情失败", e);
             return CommonUtil.errorJson(ErrorEnum.E_400);

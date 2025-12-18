@@ -41,24 +41,36 @@
 
     <select id="selectById" resultType="com.bistu.ecadmin.pojo.Restaurant">
         SELECT
-            id,
-            user_id AS userId,
-            village_id AS villageId,
-            name,
-            business_start_time AS businessStartTime,
-            business_end_time AS businessEndTime,
-            logo_url AS logoUrl,
-            address,
-            coordinate_lat AS coordinateLat,
-            coordinate_lng AS coordinateLng,
-            phone,
-            notice,
-            license_urls AS licenseUrls,
-            status,
-            create_time AS createTime,
-            update_time AS updateTime
-        FROM restaurant
-        WHERE id = #{id}
+            r.id,
+            r.user_id AS userId,
+            r.village_id AS villageId,
+            r.name,
+            r.business_start_time AS businessStartTime,
+            r.business_end_time AS businessEndTime,
+            r.logo_url AS logoUrl,
+            r.address,
+            r.coordinate_lat AS coordinateLat,
+            r.coordinate_lng AS coordinateLng,
+            r.phone,
+            r.notice,
+            r.license_urls AS licenseUrls,
+            r.status,
+            r.create_time AS createTime,
+            r.update_time AS updateTime,
+            COALESCE((
+                SELECT COUNT(*)
+                FROM user_collect uc
+                WHERE uc.target_type = 'restaurant'
+                  AND uc.target_id = CAST(r.id AS CHAR)
+            ), 0) AS collectNumber,
+            CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+                SELECT 1 FROM user_collect uc2
+                WHERE uc2.user_id = #{userId}
+                  AND uc2.target_type = 'restaurant'
+                  AND uc2.target_id = CAST(r.id AS CHAR)
+            ) THEN 1 ELSE 0 END AS isCollect
+        FROM restaurant r
+        WHERE r.id = #{id}
     </select>
 
     <select id="list" parameterType="com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO"
@@ -87,7 +99,13 @@
             FROM user_collect uc
             WHERE uc.target_type = 'restaurant'
               AND uc.target_id = CAST(r.id AS CHAR)
-        ), 0)            AS collectNumber
+        ), 0)            AS collectNumber,
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'restaurant'
+              AND uc2.target_id = CAST(r.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS isCollect
         FROM restaurant r
         LEFT JOIN village v ON r.village_id = v.id
         LEFT JOIN sys_user u ON r.user_id = u.id

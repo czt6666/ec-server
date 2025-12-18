@@ -1,13 +1,18 @@
 package com.bistu.ecadmin.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+    
+    @Autowired
+    private TokenInterceptor tokenInterceptor;
 
     @Value("${file.upload.path}")
     private String uploadPath;
@@ -39,5 +44,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3600);
 
+    }
+    
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(tokenInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/admin/ecadmin/auth/**",  // 登录接口不拦截
+                        "/swagger-ui.html",        // Swagger UI
+                        "/swagger-resources/**",   // Swagger资源
+                        "/v2/api-docs",            // Swagger API文档
+                        "/webjars/**",              // Swagger静态资源
+                        "/error"                    // 错误页面
+                );
     }
 }

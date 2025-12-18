@@ -31,13 +31,13 @@ public class TourRouteController {
                                               @RequestParam(defaultValue = "10") Integer limit,
                                               @RequestParam(required = false) String name,
                                               @RequestParam(required = false) Integer bizStatus) {
-        return tourRouteService.list(page, limit, name, bizStatus);
+        return tourRouteService.list(page, limit, name, bizStatus, null);
     }
 
     @GetMapping("/{id}")
     @ApiOperation("根据ID查询路线详情")
     public Result<TourRoute> getById(@PathVariable Long id) {
-        return Result.success(tourRouteService.getById(id));
+        return Result.success(tourRouteService.getById(id, null));
     }
 
     @PostMapping("/create")

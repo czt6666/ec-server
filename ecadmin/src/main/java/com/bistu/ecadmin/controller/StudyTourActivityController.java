@@ -28,7 +28,7 @@ public class StudyTourActivityController {
                        @RequestParam(required = false) Long planId,
                        @RequestParam(required = false) Integer status) {
         PageHelper.startPage(pageNum, pageSize);
-        List<StudyTourActivity> list = studyTourActivityService.list(activityName, planId, status);
+        List<StudyTourActivity> list = studyTourActivityService.list(activityName, planId, status, null);
         PageInfo<StudyTourActivity> pageInfo = new PageInfo<>(list);
         return Result.success(pageInfo);
     }
@@ -47,7 +47,7 @@ public class StudyTourActivityController {
      */
     @GetMapping("/{id}")
     public Result getById(@PathVariable Long id) {
-        StudyTourActivity studyTourActivity = studyTourActivityService.getById(id);
+        StudyTourActivity studyTourActivity = studyTourActivityService.getById(id, null);
         return Result.success(studyTourActivity);
     }
     
@@ -74,7 +74,7 @@ public class StudyTourActivityController {
      */
     @GetMapping("/list")
     public Result listAllEnabled() {
-        List<StudyTourActivity> list = studyTourActivityService.listAllEnabled();
+        List<StudyTourActivity> list = studyTourActivityService.listAllEnabled(null);
         return Result.success(list);
     }
 }

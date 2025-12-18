@@ -20,7 +20,7 @@ public interface VillageHomestayMapper {
     /**
      * 根据ID查询民宿详情
      */
-    VillageHomestay selectById(@Param("id") Integer id);
+    VillageHomestay selectById(@Param("id") Integer id, @Param("userId") Long userId);
     
     /**
      * 新增民宿

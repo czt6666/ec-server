@@ -48,7 +48,7 @@ public class VillageHomestayController {
     @GetMapping("/{id}")
     @ApiOperation("根据ID查询民宿详情")
     public Result<VillageHomestay> getById(@PathVariable Integer id) {
-        VillageHomestay homestay = villageHomestayService.getById(id);
+        VillageHomestay homestay = villageHomestayService.getById(id, null);
         return Result.success(homestay);
     }
     

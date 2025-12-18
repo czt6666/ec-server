@@ -4,6 +4,7 @@ import com.bistu.ecadmin.pojo.StudyTourPlan;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.dao.StudyTourPlanDao;
+import com.bistu.ecadmin.util.UserContext;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +35,15 @@ public class StudyTourPlanService {
     /**
      * 研学方案分页查询
      */
-    public Result<PageResult<StudyTourPlan>> listStudyTourPlans(String planName, Long baseId, Integer status, int page, int pageSize) {
+    public Result<PageResult<StudyTourPlan>> listStudyTourPlans(String planName, Long baseId, Integer status, int page, int pageSize, Long userId) {
         try {
+            // 如果参数中没有userId，则从UserContext获取
+            if (userId == null) {
+                userId = UserContext.getUserId();
+            }
+            
             PageHelper.startPage(page, pageSize);
-            List<StudyTourPlan> studyTourPlanList = studyTourPlanDao.list(planName, baseId, status);
+            List<StudyTourPlan> studyTourPlanList = studyTourPlanDao.list(planName, baseId, status, userId);
             PageInfo<StudyTourPlan> pageInfo = new PageInfo<>(studyTourPlanList);
             PageResult<StudyTourPlan> pageResult = new PageResult<>();
             pageResult.setRecords(pageInfo.getList());
@@ -54,7 +60,7 @@ public class StudyTourPlanService {
      */
     public Result updateStudyTourPlan(StudyTourPlan studyTourPlan) {
         try {
-            StudyTourPlan existing = studyTourPlanDao.getById(studyTourPlan.getId());
+            StudyTourPlan existing = studyTourPlanDao.getById(studyTourPlan.getId(), null);
             if (existing == null) {
                 return Result.error("研学方案不存在");
             }
@@ -71,7 +77,7 @@ public class StudyTourPlanService {
      */
     public Result deleteStudyTourPlan(Long id) {
         try {
-            StudyTourPlan existing = studyTourPlanDao.getById(id);
+            StudyTourPlan existing = studyTourPlanDao.getById(id, null);
             if (existing == null) {
                 return Result.error("研学方案不存在");
             }

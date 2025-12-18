@@ -33,7 +33,7 @@ public class RestaurantController {
     @GetMapping("/{id}")
     @ApiOperation("获取门店详情")
     public Result<Restaurant> get(@PathVariable Long id) {
-        return Result.success(restaurantService.getById(id));
+        return Result.success(restaurantService.getById(id, null));
     }
 
     @PostMapping("/add")

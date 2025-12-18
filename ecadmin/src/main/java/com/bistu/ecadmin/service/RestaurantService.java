@@ -10,7 +10,7 @@ public interface RestaurantService {
 
     PageResult list(RestaurantQueryDTO dto);
 
-    Restaurant getById(Long id);
+    Restaurant getById(Long id, Long userId);
 
     void create(Restaurant restaurant);
 

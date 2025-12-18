@@ -24,5 +24,8 @@ public class StationPageQueryDTO implements Serializable {
 
     @ApiModelProperty("关键词搜索（支持驿站名称、注册地址、经营地址）")
     private String keyword;
+    
+    @ApiModelProperty("当前用户ID（用于判断是否收藏）")
+    private Long userId;
 }
 

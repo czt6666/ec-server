@@ -44,7 +44,7 @@ public class StudyTourPlanController {
                                    @RequestParam(defaultValue = "10") int pageSize) {
         log.info("研学方案分页查询：planName={}, baseId={}, status={}, page={}, pageSize={}",
                 planName, baseId, status, page, pageSize);
-        return studyTourPlanService.listStudyTourPlans(planName, baseId, status, page, pageSize);
+        return studyTourPlanService.listStudyTourPlans(planName, baseId, status, page, pageSize, null);
     }
 
     /**
