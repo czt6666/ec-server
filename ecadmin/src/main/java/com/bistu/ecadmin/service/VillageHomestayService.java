@@ -8,32 +8,32 @@ import com.bistu.ecadmin.pojo.VillageHomestay;
 import java.util.List;
 
 public interface VillageHomestayService {
-    
+
     /**
      * 分页查询民宿列表
      */
     PageResult page(VillageHomestayPageQueryDTO dto);
-    
+
     /**
      * 根据ID查询民宿详情
      */
-    VillageHomestay getById(Integer id, Long userId);
-    
+    VillageHomestay getById(Integer id);
+
     /**
      * 新增民宿
      */
     boolean add(VillageHomestay homestay);
-    
+
     /**
      * 更新民宿
      */
     boolean update(VillageHomestay homestay);
-    
+
     /**
      * 删除民宿
      */
     boolean deleteById(Integer id);
-    
+
     /**
      * 根据乡村ID查询民宿列表
      */

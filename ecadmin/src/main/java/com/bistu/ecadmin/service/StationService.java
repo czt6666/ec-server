@@ -18,7 +18,7 @@ public interface StationService {
     /**
      * 根据ID查询驿站详情
      */
-    Station getById(Long id, Long userId);
+    Station getById(Long id);
 
     /**
      * 新增驿站

@@ -30,10 +30,10 @@ public class StationController {
     @GetMapping("/page")
     @ApiOperation("分页查询驿站列表（支持模糊查询）")
     public Result<PageResult> page(@RequestParam(defaultValue = "1") Integer page,
-                                    @RequestParam(defaultValue = "10") Integer pageSize,
-                                    @RequestParam(required = false) String name,
-                                    @RequestParam(required = false) Integer status,
-                                    @RequestParam(required = false) String keyword) {
+                                   @RequestParam(defaultValue = "10") Integer pageSize,
+                                   @RequestParam(required = false) String name,
+                                   @RequestParam(required = false) Integer status,
+                                   @RequestParam(required = false) String keyword) {
         StationPageQueryDTO dto = new StationPageQueryDTO();
         dto.setPage(page);
         dto.setPageSize(pageSize);
@@ -46,7 +46,7 @@ public class StationController {
     @GetMapping("/{id}")
     @ApiOperation("根据ID查询驿站详情")
     public Result<Station> getById(@PathVariable Long id) {
-        Station station = stationService.getById(id, null);
+        Station station = stationService.getById(id);
         return Result.success(station);
     }
 

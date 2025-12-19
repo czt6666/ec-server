@@ -36,25 +36,18 @@
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="collect_number" property="collectNumber"/>
-        <result column="is_collect" property="isCollect"/>
     </resultMap>
 
     <!-- 分页查询驿站列表（支持模糊查询） -->
     <select id="pageQuery" parameterType="com.bistu.ecadmin.dao.DTO.StationPageQueryDTO" resultMap="StationMap">
-        select 
-            ess.*,
-            COALESCE((
-                select count(*)
-                from user_collect uc
-                where uc.target_type = 'elderly_station'
-                  and uc.target_id = CAST(ess.id AS CHAR)
-            ), 0) as collect_number,
-            CASE WHEN #{userId} IS NOT NULL AND EXISTS (
-                SELECT 1 FROM user_collect uc2
-                WHERE uc2.user_id = #{userId}
-                  AND uc2.target_type = 'elderly_station'
-                  AND uc2.target_id = CAST(ess.id AS CHAR)
-            ) THEN 1 ELSE 0 END AS is_collect
+        select
+        ess.*,
+        COALESCE((
+        select count(*)
+        from user_collect uc
+        where uc.target_type = 'elderly_station'
+        and uc.target_id = CAST(ess.id AS CHAR)
+        ), 0) as collect_number
         from elderly_service_subject ess
         <where>
             <if test="name != null and name != ''">
@@ -65,31 +58,16 @@
             </if>
             <if test="keyword != null and keyword != ''">
                 and (ess.name like concat('%', #{keyword}, '%')
-                     or ess.registered_address like concat('%', #{keyword}, '%')
-                     or ess.business_address like concat('%', #{keyword}, '%'))
+                or ess.registered_address like concat('%', #{keyword}, '%')
+                or ess.business_address like concat('%', #{keyword}, '%'))
             </if>
         </where>
         order by ess.create_time desc
     </select>
 
     <!-- 根据ID查询驿站详情 -->
-    <select id="selectById" resultMap="StationMap">
-        select 
-            ess.*,
-            COALESCE((
-                select count(*)
-                from user_collect uc
-                where uc.target_type = 'elderly_station'
-                  and uc.target_id = CAST(ess.id AS CHAR)
-            ), 0) as collect_number,
-            CASE WHEN #{userId} IS NOT NULL AND EXISTS (
-                SELECT 1 FROM user_collect uc2
-                WHERE uc2.user_id = #{userId}
-                  AND uc2.target_type = 'elderly_station'
-                  AND uc2.target_id = CAST(ess.id AS CHAR)
-            ) THEN 1 ELSE 0 END AS is_collect
-        from elderly_service_subject ess
-        where ess.id = #{id}
+    <select id="selectById" parameterType="java.lang.Long" resultMap="StationMap">
+        select * from elderly_service_subject where id = #{id}
     </select>
 
     <!-- 新增驿站 -->
@@ -103,14 +81,14 @@
             business_status, total_beds, room_config, care_level, price_range, introduction,
             environment_photos, create_time
         ) values (
-            #{name}, #{registeredAddress}, #{businessAddress}, #{registeredLatitude}, #{registeredLongitude}, #{businessLatitude}, #{businessLongitude},
-            #{unifiedSocialCreditCode}, #{legalRepresentative}, #{registeredCapital},
-            #{establishmentDate}, #{businessTerm},
-            #{officialPhone}, #{emergencyContact}, #{emergencyPhone}, #{officialEmail},
-            #{subjectTypeId}, #{serviceMode}, #{elderlyLicenseNo}, #{medicalLicenseNo}, #{foodLicenseNo}, #{fireAcceptanceNo},
-            #{businessStatus}, #{totalBeds}, #{roomConfig}, #{careLevel}, #{priceRange},
-            #{introduction}, #{environmentPhotos}, #{createTime}
-        )
+                     #{name}, #{registeredAddress}, #{businessAddress}, #{registeredLatitude}, #{registeredLongitude}, #{businessLatitude}, #{businessLongitude},
+                     #{unifiedSocialCreditCode}, #{legalRepresentative}, #{registeredCapital},
+                     #{establishmentDate}, #{businessTerm},
+                     #{officialPhone}, #{emergencyContact}, #{emergencyPhone}, #{officialEmail},
+                     #{subjectTypeId}, #{serviceMode}, #{elderlyLicenseNo}, #{medicalLicenseNo}, #{foodLicenseNo}, #{fireAcceptanceNo},
+                     #{businessStatus}, #{totalBeds}, #{roomConfig}, #{careLevel}, #{priceRange},
+                     #{introduction}, #{environmentPhotos}, #{createTime}
+                 )
     </insert>
 
     <!-- 更新驿站 -->
@@ -169,8 +147,8 @@
             </if>
             <if test="keyword != null and keyword != ''">
                 and (name like concat('%', #{keyword}, '%')
-                     or registered_address like concat('%', #{keyword}, '%')
-                     or business_address like concat('%', #{keyword}, '%'))
+                or registered_address like concat('%', #{keyword}, '%')
+                or business_address like concat('%', #{keyword}, '%'))
             </if>
         </where>
     </select>

@@ -15,15 +15,14 @@ public interface TourRouteMapper {
 
     int delete(@Param("id") Long id);
 
-    TourRoute selectById(@Param("id") Long id, @Param("userId") Long userId);
+    TourRoute selectById(@Param("id") Long id);
 
     int countByName(@Param("name") String name, @Param("excludeId") Long excludeId);
 
     List<TourRoute> page(@Param("name") String name,
                          @Param("bizStatus") Integer bizStatus,
                          @Param("offset") int offset,
-                         @Param("limit") int limit,
-                         @Param("userId") Long userId);
+                         @Param("limit") int limit);
 
     int count(@Param("name") String name, @Param("bizStatus") Integer bizStatus);
 }

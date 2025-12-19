@@ -6,7 +6,6 @@ import com.bistu.common.util.constants.ErrorEnum;
 import com.bistu.ecadmin.dao.ProductDao;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.service.ProductService;
-import com.bistu.ecadmin.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -114,7 +113,7 @@ public class ProductServiceImpl implements ProductService {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空", new JSONObject());
             }
 
-            JSONObject existingProduct = productDao.getProductById(productId, null);
+            JSONObject existingProduct = productDao.getProductById(productId);
             if (existingProduct == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
@@ -210,7 +209,7 @@ public class ProductServiceImpl implements ProductService {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空", new JSONObject());
             }
 
-            JSONObject existingProduct = productDao.getProductById(productId, null);
+            JSONObject existingProduct = productDao.getProductById(productId);
             if (existingProduct == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
@@ -237,10 +236,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PageResult listProducts(JSONObject params) {
         try {
-            // 从UserContext获取当前用户ID（用于判断是否收藏）
-            Long currentUserId = UserContext.getUserId();
-            params.put("currentUserId", currentUserId);
-            
             // 获取分页参数
             int pageNum = params.getIntValue("pageNum");
             int pageRow = params.getIntValue("pageRow");
@@ -302,7 +297,7 @@ public class ProductServiceImpl implements ProductService {
             }
 
             // 检查商品是否存在
-            JSONObject existingProduct = productDao.getProductById(productId, null);
+            JSONObject existingProduct = productDao.getProductById(productId);
             if (existingProduct == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
@@ -322,20 +317,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public JSONObject getProductById(Long productId, Long currentUserId) {
+    public JSONObject getProductById(Long productId) {
         try {
-            // 如果参数中没有currentUserId，则从UserContext获取
-            if (currentUserId == null) {
-                currentUserId = UserContext.getUserId();
-            }
-            
             // 检查商品ID是否有效
             if (productId == null || productId <= 0) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空", new JSONObject());
             }
 
             // 查询商品基本信息
-            JSONObject product = productDao.getProductById(productId, currentUserId);
+            JSONObject product = productDao.getProductById(productId);
             if (product == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }

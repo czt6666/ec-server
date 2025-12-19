@@ -11,10 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -77,8 +74,8 @@ public class AuthController {
                 return Result.error("用户名或密码错误");
             }
 
-            // 检查用户状态
-            if (user.getDeleteStatus() != null && user.getDeleteStatus() == 1) {
+            // 检查用户状态（deleteStatus = 1 表示正常，!= 1 表示禁用）
+            if (user.getDeleteStatus() != null && user.getDeleteStatus() != 1) {
                 return Result.error("用户已被禁用");
             }
 
@@ -96,6 +93,50 @@ public class AuthController {
             log.error("登录失败", e);
             return Result.error("登录失败：" + e.getMessage());
         }
+    }
+
+    /**
+     * 解析 token 测试接口
+     * 前端在请求头传 Authorization: Bearer xxx 或直接传 token 都可以
+     */
+    @GetMapping("/parseToken")
+    @ApiOperation("解析 token 测试接口")
+    public Result<Map<String, Object>> parseToken(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        Map<String, Object> data = new HashMap<>();
+
+        if (authorizationHeader == null || authorizationHeader.trim().isEmpty()) {
+            data.put("userId", null);
+            data.put("valid", false);
+            data.put("message", "请求头未携带 Authorization");
+            return Result.success(data);
+        }
+
+        String token = authorizationHeader.trim();
+        
+        // 去除 Bearer 前缀
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
+        
+        // 去除可能的花括号和引号（处理复制粘贴时的格式问题）
+        token = token.replaceAll("^[{\"']+", "").replaceAll("[}\"']+$", "");
+        token = token.trim();
+
+        Long userId = JwtUtil.getUserIdFromToken(token);
+        boolean valid = userId != null && JwtUtil.validateToken(token);
+
+        data.put("userId", userId);
+        data.put("valid", valid);
+        data.put("rawToken", token);
+
+        if (!valid) {
+            data.put("message", "token 无效或已过期");
+        } else {
+            data.put("message", "token 解析成功");
+        }
+
+        return Result.success(data);
     }
 }
 

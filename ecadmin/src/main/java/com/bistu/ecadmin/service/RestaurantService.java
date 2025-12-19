@@ -10,7 +10,7 @@ public interface RestaurantService {
 
     PageResult list(RestaurantQueryDTO dto);
 
-    Restaurant getById(Long id, Long userId);
+    Restaurant getById(Long id);
 
     void create(Restaurant restaurant);
 
@@ -21,6 +21,6 @@ public interface RestaurantService {
     List<String> listNamesByUser(Long userId);
 
     Long getIdByName(String name);
-    
+
     List<Restaurant> listByUser(Long userId);
 }

@@ -14,10 +14,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/study/activity")
 public class StudyTourActivityController {
-    
+
     @Autowired
     private StudyTourActivityService studyTourActivityService;
-    
+
     /**
      * 分页查询研学活动
      */
@@ -28,11 +28,11 @@ public class StudyTourActivityController {
                        @RequestParam(required = false) Long planId,
                        @RequestParam(required = false) Integer status) {
         PageHelper.startPage(pageNum, pageSize);
-        List<StudyTourActivity> list = studyTourActivityService.list(activityName, planId, status, null);
+        List<StudyTourActivity> list = studyTourActivityService.list(activityName, planId, status);
         PageInfo<StudyTourActivity> pageInfo = new PageInfo<>(list);
         return Result.success(pageInfo);
     }
-    
+
     /**
      * 新增研学活动
      */
@@ -41,16 +41,16 @@ public class StudyTourActivityController {
         studyTourActivityService.save(studyTourActivity);
         return Result.success();
     }
-    
+
     /**
      * 根据id查询研学活动
      */
     @GetMapping("/{id}")
     public Result getById(@PathVariable Long id) {
-        StudyTourActivity studyTourActivity = studyTourActivityService.getById(id, null);
+        StudyTourActivity studyTourActivity = studyTourActivityService.getById(id);
         return Result.success(studyTourActivity);
     }
-    
+
     /**
      * 更新研学活动
      */
@@ -59,7 +59,7 @@ public class StudyTourActivityController {
         studyTourActivityService.update(studyTourActivity);
         return Result.success();
     }
-    
+
     /**
      * 删除研学活动
      */
@@ -68,13 +68,13 @@ public class StudyTourActivityController {
         studyTourActivityService.deleteById(id);
         return Result.success();
     }
-    
+
     /**
      * 获取所有启用的研学活动
      */
     @GetMapping("/list")
     public Result listAllEnabled() {
-        List<StudyTourActivity> list = studyTourActivityService.listAllEnabled(null);
+        List<StudyTourActivity> list = studyTourActivityService.listAllEnabled();
         return Result.success(list);
     }
 }

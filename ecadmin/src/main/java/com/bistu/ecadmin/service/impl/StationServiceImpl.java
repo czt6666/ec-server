@@ -5,7 +5,6 @@ import com.bistu.ecadmin.dao.mapper.StationMapper;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Station;
 import com.bistu.ecadmin.service.StationService;
-import com.bistu.ecadmin.util.UserContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.poi.ss.usermodel.*;
@@ -41,10 +40,6 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public PageResult page(StationPageQueryDTO dto) {
-        // 从UserContext获取当前用户ID
-        Long userId = UserContext.getUserId();
-        dto.setUserId(userId);
-        
         int pageNum = dto.getPage() == null || dto.getPage() < 1 ? 1 : dto.getPage();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize();
 
@@ -55,12 +50,8 @@ public class StationServiceImpl implements StationService {
     }
 
     @Override
-    public Station getById(Long id, Long userId) {
-        // 如果参数中没有userId，则从UserContext获取
-        if (userId == null) {
-            userId = UserContext.getUserId();
-        }
-        return stationMapper.selectById(id, userId);
+    public Station getById(Long id) {
+        return stationMapper.selectById(id);
     }
 
     @Override

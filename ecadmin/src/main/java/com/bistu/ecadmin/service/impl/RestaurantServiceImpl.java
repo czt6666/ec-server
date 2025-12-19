@@ -9,7 +9,6 @@ import com.bistu.ecadmin.dao.mapper.VillageMapper;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Restaurant;
 import com.bistu.ecadmin.service.RestaurantService;
-import com.bistu.ecadmin.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,10 +31,6 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public PageResult list(RestaurantQueryDTO dto) {
-        // 从UserContext获取当前用户ID
-        Long userId = UserContext.getUserId();
-        dto.setUserId(userId);
-        
         dto.setPageNum(dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum());
         dto.setPageSize(dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize());
         dto.setOffset((dto.getPageNum() - 1) * dto.getPageSize());
@@ -46,12 +41,8 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public Restaurant getById(Long id, Long userId) {
-        // 如果参数中没有userId，则从UserContext获取
-        if (userId == null) {
-            userId = UserContext.getUserId();
-        }
-        return restaurantMapper.selectById(id, userId);
+    public Restaurant getById(Long id) {
+        return restaurantMapper.selectById(id);
     }
 
     @Override
@@ -80,7 +71,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     public Long getIdByName(String name) {
         return restaurantMapper.getIdByName(name);
     }
-    
+
     @Override
     public List<Restaurant> listByUser(Long userId) {
         return restaurantMapper.listByUserId(userId);

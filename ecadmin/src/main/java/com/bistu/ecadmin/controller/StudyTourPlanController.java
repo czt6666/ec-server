@@ -40,11 +40,11 @@ public class StudyTourPlanController {
     @GetMapping("/page")
     @ApiOperation(value = "研学方案分页查询")
     public Result<PageResult<StudyTourPlan>> page(String planName, Long baseId, Integer status,
-                                   @RequestParam(defaultValue = "1") int page,
-                                   @RequestParam(defaultValue = "10") int pageSize) {
+                                                  @RequestParam(defaultValue = "1") int page,
+                                                  @RequestParam(defaultValue = "10") int pageSize) {
         log.info("研学方案分页查询：planName={}, baseId={}, status={}, page={}, pageSize={}",
                 planName, baseId, status, page, pageSize);
-        return studyTourPlanService.listStudyTourPlans(planName, baseId, status, page, pageSize, null);
+        return studyTourPlanService.listStudyTourPlans(planName, baseId, status, page, pageSize);
     }
 
     /**

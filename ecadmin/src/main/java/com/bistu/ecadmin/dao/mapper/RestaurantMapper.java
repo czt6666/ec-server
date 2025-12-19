@@ -16,7 +16,7 @@ public interface RestaurantMapper {
 
     int deleteById(@Param("id") Long id);
 
-    Restaurant selectById(@Param("id") Long id, @Param("userId") Long userId);
+    Restaurant selectById(@Param("id") Long id);
 
     List<Restaurant> list(RestaurantQueryDTO dto);
 
@@ -25,6 +25,6 @@ public interface RestaurantMapper {
     List<String> listNamesByUserId(@Param("userId") Long userId);
 
     Long getIdByName(@Param("name") String name);
-    
+
     List<Restaurant> listByUserId(@Param("userId") Long userId);
 }

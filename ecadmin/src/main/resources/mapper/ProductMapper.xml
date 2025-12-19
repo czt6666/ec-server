@@ -7,11 +7,11 @@
         INSERT INTO spu (title, intro, link, status, user_id)
         VALUES (#{title}, #{description}, #{productUrl}, #{status}, #{userId})
     </insert>
-    
+
     <!-- 更新商品 -->
     <update id="updateProduct" parameterType="com.alibaba.fastjson.JSONObject">
         UPDATE spu
-        SET 
+        SET
             title = #{title},
             intro = #{description},
             link = #{productUrl},
@@ -19,19 +19,19 @@
             update_time = NOW()
         WHERE id = #{id}
     </update>
-    
+
     <!-- 删除商品 -->
     <delete id="deleteProductById" parameterType="long">
         DELETE FROM spu WHERE id = #{productId}
     </delete>
-    
+
     <!-- 增加商品浏览次数 -->
     <update id="incrementViewCount" parameterType="long">
         UPDATE spu
         SET view_cnt = view_cnt + 1
         WHERE id = #{productId}
     </update>
-    
+
     <!-- 批量新增预览图 -->
     <insert id="batchAddPreviewImages" parameterType="java.util.List">
         INSERT INTO spu_preview_img (spu_id, img_url, sort)
@@ -40,7 +40,7 @@
             (#{item.spu_id}, #{item.img_url}, #{item.sort})
         </foreach>
     </insert>
-    
+
     <!-- 批量新增详情图 -->
     <insert id="batchAddDetailImages" parameterType="java.util.List">
         INSERT INTO spu_detail_img (spu_id, type, content, sort)
@@ -49,7 +49,7 @@
             (#{item.spu_id}, #{item.type}, #{item.content}, #{item.sort})
         </foreach>
     </insert>
-    
+
     <!-- 批量新增规格 -->
     <insert id="batchAddSpecifications" parameterType="java.util.List">
         INSERT INTO sku (spu_id, specs, price, stock)
@@ -58,48 +58,42 @@
             (#{item.spu_id}, #{item.specs}, #{item.price}, #{item.stock})
         </foreach>
     </insert>
-    
+
     <!-- 删除商品的所有预览图 -->
     <delete id="deletePreviewImagesByProductId" parameterType="long">
         DELETE FROM spu_preview_img WHERE spu_id = #{productId}
     </delete>
-    
+
     <!-- 删除商品的所有详情图 -->
     <delete id="deleteDetailImagesByProductId" parameterType="long">
         DELETE FROM spu_detail_img WHERE spu_id = #{productId}
     </delete>
-    
+
     <!-- 删除商品的所有规格 -->
     <delete id="deleteSpecificationsByProductId" parameterType="long">
         DELETE FROM sku WHERE spu_id = #{productId}
     </delete>
-    
+
     <!-- 查询商品列表 -->
     <select id="listProducts" parameterType="com.alibaba.fastjson.JSONObject" resultType="com.alibaba.fastjson.JSONObject">
-        SELECT 
-            s.id,
-            s.title,
-            s.intro as description,
-            s.link as productUrl,
-            s.status,
-            s.create_time as createTime,
-            s.update_time as updateTime,
-            s.view_cnt as viewCount,
-            s.cart_add_cnt as cartCount,
-            sh.shop_name as shopName,
-            sh.shop_avatar as shopAvatar,
-            COALESCE((
-                SELECT COUNT(*)
-                FROM user_collect uc
-                WHERE uc.target_type = 'product'
-                  AND uc.target_id = CAST(s.id AS CHAR)
-            ), 0) AS collectNumber,
-            CASE WHEN #{currentUserId} IS NOT NULL AND EXISTS (
-                SELECT 1 FROM user_collect uc2
-                WHERE uc2.user_id = #{currentUserId}
-                  AND uc2.target_type = 'product'
-                  AND uc2.target_id = CAST(s.id AS CHAR)
-            ) THEN 1 ELSE 0 END AS isCollect
+        SELECT
+        s.id,
+        s.title,
+        s.intro as description,
+        s.link as productUrl,
+        s.status,
+        s.create_time as createTime,
+        s.update_time as updateTime,
+        s.view_cnt as viewCount,
+        s.cart_add_cnt as cartCount,
+        sh.shop_name as shopName,
+        sh.shop_avatar as shopAvatar,
+        COALESCE((
+        SELECT COUNT(*)
+        FROM user_collect uc
+        WHERE uc.target_type = 'product'
+        AND uc.target_id = CAST(s.id AS CHAR)
+        ), 0) AS collectNumber
         FROM spu s
         LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE 1=1
@@ -118,10 +112,10 @@
         ORDER BY s.create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
-    
+
     <!-- 查询商品总数 -->
     <select id="countProducts" parameterType="com.alibaba.fastjson.JSONObject" resultType="int">
-        SELECT COUNT(*) 
+        SELECT COUNT(*)
         FROM spu s
         LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE 1=1
@@ -138,7 +132,7 @@
             AND sh.shop_name LIKE CONCAT('%', #{shopName}, '%')
         </if>
     </select>
-    
+
     <!-- 根据商品ID查询预览图 -->
     <select id="getPreviewImagesByProductId" parameterType="long" resultType="string">
         SELECT img_url
@@ -146,7 +140,7 @@
         WHERE spu_id = #{productId}
         ORDER BY sort ASC
     </select>
-    
+
     <!-- 根据商品ID查询详情图 -->
     <select id="getDetailImagesByProductId" parameterType="long" resultType="string">
         SELECT content
@@ -154,10 +148,10 @@
         WHERE spu_id = #{productId} AND type = 1
         ORDER BY sort ASC
     </select>
-    
+
     <!-- 根据商品ID查询规格 -->
     <select id="getSpecificationsByProductId" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
-        SELECT 
+        SELECT
             id,
             specs as specName,
             price,
@@ -165,10 +159,10 @@
         FROM sku
         WHERE spu_id = #{productId}
     </select>
-    
+
     <!-- 根据商品ID查询商品基本信息 -->
-    <select id="getProductById" resultType="com.alibaba.fastjson.JSONObject">
-        SELECT 
+    <select id="getProductById" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
             s.id,
             s.title,
             s.intro as description,
@@ -178,21 +172,9 @@
             s.create_time as createTime,
             s.update_time as updateTime,
             sh.shop_name as storeName,
-            sh.shop_avatar as shopAvatar,
-            COALESCE((
-                SELECT COUNT(*)
-                FROM user_collect uc
-                WHERE uc.target_type = 'product'
-                  AND uc.target_id = CAST(s.id AS CHAR)
-            ), 0) AS collectNumber,
-            CASE WHEN #{currentUserId} IS NOT NULL AND EXISTS (
-                SELECT 1 FROM user_collect uc2
-                WHERE uc2.user_id = #{currentUserId}
-                  AND uc2.target_type = 'product'
-                  AND uc2.target_id = CAST(s.id AS CHAR)
-            ) THEN 1 ELSE 0 END AS isCollect
+            sh.shop_avatar as shopAvatar
         FROM spu s
-        LEFT JOIN shop sh ON s.user_id = sh.user_id
+                 LEFT JOIN shop sh ON s.user_id = sh.user_id
         WHERE s.id = #{productId}
     </select>
 

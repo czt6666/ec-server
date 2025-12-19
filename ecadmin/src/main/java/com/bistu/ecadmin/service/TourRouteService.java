@@ -12,8 +12,8 @@ public interface TourRouteService {
 
     Result<?> delete(Long id);
 
-    Result<PageResult<TourRoute>> list(Integer page, Integer limit, String name, Integer bizStatus, Long userId);
+    Result<PageResult<TourRoute>> list(Integer page, Integer limit, String name, Integer bizStatus);
 
-    TourRoute getById(Long id, Long userId);
+    TourRoute getById(Long id);
 }
 

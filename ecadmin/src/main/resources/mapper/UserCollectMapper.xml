@@ -41,52 +41,52 @@
     <select id="selectOne" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM user_collect
         WHERE user_id = #{userId}
-          AND target_type = #{targetType}
-          AND target_id = #{targetId}
+        AND target_type = #{targetType}
+        AND target_id = #{targetId}
         LIMIT 1
     </select>
 
     <select id="page" resultMap="BaseResultMap">
-        SELECT 
-            uc.id,
-            uc.user_id,
-            uc.target_type,
-            uc.target_id,
-            uc.create_time,
-            -- 对象名称
-            COALESCE(
-                tr.name,                                    -- 旅游线路
-                ess.name,                                  -- 养老驿站
-                stp.plan_name,                             -- 研学方案
-                sta.activity_name,                         -- 研学活动
-                vh.homestay_name,                          -- 民宿
-                spu.title,                                 -- 农产品
-                r.name                                     -- 餐饮
-            ) AS target_name,
-            -- 收藏总数（子查询）
-            (SELECT COUNT(*) FROM user_collect uc2 
-             WHERE uc2.target_type = uc.target_type 
-               AND uc2.target_id = uc.target_id) AS collect_count,
-            -- 当前用户是否收藏（如果查询的是某个用户的收藏列表，则都是true；否则根据currentUserId判断）
-            <choose>
-                <when test="userId != null">
-                    -- 查询的是某个用户的收藏列表，列表中的记录都是该用户收藏的
-                    1 AS is_collected
-                </when>
-                <when test="currentUserId != null">
-                    -- 查询所有收藏记录，根据currentUserId判断是否收藏
-                    CASE WHEN EXISTS (
-                        SELECT 1 FROM user_collect uc3 
-                        WHERE uc3.user_id = #{currentUserId} 
-                          AND uc3.target_type = uc.target_type 
-                          AND uc3.target_id = uc.target_id
-                    ) THEN 1 ELSE 0 END AS is_collected
-                </when>
-                <otherwise>
-                    -- 没有传currentUserId，返回null
-                    NULL AS is_collected
-                </otherwise>
-            </choose>
+        SELECT
+        uc.id,
+        uc.user_id,
+        uc.target_type,
+        uc.target_id,
+        uc.create_time,
+        -- 对象名称
+        COALESCE(
+        tr.name,                                    -- 旅游线路
+        ess.name,                                  -- 养老驿站
+        stp.plan_name,                             -- 研学方案
+        sta.activity_name,                         -- 研学活动
+        vh.homestay_name,                          -- 民宿
+        spu.title,                                 -- 农产品
+        r.name                                     -- 餐饮
+        ) AS target_name,
+        -- 收藏总数（子查询）
+        (SELECT COUNT(*) FROM user_collect uc2
+        WHERE uc2.target_type = uc.target_type
+        AND uc2.target_id = uc.target_id) AS collect_count,
+        -- 当前用户是否收藏（如果查询的是某个用户的收藏列表，则都是true；否则根据currentUserId判断）
+        <choose>
+            <when test="userId != null">
+                -- 查询的是某个用户的收藏列表，列表中的记录都是该用户收藏的
+                1 AS is_collected
+            </when>
+            <when test="currentUserId != null">
+                -- 查询所有收藏记录，根据currentUserId判断是否收藏
+                CASE WHEN EXISTS (
+                SELECT 1 FROM user_collect uc3
+                WHERE uc3.user_id = #{currentUserId}
+                AND uc3.target_type = uc.target_type
+                AND uc3.target_id = uc.target_id
+                ) THEN 1 ELSE 0 END AS is_collected
+            </when>
+            <otherwise>
+                -- 没有传currentUserId，返回null
+                NULL AS is_collected
+            </otherwise>
+        </choose>
         FROM user_collect uc
         LEFT JOIN tour_route tr ON uc.target_type = 'tour_route' AND CAST(uc.target_id AS UNSIGNED) = tr.id
         LEFT JOIN elderly_service_subject ess ON uc.target_type = 'elderly_station' AND CAST(uc.target_id AS UNSIGNED) = ess.id
@@ -126,32 +126,32 @@
     </select>
 
     <select id="hotspotPage" resultType="com.bistu.ecadmin.pojo.UserCollectHotspot">
-        SELECT 
-            uc.target_type AS targetType, 
-            uc.target_id AS targetId, 
-            COUNT(*) AS collectCount,
-            MAX(COALESCE(
-                tr.name,                                    -- 旅游线路
-                ess.name,                                  -- 养老驿站
-                stp.plan_name,                             -- 研学方案
-                sta.activity_name,                         -- 研学活动
-                vh.homestay_name,                          -- 民宿
-                spu.title,                                 -- 农产品
-                r.name                                     -- 餐饮
-            )) AS targetName,
-            <choose>
-                <when test="userId != null">
-                    CASE WHEN EXISTS (
-                        SELECT 1 FROM user_collect uc2 
-                        WHERE uc2.user_id = #{userId} 
-                          AND uc2.target_type = uc.target_type 
-                          AND uc2.target_id = uc.target_id
-                    ) THEN 1 ELSE 0 END AS isCollected
-                </when>
-                <otherwise>
-                    NULL AS isCollected
-                </otherwise>
-            </choose>
+        SELECT
+        uc.target_type AS targetType,
+        uc.target_id AS targetId,
+        COUNT(*) AS collectCount,
+        MAX(COALESCE(
+        tr.name,                                    -- 旅游线路
+        ess.name,                                  -- 养老驿站
+        stp.plan_name,                             -- 研学方案
+        sta.activity_name,                         -- 研学活动
+        vh.homestay_name,                          -- 民宿
+        spu.title,                                 -- 农产品
+        r.name                                     -- 餐饮
+        )) AS targetName,
+        <choose>
+            <when test="userId != null">
+                CASE WHEN EXISTS (
+                SELECT 1 FROM user_collect uc2
+                WHERE uc2.user_id = #{userId}
+                AND uc2.target_type = uc.target_type
+                AND uc2.target_id = uc.target_id
+                ) THEN 1 ELSE 0 END AS isCollected
+            </when>
+            <otherwise>
+                NULL AS isCollected
+            </otherwise>
+        </choose>
         FROM user_collect uc
         LEFT JOIN tour_route tr ON uc.target_type = 'tour_route' AND CAST(uc.target_id AS UNSIGNED) = tr.id
         LEFT JOIN elderly_service_subject ess ON uc.target_type = 'elderly_station' AND CAST(uc.target_id AS UNSIGNED) = ess.id
