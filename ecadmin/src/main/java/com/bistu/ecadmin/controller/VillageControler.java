@@ -2,6 +2,7 @@ package com.bistu.ecadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.bistu.common.util.CommonUtil;
+import com.bistu.ecadmin.annotation.OperateLog;
 import com.bistu.ecadmin.service.VillageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -127,6 +128,7 @@ public class VillageControler {
      */
     @PostMapping(value = "/news/add", consumes = {"application/json", "application/x-www-form-urlencoded"})
     @ApiOperation("新增乡村新闻")
+    @OperateLog(operation = "新增乡村新闻")
     public JSONObject addVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -177,6 +179,7 @@ public class VillageControler {
      */
     @PostMapping(value = "/news/update", consumes = {"application/json", "application/x-www-form-urlencoded"})
     @ApiOperation("更新乡村新闻")
+    @OperateLog(operation = "更新乡村新闻")
     public JSONObject updateVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -222,6 +225,7 @@ public class VillageControler {
      */
     @PostMapping(value = "/news/delete", consumes = {"application/json", "application/x-www-form-urlencoded"})
     @ApiOperation("删除乡村新闻")
+    @OperateLog(operation = "删除乡村新闻")
     public JSONObject deleteVillageNews(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {

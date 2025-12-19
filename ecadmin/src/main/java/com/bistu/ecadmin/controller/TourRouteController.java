@@ -4,6 +4,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.TourRoute;
 import com.bistu.ecadmin.service.TourRouteService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -42,12 +43,14 @@ public class TourRouteController {
 
     @PostMapping("/create")
     @ApiOperation("创建路线")
+    @OperateLog(operation = "新增旅游路线")
     public Result<?> create(@RequestBody TourRoute route) {
         return tourRouteService.create(route);
     }
 
     @PostMapping("/update")
     @ApiOperation("更新路线")
+    @OperateLog(operation = "更新旅游路线")
     public Result<?> update(@RequestBody TourRoute route) {
         return tourRouteService.update(route);
     }
@@ -55,8 +58,8 @@ public class TourRouteController {
     @DeleteMapping("/delete/{id}")
     @ApiOperation("删除路线")
     @ApiImplicitParam(name = "id", value = "路线ID", required = true, dataType = "Long", paramType = "path")
+    @OperateLog(operation = "删除旅游路线")
     public Result<?> delete(@PathVariable Long id) {
         return tourRouteService.delete(id);
     }
 }
-

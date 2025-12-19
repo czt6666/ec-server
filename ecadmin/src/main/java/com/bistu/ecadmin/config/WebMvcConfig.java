@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
-    
+
     @Autowired
     private TokenInterceptor tokenInterceptor;
 
@@ -35,6 +35,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler(exportAccessPath + "**")
                 .addResourceLocations("file:" + exportPath);
     }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        // 移除了UserContextInterceptor拦截器配置
+        // 所有用户信息现在通过X-User-Id请求头传递
+    }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -44,19 +51,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3600);
 
-    }
-    
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(tokenInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns(
-                        "/admin/ecadmin/auth/**",  // 登录接口不拦截
-                        "/swagger-ui.html",        // Swagger UI
-                        "/swagger-resources/**",   // Swagger资源
-                        "/v2/api-docs",            // Swagger API文档
-                        "/webjars/**",              // Swagger静态资源
-                        "/error"                    // 错误页面
-                );
     }
 }

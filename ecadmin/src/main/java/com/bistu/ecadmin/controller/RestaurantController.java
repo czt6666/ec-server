@@ -5,6 +5,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Restaurant;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.service.RestaurantService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -38,6 +39,7 @@ public class RestaurantController {
 
     @PostMapping("/add")
     @ApiOperation("新增门店")
+    @OperateLog(operation = "新增餐饮门店")
     public Result<String> add(@RequestBody Restaurant restaurant) {
         try {
             restaurantService.create(restaurant);
@@ -50,6 +52,7 @@ public class RestaurantController {
 
     @PostMapping("/update")
     @ApiOperation("编辑门店")
+    @OperateLog(operation = "更新餐饮门店")
     public Result<String> update(@RequestBody Restaurant restaurant) {
         try {
             restaurantService.update(restaurant);
@@ -62,6 +65,7 @@ public class RestaurantController {
 
     @DeleteMapping("/{id}")
     @ApiOperation("删除门店")
+    @OperateLog(operation = "删除餐饮门店")
     public Result<String> delete(@PathVariable Long id) {
         try {
             restaurantService.delete(id);
