@@ -16,12 +16,14 @@ public interface ShopMapper {
                          @Param("productType") String productType,
                          @Param("businessStatus") Integer businessStatus,
                          @Param("village") String village,
+                         @Param("userId") Long userId,
                          @Param("offset") Integer offset,
                          @Param("limit") Integer limit);
     int countShops(@Param("shopName") String shopName,
                    @Param("productType") String productType,
                    @Param("businessStatus") Integer businessStatus,
-                   @Param("village") String village);
+                   @Param("village") String village,
+                   @Param("userId") Long userId);
     int countByShopName(@Param("shopName") String shopName,
                         @Param("excludeId") Long excludeId);
     int getMaxDisplayNo();

@@ -101,6 +101,9 @@
         <if test="villageId != null">
             AND r.village_id = #{villageId}
         </if>
+        <if test="userId != null">
+            AND r.user_id = #{userId}
+        </if>
         ORDER BY r.create_time DESC
         LIMIT #{offset}, #{pageSize}
     </select>
@@ -118,6 +121,9 @@
         </if>
         <if test="villageId != null">
             AND r.village_id = #{villageId}
+        </if>
+        <if test="userId != null">
+            AND r.user_id = #{userId}
         </if>
     </select>
 

@@ -155,6 +155,9 @@
         <if test="village != null and village != ''">
             AND village LIKE CONCAT('%', #{village}, '%')
         </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
         ORDER BY display_no ASC, create_time DESC
         <if test="offset != null and limit != null">
             LIMIT #{offset}, #{limit}
@@ -176,6 +179,9 @@
         </if>
         <if test="village != null and village != ''">
             AND village LIKE CONCAT('%', #{village}, '%')
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
         </if>
     </select>
 

@@ -1,6 +1,8 @@
 package com.bistu.ecadmin.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bistu.common.dto.session.SessionUserInfo;
+import com.bistu.common.util.TokenUtil;
 import com.bistu.ecadmin.dao.mapper.*;
 import com.bistu.ecadmin.pojo.*;
 import com.bistu.ecadmin.service.ShopService;
@@ -33,6 +35,9 @@ public class ShopServiceImpl implements ShopService {
 
     @Autowired
     private ShopProductMapper shopProductMapper;
+
+    @Autowired
+    private TokenUtil tokenUtil;
 
 
 
@@ -175,11 +180,29 @@ public class ShopServiceImpl implements ShopService {
             // 计算偏移量
             int offset = (pageNum - 1) * pageSize;
 
+            // 按当前登录用户限制可见店铺：
+            // - 管理员(userId=10011 或 roleId 包含 1)：查看全部店铺
+            // - 普通用户：仅查看自己(userId)名下的店铺
+            Long userIdFilter = null;
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null) {
+                    List<Integer> roleIds = userInfo.getRoleIds();
+                    boolean isAdmin = (userInfo.getUserId() == 10011)
+                            || (roleIds != null && roleIds.contains(1));
+                    if (!isAdmin) {
+                        userIdFilter = (long) userInfo.getUserId();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("获取当前登录用户信息失败，店铺列表默认不过滤用户: {}", e.getMessage());
+            }
+
             // 查询列表
-            List<Shop> shops = shopMapper.listShops(shopName, productType, businessStatus, village, offset, pageSize);
+            List<Shop> shops = shopMapper.listShops(shopName, productType, businessStatus, village, userIdFilter, offset, pageSize);
 
             // 查询总数
-            int total = shopMapper.countShops(shopName, productType, businessStatus, village);
+            int total = shopMapper.countShops(shopName, productType, businessStatus, village, userIdFilter);
 
             PageResult pageResult = new PageResult(total, shops);
             return Result.success(pageResult);

@@ -1,6 +1,7 @@
 package com.bistu.ecadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.common.util.CommonUtil;
 import com.bistu.common.util.constants.ErrorEnum;
 import com.bistu.ecadmin.service.ProductService;
@@ -28,6 +29,7 @@ public class ProductsController {
     /**
      * 添加商品
      */
+    @RequiresPermissions("product:add")
     @PostMapping(value = "/subject/add", consumes = {"application/json", "application/x-www-form-urlencoded"})
     @ApiOperation(value = "添加商品", notes = "添加新的商品信息")
     public JSONObject createProduct(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
@@ -45,6 +47,7 @@ public class ProductsController {
     /**
      * 更新商品
      */
+    @RequiresPermissions("product:update")
     @PostMapping(value = "/subject/update", consumes = {"application/json", "application/x-www-form-urlencoded"})
     @ApiOperation(value = "更新商品", notes = "更新商品信息")
     public JSONObject updateProduct(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
@@ -62,6 +65,7 @@ public class ProductsController {
     /**
      * 删除商品
      */
+    @RequiresPermissions("product:delete")
     @PostMapping("/subject/delete")
     @ApiOperation(value = "删除商品", notes = "根据ID删除商品")
     public JSONObject deleteProduct(@RequestBody JSONObject requestJson) {
@@ -80,6 +84,7 @@ public class ProductsController {
     /**
      * 查询商品列表
      */
+    @RequiresPermissions("product:list")
     @GetMapping("/subject/list")
     @ApiOperation(value = "获取商品列表", notes = "分页获取商品列表信息")
     @ApiImplicitParams({
@@ -124,6 +129,7 @@ public class ProductsController {
     /**
      * 增加商品浏览次数
      */
+
     @PostMapping("/subject/view")
     @ApiOperation(value = "增加商品浏览次数", notes = "根据ID增加商品浏览次数")
     public JSONObject incrementViewCount(@RequestBody JSONObject requestJson) {
@@ -142,6 +148,7 @@ public class ProductsController {
     /**
      * 根据商品ID查询商品详情
      */
+    @RequiresPermissions("product:list")
     @GetMapping("/subject/detail")
     @ApiOperation(value = "获取商品详情", notes = "根据商品ID获取商品详细信息")
     @ApiImplicitParam(name = "id", value = "商品ID", required = true, dataType = "Long", paramType = "query")

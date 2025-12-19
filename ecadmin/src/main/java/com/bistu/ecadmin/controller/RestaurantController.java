@@ -1,5 +1,6 @@
 package com.bistu.ecadmin.controller;
 
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Restaurant;
@@ -24,6 +25,10 @@ public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
 
+    /**
+     * 管理员查看全部门店列表
+     */
+    @RequiresPermissions("restaurant:list")
     @GetMapping("/list")
     @ApiOperation("门店列表")
     public Result<PageResult> list(RestaurantQueryDTO dto) {
@@ -35,7 +40,7 @@ public class RestaurantController {
     public Result<Restaurant> get(@PathVariable Long id) {
         return Result.success(restaurantService.getById(id));
     }
-
+    @RequiresPermissions("restaurant:add")
     @PostMapping("/add")
     @ApiOperation("新增门店")
     public Result<String> add(@RequestBody Restaurant restaurant) {
@@ -47,7 +52,7 @@ public class RestaurantController {
             return Result.error(e.getMessage());
         }
     }
-
+    @RequiresPermissions("restaurant:update")
     @PostMapping("/update")
     @ApiOperation("编辑门店")
     public Result<String> update(@RequestBody Restaurant restaurant) {
@@ -59,7 +64,7 @@ public class RestaurantController {
             return Result.error(e.getMessage());
         }
     }
-
+    @RequiresPermissions("restaurant:delete")
     @DeleteMapping("/{id}")
     @ApiOperation("删除门店")
     public Result<String> delete(@PathVariable Long id) {
@@ -72,6 +77,10 @@ public class RestaurantController {
         }
     }
 
+    /**
+     * 商户查看自己名下的门店名称列表
+     */
+    @RequiresPermissions("restaurant:list")
     @GetMapping("/user/{userId}/names")
     @ApiOperation("查询指定用户的所有饭馆名称")
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "path")
@@ -96,6 +105,10 @@ public class RestaurantController {
         }
     }
 
+    /**
+     * 商户查看自己名下的门店（包含ID和名称）
+     */
+    @RequiresPermissions("restaurant:list")
     @GetMapping("/user/{userId}/list")
     @ApiOperation("查询指定用户的所有饭馆（包含ID和名称）")
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "path")

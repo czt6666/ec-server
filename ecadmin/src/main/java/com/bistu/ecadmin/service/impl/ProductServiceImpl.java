@@ -1,7 +1,9 @@
 package com.bistu.ecadmin.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bistu.common.dto.session.SessionUserInfo;
 import com.bistu.common.util.CommonUtil;
+import com.bistu.common.util.TokenUtil;
 import com.bistu.common.util.constants.ErrorEnum;
 import com.bistu.ecadmin.dao.ProductDao;
 import com.bistu.ecadmin.pojo.PageResult;
@@ -19,6 +21,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductDao productDao;
+    @Autowired
+    private TokenUtil tokenUtil;
 
     @Override
     public JSONObject createProduct(JSONObject jsonObject) {
@@ -236,6 +240,23 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PageResult listProducts(JSONObject params) {
         try {
+            // 根据当前登录用户限制可见商品：
+            // - 管理员(userId=10011 或 roleId 包含 1)：查看全部商品
+            // - 普通用户：仅查看自己(userId)名下的商品
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null) {
+                    List<Integer> roleIds = userInfo.getRoleIds();
+                    boolean isAdmin = (userInfo.getUserId() == 10011)
+                            || (roleIds != null && roleIds.contains(1));
+                    if (!isAdmin) {
+                        params.put("userId", userInfo.getUserId());
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("获取当前登录用户信息失败，商品列表默认不过滤用户: {}", e.getMessage());
+            }
+
             // 获取分页参数
             int pageNum = params.getIntValue("pageNum");
             int pageRow = params.getIntValue("pageRow");

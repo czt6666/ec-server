@@ -2,6 +2,8 @@ package com.bistu.ecadmin.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bistu.common.dto.session.SessionUserInfo;
+import com.bistu.common.util.TokenUtil;
 import com.bistu.ecadmin.dao.DTO.RestaurantQueryDTO;
 import com.bistu.ecadmin.dao.mapper.RestaurantMapper;
 import com.bistu.ecadmin.dao.mapper.UserMapper;
@@ -28,9 +30,29 @@ public class RestaurantServiceImpl implements RestaurantService {
     private UserMapper userMapper;
     @Autowired
     private VillageMapper villageMapper;
+    @Autowired
+    private TokenUtil tokenUtil;
 
     @Override
     public PageResult list(RestaurantQueryDTO dto) {
+        // 根据当前登录用户限制可见门店：
+        // - 管理员(userId=10011 或 roleId 包含 1)：查看全部门店
+        // - 普通用户：仅查看自己(userId)名下的门店
+        try {
+            SessionUserInfo userInfo = tokenUtil.getUserInfo();
+            if (userInfo != null) {
+                List<Integer> roleIds = userInfo.getRoleIds();
+                boolean isAdmin = (userInfo.getUserId() == 10011)
+                        || (roleIds != null && roleIds.contains(1));
+                if (!isAdmin) {
+                    dto.setUserId((long) userInfo.getUserId());
+                }
+            }
+        } catch (Exception e) {
+            // 未登录或获取失败时，不强制按用户过滤，保持原有逻辑
+            log.warn("获取当前登录用户信息失败，餐饮列表默认不过滤用户: {}", e.getMessage());
+        }
+
         dto.setPageNum(dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum());
         dto.setPageSize(dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize());
         dto.setOffset((dto.getPageNum() - 1) * dto.getPageSize());

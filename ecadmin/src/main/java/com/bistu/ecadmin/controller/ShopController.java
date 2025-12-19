@@ -1,5 +1,6 @@
 package com.bistu.ecadmin.controller;
 import com.alibaba.fastjson.JSONObject;
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.Shop;
@@ -29,6 +30,7 @@ public class ShopController {
     /**
      * 新增店铺
      */
+    @RequiresPermissions("shop:add")
     @PostMapping("/add")
     @ApiOperation("新增店铺")
     public Result<Shop> createShop(@RequestBody Shop shop) {
@@ -43,6 +45,7 @@ public class ShopController {
     /**
      * 更新店铺
      */
+    @RequiresPermissions("shop:update")
     @PostMapping("/update")
     @ApiOperation("更新店铺")
     public Result<Shop> updateShop(@RequestBody Shop shop) {
@@ -57,6 +60,7 @@ public class ShopController {
     /**
      * 删除店铺
      */
+    @RequiresPermissions("shop:delete")
     @DeleteMapping("/{id}")
     @ApiOperation("删除店铺")
     @ApiImplicitParam(name = "id", value = "店铺ID", required = true, dataType = "Long", paramType = "path")
@@ -72,6 +76,7 @@ public class ShopController {
     /**
      * 查询店铺列表（分页）
      */
+    @RequiresPermissions("shop:list")
     @GetMapping("/list")
     @ApiOperation("查询店铺列表（分页）")
     @ApiImplicitParams({
@@ -100,6 +105,7 @@ public class ShopController {
     /**
      * 根据ID查询店铺详情
      */
+    @RequiresPermissions("shop:list")
     @GetMapping("/{id}")
     @ApiOperation("根据ID查询店铺详情")
     @ApiImplicitParam(name = "id", value = "店铺ID", required = true, dataType = "Long", paramType = "path")
@@ -111,7 +117,7 @@ public class ShopController {
             return Result.error("查询店铺详情失败：" + e.getMessage());
         }
     }
-    @GetMapping("/{shopId}/products")
+
     @ApiOperation("获取商家下的所有商品")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "shopId", value = "店铺ID", required = true, dataType = "Long", paramType = "path"),
