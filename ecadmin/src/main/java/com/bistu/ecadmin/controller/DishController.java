@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.bistu.ecadmin.annotation.OperateLog;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class DishController {
     
     @PostMapping("/add")
     @ApiOperation("新增菜品")
+    @OperateLog(operation = "新增商品菜品")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "restaurantId", value = "餐厅ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "categoryId", value = "菜品分类ID", required = true, dataType = "Long", paramType = "body"),
@@ -42,6 +44,7 @@ public class DishController {
     
     @PostMapping("/update")
     @ApiOperation("更新菜品")
+    @OperateLog(operation = "更新商品菜品")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "菜品ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "restaurantId", value = "餐厅ID", required = true, dataType = "Long", paramType = "body"),
@@ -103,6 +106,7 @@ public class DishController {
     
     @PostMapping("/delete")
     @ApiOperation("删除菜品")
+    @OperateLog(operation = "删除商品菜品")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "菜品ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "body")

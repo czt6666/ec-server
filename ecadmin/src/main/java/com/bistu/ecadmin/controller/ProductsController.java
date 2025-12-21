@@ -6,6 +6,7 @@ import com.bistu.common.util.CommonUtil;
 import com.bistu.common.util.constants.ErrorEnum;
 import com.bistu.ecadmin.service.ProductService;
 import com.bistu.ecadmin.pojo.PageResult;
+import com.bistu.ecadmin.annotation.OperateLog;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -32,6 +33,7 @@ public class ProductsController {
     @RequiresPermissions("product:add")
     @PostMapping(value = "/subject/add", consumes = {"application/json", "application/x-www-form-urlencoded"})
     @ApiOperation(value = "添加商品", notes = "添加新的商品信息")
+    @OperateLog(operation = "新增农产品商品")
     public JSONObject createProduct(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -50,6 +52,7 @@ public class ProductsController {
     @RequiresPermissions("product:update")
     @PostMapping(value = "/subject/update", consumes = {"application/json", "application/x-www-form-urlencoded"})
     @ApiOperation(value = "更新商品", notes = "更新商品信息")
+    @OperateLog(operation = "更新农产品商品")
     public JSONObject updateProduct(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -68,6 +71,7 @@ public class ProductsController {
     @RequiresPermissions("product:delete")
     @PostMapping("/subject/delete")
     @ApiOperation(value = "删除商品", notes = "根据ID删除商品")
+    @OperateLog(operation = "删除农产品商品")
     public JSONObject deleteProduct(@RequestBody JSONObject requestJson) {
         try {
             // 验证必填参数

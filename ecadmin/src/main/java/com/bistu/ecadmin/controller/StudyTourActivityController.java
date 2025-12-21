@@ -3,6 +3,7 @@ package com.bistu.ecadmin.controller;
 import com.bistu.ecadmin.pojo.StudyTourActivity;
 import com.bistu.ecadmin.service.StudyTourActivityService;
 import com.bistu.ecadmin.pojo.Result;
+import com.bistu.ecadmin.annotation.OperateLog;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -37,6 +38,7 @@ public class StudyTourActivityController {
      * 新增研学活动
      */
     @PostMapping
+    @OperateLog(operation = "新增研学活动")
     public Result save(@RequestBody StudyTourActivity studyTourActivity) {
         studyTourActivityService.save(studyTourActivity);
         return Result.success();
@@ -55,6 +57,7 @@ public class StudyTourActivityController {
      * 更新研学活动
      */
     @PutMapping
+    @OperateLog(operation = "更新研学活动")
     public Result update(@RequestBody StudyTourActivity studyTourActivity) {
         studyTourActivityService.update(studyTourActivity);
         return Result.success();
@@ -64,6 +67,7 @@ public class StudyTourActivityController {
      * 删除研学活动
      */
     @DeleteMapping("/{id}")
+    @OperateLog(operation = "删除研学活动")
     public Result deleteById(@PathVariable Long id) {
         studyTourActivityService.deleteById(id);
         return Result.success();

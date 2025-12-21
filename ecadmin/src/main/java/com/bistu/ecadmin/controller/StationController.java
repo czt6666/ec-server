@@ -5,6 +5,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.Station;
 import com.bistu.ecadmin.service.StationService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,7 @@ public class StationController {
 
     @PostMapping("/add")
     @ApiOperation("新增驿站")
+    @OperateLog(operation = "新增养老驿站")
     public Result add(@RequestBody Station station) {
         boolean success = stationService.add(station);
         return success ? Result.success() : Result.error("新增失败");
@@ -59,6 +61,7 @@ public class StationController {
 
     @PutMapping("/update")
     @ApiOperation("更新驿站")
+    @OperateLog(operation = "更新养老驿站")
     public Result update(@RequestBody Station station) {
         boolean success = stationService.update(station);
         return success ? Result.success() : Result.error("更新失败");
@@ -66,6 +69,7 @@ public class StationController {
 
     @DeleteMapping("/deleted/{id}")
     @ApiOperation("删除驿站")
+    @OperateLog(operation = "删除养老驿站")
     public Result deleteById(@PathVariable Long id) {
         boolean success = stationService.deleteById(id);
         return success ? Result.success() : Result.error("删除失败");
@@ -105,5 +109,3 @@ public class StationController {
         }
     }
 }
-
-
