@@ -18,8 +18,11 @@ public interface StudyTourActivityDao {
     /**
      * 根据id查询研学活动
      */
-    @Select("SELECT id, activity_name AS activityName, plan_id AS planId, apply_start_date AS applyStartDate, apply_end_date AS applyEndDate, activity_start_date AS activityStartDate, activity_end_date AS activityEndDate, price, recruit_num AS recruitNum, registered_num AS registeredNum, status, remark, create_time AS createTime, update_time AS updateTime FROM study_tour_activity WHERE id = #{id}")
-    StudyTourActivity getById(Long id);
+    @Select("SELECT id, activity_name AS activityName, plan_id AS planId, apply_start_date AS applyStartDate, apply_end_date AS applyEndDate, activity_start_date AS activityStartDate, activity_end_date AS activityEndDate, price, recruit_num AS recruitNum, registered_num AS registeredNum, status, remark, create_time AS createTime, update_time AS updateTime, " +
+            "COALESCE((SELECT COUNT(*) FROM user_collect uc WHERE uc.target_type = 'study_activity' AND uc.target_id = CAST(study_tour_activity.id AS CHAR)), 0) AS collectNumber, " +
+            "CASE WHEN #{userId} IS NOT NULL AND EXISTS (SELECT 1 FROM user_collect uc2 WHERE uc2.user_id = #{userId} AND uc2.target_type = 'study_activity' AND uc2.target_id = CAST(study_tour_activity.id AS CHAR)) THEN 1 ELSE 0 END AS isCollect " +
+            "FROM study_tour_activity WHERE id = #{id}")
+    StudyTourActivity getById(@Param("id") Long id, @Param("userId") Long userId);
 
     /**
      * 更新研学活动
@@ -35,7 +38,7 @@ public interface StudyTourActivityDao {
     /**
      * 分页查询研学活动
      */
-    List<StudyTourActivity> list(@Param("activityName") String activityName, @Param("planId") Long planId, @Param("status") Integer status);
+    List<StudyTourActivity> list(@Param("activityName") String activityName, @Param("planId") Long planId, @Param("status") Integer status, @Param("userId") Long userId);
 
     /**
      * 更新已报名人数

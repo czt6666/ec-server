@@ -18,8 +18,11 @@ public interface StudyTourPlanDao {
     /**
      * 根据id查询研学方案
      */
-    @Select("SELECT id, plan_name AS planName, base_id AS baseId, route, brief_intro AS briefIntro, details, suitable_crowd AS suitableCrowd, duration, status, create_time AS createTime, update_time AS updateTime FROM study_tour_plan WHERE id = #{id}")
-    StudyTourPlan getById(Long id);
+    @Select("SELECT id, plan_name AS planName, base_id AS baseId, route, brief_intro AS briefIntro, details, suitable_crowd AS suitableCrowd, duration, status, create_time AS createTime, update_time AS updateTime, " +
+            "COALESCE((SELECT COUNT(*) FROM user_collect uc WHERE uc.target_type = 'study_plan' AND uc.target_id = CAST(study_tour_plan.id AS CHAR)), 0) AS collectNumber, " +
+            "CASE WHEN #{userId} IS NOT NULL AND EXISTS (SELECT 1 FROM user_collect uc2 WHERE uc2.user_id = #{userId} AND uc2.target_type = 'study_plan' AND uc2.target_id = CAST(study_tour_plan.id AS CHAR)) THEN 1 ELSE 0 END AS isCollect " +
+            "FROM study_tour_plan WHERE id = #{id}")
+    StudyTourPlan getById(@Param("id") Long id, @Param("userId") Long userId);
 
     /**
      * 更新研学方案
@@ -35,7 +38,7 @@ public interface StudyTourPlanDao {
     /**
      * 分页查询研学方案
      */
-    List<StudyTourPlan> list(@Param("planName") String planName, @Param("baseId") Long baseId, @Param("status") Integer status);
+    List<StudyTourPlan> list(@Param("planName") String planName, @Param("baseId") Long baseId, @Param("status") Integer status, @Param("userId") Long userId);
 
     /**
      * 查询所有启用的研学方案

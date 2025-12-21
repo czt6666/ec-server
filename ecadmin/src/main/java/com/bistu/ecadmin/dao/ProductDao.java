@@ -1,6 +1,8 @@
 package com.bistu.ecadmin.dao;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -87,5 +89,5 @@ public interface ProductDao {
     /**
      * 根据商品ID查询商品基本信息
      */
-    JSONObject getProductById(Long productId);
+    JSONObject getProductById(@Param("productId") Long productId, @Param("miniProgramUserId") Long miniProgramUserId);
 }

@@ -11,6 +11,7 @@ import com.bistu.ecadmin.dao.mapper.VillageMapper;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Restaurant;
 import com.bistu.ecadmin.service.RestaurantService;
+import com.bistu.ecadmin.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
@@ -64,7 +65,9 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant getById(Long id) {
-        return restaurantMapper.selectById(id);
+        // 从 UserContext 获取小程序用户ID（用于 isCollect 计算）
+        Long miniProgramUserId = UserContext.getUserId();
+        return restaurantMapper.selectById(id, miniProgramUserId);
     }
 
     @Override

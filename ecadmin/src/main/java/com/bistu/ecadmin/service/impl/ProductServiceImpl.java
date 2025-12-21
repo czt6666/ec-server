@@ -8,6 +8,7 @@ import com.bistu.common.util.constants.ErrorEnum;
 import com.bistu.ecadmin.dao.ProductDao;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.service.ProductService;
+import com.bistu.ecadmin.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -117,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空", new JSONObject());
             }
 
-            JSONObject existingProduct = productDao.getProductById(productId);
+            JSONObject existingProduct = productDao.getProductById(productId,null);
             if (existingProduct == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
@@ -213,7 +214,7 @@ public class ProductServiceImpl implements ProductService {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空", new JSONObject());
             }
 
-            JSONObject existingProduct = productDao.getProductById(productId);
+            JSONObject existingProduct = productDao.getProductById(productId,null);
             if (existingProduct == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
@@ -318,7 +319,7 @@ public class ProductServiceImpl implements ProductService {
             }
 
             // 检查商品是否存在
-            JSONObject existingProduct = productDao.getProductById(productId);
+            JSONObject existingProduct = productDao.getProductById(productId,null);
             if (existingProduct == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
@@ -345,8 +346,11 @@ public class ProductServiceImpl implements ProductService {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品ID不能为空", new JSONObject());
             }
 
+            // 从 UserContext 获取小程序用户ID（用于 isCollect 计算）
+            Long miniProgramUserId = UserContext.getUserId();
+
             // 查询商品基本信息
-            JSONObject product = productDao.getProductById(productId);
+            JSONObject product = productDao.getProductById(productId, miniProgramUserId);
             if (product == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }

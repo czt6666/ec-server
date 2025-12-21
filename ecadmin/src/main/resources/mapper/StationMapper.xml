@@ -36,6 +36,7 @@
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="collect_number" property="collectNumber"/>
+        <result column="is_collect" property="isCollect"/>
     </resultMap>
 
     <!-- 分页查询驿站列表（支持模糊查询） -->
@@ -47,7 +48,13 @@
         from user_collect uc
         where uc.target_type = 'elderly_station'
         and uc.target_id = CAST(ess.id AS CHAR)
-        ), 0) as collect_number
+        ), 0) as collect_number,
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'elderly_station'
+              AND uc2.target_id = CAST(ess.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS is_collect
         from elderly_service_subject ess
         <where>
             <if test="name != null and name != ''">
@@ -66,8 +73,23 @@
     </select>
 
     <!-- 根据ID查询驿站详情 -->
-    <select id="selectById" parameterType="java.lang.Long" resultMap="StationMap">
-        select * from elderly_service_subject where id = #{id}
+    <select id="selectById" resultMap="StationMap">
+        select
+        ess.*,
+        COALESCE((
+        select count(*)
+        from user_collect uc
+        where uc.target_type = 'elderly_station'
+        and uc.target_id = CAST(ess.id AS CHAR)
+        ), 0) as collect_number,
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'elderly_station'
+              AND uc2.target_id = CAST(ess.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS is_collect
+        from elderly_service_subject ess
+        where ess.id = #{id}
     </select>
 
     <!-- 新增驿站 -->

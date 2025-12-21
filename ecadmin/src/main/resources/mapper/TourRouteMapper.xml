@@ -29,6 +29,7 @@
         <result column="update_time" property="updateTime"/>
         <result column="status" property="status"/>
         <result column="collect_number" property="collectNumber"/>
+        <result column="is_collect" property="isCollect"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -81,8 +82,23 @@
         DELETE FROM tour_route WHERE id = #{id}
     </delete>
 
-    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/> FROM tour_route WHERE id = #{id}
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>,
+        COALESCE((
+        SELECT COUNT(*)
+        FROM user_collect uc
+        WHERE uc.target_type = 'tour_route'
+        AND uc.target_id = CAST(tr.id AS CHAR)
+        ), 0) AS collect_number,
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'tour_route'
+              AND uc2.target_id = CAST(tr.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS is_collect
+        FROM tour_route tr
+        WHERE tr.id = #{id}
     </select>
 
     <select id="countByName" resultType="int">
@@ -101,7 +117,13 @@
         FROM user_collect uc
         WHERE uc.target_type = 'tour_route'
         AND uc.target_id = CAST(tr.id AS CHAR)
-        ), 0) AS collect_number
+        ), 0) AS collect_number,
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'tour_route'
+              AND uc2.target_id = CAST(tr.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS is_collect
         FROM tour_route tr
         <where>
             <if test="name != null and name != ''">

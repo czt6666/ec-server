@@ -23,6 +23,7 @@
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="collect_number" property="collectNumber"/>
+        <result column="is_collect" property="isCollect"/>
     </resultMap>
 
     <!-- 分页查询民宿列表（支持模糊查询） -->
@@ -34,7 +35,13 @@
         from user_collect uc
         where uc.target_type = 'homestay'
         and uc.target_id = CAST(vh.id AS CHAR)
-        ), 0) as collect_number
+        ), 0) as collect_number,
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'homestay'
+              AND uc2.target_id = CAST(vh.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS is_collect
         from village_homestay vh
         <where>
             <if test="villageId != null">
@@ -65,8 +72,23 @@
     </select>
 
     <!-- 根据ID查询民宿详情 -->
-    <select id="selectById" parameterType="java.lang.Integer" resultMap="VillageHomestayMap">
-        select * from village_homestay where id = #{id}
+    <select id="selectById" resultMap="VillageHomestayMap">
+        select
+        vh.*,
+        COALESCE((
+        select count(*)
+        from user_collect uc
+        where uc.target_type = 'homestay'
+        and uc.target_id = CAST(vh.id AS CHAR)
+        ), 0) as collect_number,
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'homestay'
+              AND uc2.target_id = CAST(vh.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS is_collect
+        from village_homestay vh
+        where vh.id = #{id}
     </select>
 
     <!-- 新增民宿 -->

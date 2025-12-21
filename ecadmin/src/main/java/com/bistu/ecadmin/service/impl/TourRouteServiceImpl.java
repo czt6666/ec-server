@@ -5,6 +5,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.TourRoute;
 import com.bistu.ecadmin.service.TourRouteService;
+import com.bistu.ecadmin.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,8 @@ public class TourRouteServiceImpl implements TourRouteService {
 
     @Override
     public Result<?> update(TourRoute route) {
-        TourRoute old = tourRouteMapper.selectById(route.getId());
+        // update 方法只需要检查记录是否存在，不需要 isCollect 信息，传入 null
+        TourRoute old = tourRouteMapper.selectById(route.getId(), null);
         if (old == null) {
             return Result.error("路线不存在");
         }
@@ -53,7 +55,8 @@ public class TourRouteServiceImpl implements TourRouteService {
 
     @Override
     public Result<?> delete(Long id) {
-        TourRoute old = tourRouteMapper.selectById(id);
+        // delete 方法只需要检查记录是否存在，不需要 isCollect 信息，传入 null
+        TourRoute old = tourRouteMapper.selectById(id, null);
         if (old == null) {
             return Result.error("路线不存在");
         }
@@ -63,10 +66,13 @@ public class TourRouteServiceImpl implements TourRouteService {
 
     @Override
     public Result<PageResult<TourRoute>> list(Integer page, Integer limit, String name, Integer bizStatus) {
+        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
+        Long userId = UserContext.getUserId();
+        
         int p = (page == null || page < 1) ? 1 : page;
         int l = (limit == null || limit < 1) ? 10 : limit;
         int offset = (p - 1) * l;
-        List<TourRoute> list = tourRouteMapper.page(name, bizStatus, offset, l);
+        List<TourRoute> list = tourRouteMapper.page(name, bizStatus, userId, offset, l);
         int total = tourRouteMapper.count(name, bizStatus);
         PageResult<TourRoute> pr = new PageResult<>();
         pr.setTotal(total);
@@ -76,7 +82,9 @@ public class TourRouteServiceImpl implements TourRouteService {
 
     @Override
     public TourRoute getById(Long id) {
-        return tourRouteMapper.selectById(id);
+        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
+        Long userId = UserContext.getUserId();
+        return tourRouteMapper.selectById(id, userId);
     }
 }
 

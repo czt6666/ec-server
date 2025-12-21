@@ -6,6 +6,7 @@ import com.bistu.ecadmin.dao.mapper.VillageHomestayMapper;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.VillageHomestay;
 import com.bistu.ecadmin.service.VillageHomestayService;
+import com.bistu.ecadmin.util.UserContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,10 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
 
     @Override
     public PageResult page(VillageHomestayPageQueryDTO dto) {
+        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
+        Long userId = UserContext.getUserId();
+        dto.setUserId(userId);
+        
         int pageNum = dto.getPage() == null || dto.getPage() < 1 ? 1 : dto.getPage();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize();
 
@@ -33,7 +38,9 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
 
     @Override
     public VillageHomestay getById(Integer id) {
-        return villageHomestayMapper.selectById(id);
+        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
+        Long userId = UserContext.getUserId();
+        return villageHomestayMapper.selectById(id, userId);
     }
 
     @Override
