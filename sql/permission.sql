@@ -1,11 +1,26 @@
 INSERT INTO sys_permission (id, menu_code, menu_name, permission_code, permission_name, required_permission)
 VALUES
-    (1101, 'product', '农产品管理', 'product:list',   '商品列表', 1),
-    (1103, 'product', '农产品管理', 'product:update', '商品编辑', 2),
+
     (1102, 'product', '农产品管理', 'product:add',    '新增商品', 2),
     (1104, 'product', '农产品管理', 'product:delete', '删除商品', 2);
 
+UPDATE sys_permission
+SET
+    menu_code = 'product',
+    menu_name = '农产品管理',
+    permission_code = 'product:list',
+    permission_name = '商品列表',
+    required_permission = 1
+WHERE id = 1101;
 
+UPDATE sys_permission
+SET
+    menu_code = 'product',
+    menu_name = '农产品管理',
+    permission_code = 'product:update',
+    permission_name = '商品编辑',
+    required_permission = 2
+WHERE id = 1103;
 INSERT INTO sys_permission (id, menu_code, menu_name, permission_code, permission_name, required_permission) VALUES
 
                                                                                                                  (1202, 'restaurant', '餐饮门店', 'restaurant:add',    '新增门店', 2),
