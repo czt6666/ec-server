@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.common.util.CommonUtil;
 import com.bistu.common.util.constants.ErrorEnum;
-import com.bistu.ecadmin.service.ProductService;
-import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.annotation.OperateLog;
+import com.bistu.ecadmin.pojo.PageResult;
+import com.bistu.ecadmin.service.ProductService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -45,7 +45,7 @@ public class ProductsController {
 
         return productService.createProduct(requestJson);
     }
-
+    
     /**
      * 更新商品
      */
@@ -64,7 +64,7 @@ public class ProductsController {
 
         return productService.updateProduct(requestJson);
     }
-
+    
     /**
      * 删除商品
      */
@@ -84,20 +84,22 @@ public class ProductsController {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
-
+    
     /**
      * 查询商品列表
+     * 说明：
+     * - 后端管理端登录用户：通过 TokenUtil 在 Service 层做“仅看自己”/“管理员看全部”的过滤
+     * - 小程序/匿名访问：不带后端登录 token，也不传 userId 时，允许正常返回列表数据
      */
-    @RequiresPermissions("product:list")
     @GetMapping("/subject/list")
     @ApiOperation(value = "获取商品列表", notes = "分页获取商品列表信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "页码", defaultValue = "1", dataType = "int", paramType = "query"),
-            @ApiImplicitParam(name = "pageRow", value = "每页数量", defaultValue = "10", dataType = "int", paramType = "query"),
-            @ApiImplicitParam(name = "title", value = "商品标题", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "status", value = "商品状态", dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Long", paramType = "query"),
-            @ApiImplicitParam(name = "shopName", value = "店铺名称", dataType = "String", paramType = "query")
+        @ApiImplicitParam(name = "pageNum", value = "页码", defaultValue = "1", dataType = "int", paramType = "query"),
+        @ApiImplicitParam(name = "pageRow", value = "每页数量", defaultValue = "10", dataType = "int", paramType = "query"),
+        @ApiImplicitParam(name = "title", value = "商品标题", dataType = "String", paramType = "query"),
+        @ApiImplicitParam(name = "status", value = "商品状态", dataType = "Integer", paramType = "query"),
+        @ApiImplicitParam(name = "userId", value = "用户ID", dataType = "Long", paramType = "query"),
+        @ApiImplicitParam(name = "shopName", value = "店铺名称", dataType = "String", paramType = "query")
     })
     public JSONObject listProducts(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                    @RequestParam(required = false, defaultValue = "10") Integer pageRow,
@@ -111,8 +113,7 @@ public class ProductsController {
             params.put("pageRow", pageRow);
             params.put("title", title);
             params.put("status", status);
-
-            // 添加userId参数
+            // 添加userId参数（商品所属用户ID）
             if (userId != null) {
                 params.put("userId", userId);
             }
@@ -121,7 +122,7 @@ public class ProductsController {
             if (shopName != null && !shopName.isEmpty()) {
                 params.put("shopName", shopName);
             }
-
+            
             PageResult result = productService.listProducts(params);
             return CommonUtil.successJson(result);
         } catch (Exception e) {
@@ -129,11 +130,10 @@ public class ProductsController {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
-
+    
     /**
      * 增加商品浏览次数
      */
-
     @PostMapping("/subject/view")
     @ApiOperation(value = "增加商品浏览次数", notes = "根据ID增加商品浏览次数")
     public JSONObject incrementViewCount(@RequestBody JSONObject requestJson) {
@@ -148,11 +148,11 @@ public class ProductsController {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
-
+    
     /**
      * 根据商品ID查询商品详情
+     * 说明：对外开放给小程序使用，不强制要求后端登录权限
      */
-    @RequiresPermissions("product:list")
     @GetMapping("/subject/detail")
     @ApiOperation(value = "获取商品详情", notes = "根据商品ID获取商品详细信息")
     @ApiImplicitParam(name = "id", value = "商品ID", required = true, dataType = "Long", paramType = "query")

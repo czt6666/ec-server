@@ -27,9 +27,11 @@ public class RestaurantController {
     private RestaurantService restaurantService;
 
     /**
-     * 管理员查看全部门店列表
+     * 门店列表
+     * 说明：
+     * - 后端管理端登录用户：通过 TokenUtil 在 Service 层做“仅看自己”/“管理员看全部”的过滤
+     * - 小程序/匿名访问：不带后端登录 token，也不传 userId 时，允许正常返回列表数据
      */
-    @RequiresPermissions("restaurant:list")
     @GetMapping("/list")
     @ApiOperation("门店列表")
     public Result<PageResult> list(RestaurantQueryDTO dto) {
