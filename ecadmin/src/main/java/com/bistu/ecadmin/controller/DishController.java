@@ -1,16 +1,18 @@
 package com.bistu.ecadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.dao.DTO.SortRequest;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.service.DishService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.bistu.ecadmin.annotation.OperateLog;
 
 import java.util.List;
 
@@ -21,13 +23,14 @@ import java.util.List;
 @RequestMapping("/restaurant/dish")
 @Api(tags = "菜品管理")
 public class DishController {
-    
+
     @Autowired
     private DishService dishService;
-    
+
     @PostMapping("/add")
     @ApiOperation("新增菜品")
     @OperateLog(operation = "新增商品菜品")
+    @RequiresPermissions("dish:add")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "restaurantId", value = "餐厅ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "categoryId", value = "菜品分类ID", required = true, dataType = "Long", paramType = "body"),
@@ -41,10 +44,11 @@ public class DishController {
     public Result<?> addDish(@RequestBody JSONObject params) {
         return dishService.addDish(params);
     }
-    
+
     @PostMapping("/update")
     @ApiOperation("更新菜品")
     @OperateLog(operation = "更新商品菜品")
+    @RequiresPermissions("dish:update")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "菜品ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "restaurantId", value = "餐厅ID", required = true, dataType = "Long", paramType = "body"),
@@ -59,7 +63,7 @@ public class DishController {
     public Result<?> updateDish(@RequestBody JSONObject params) {
         return dishService.updateDish(params);
     }
-    
+
     @GetMapping("/list")
     @ApiOperation("分页查询菜品列表")
     @ApiImplicitParams({
@@ -86,10 +90,10 @@ public class DishController {
         params.put("dishName", dishName);
         params.put("status", status);
         params.put("userId", userId);
-        
+
         return dishService.listDishes(params);
     }
-    
+
     @GetMapping("/{id}")
     @ApiOperation("获取菜品详情")
     @ApiImplicitParams({
@@ -100,13 +104,14 @@ public class DishController {
         JSONObject params = new JSONObject();
         params.put("id", id);
         params.put("userId", userId);
-        
+
         return dishService.getDishDetail(params);
     }
-    
+
     @PostMapping("/delete")
     @ApiOperation("删除菜品")
     @OperateLog(operation = "删除商品菜品")
+    @RequiresPermissions("dish:delete")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "菜品ID", required = true, dataType = "Long", paramType = "body"),
         @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "body")
@@ -114,9 +119,10 @@ public class DishController {
     public Result<?> deleteDish(@RequestBody JSONObject params) {
         return dishService.deleteDish(params);
     }
-    
+
     @PostMapping("/updateSort")
     @ApiOperation("更新菜品排序")
+    @RequiresPermissions("dish:update")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "sortRequests", value = "排序请求列表", required = true, dataType = "List", paramType = "body")
     })
@@ -127,7 +133,7 @@ public class DishController {
                 // 根据ID更新菜品的sortNum字段
                 dishService.updateSortNum(request.getId(), request.getSortNum());
             }
-            
+
             return Result.success("排序更新成功");
         } catch (Exception e) {
             return Result.error("排序更新失败: " + e.getMessage());

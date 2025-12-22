@@ -28,16 +28,17 @@ public interface DishCategoryMapper {
     Long getRestaurantIdByName(@Param("restaurantName") String restaurantName);
     
     /**
-     * 根据用户ID查询餐厅ID
+     * 根据用户ID查询该用户名下所有餐厅ID
      * @param userId 用户ID
-     * @return 餐厅ID
+     * @return 餐厅ID列表
      */
-    Long getRestaurantIdByUserId(@Param("userId") Long userId);
+    List<Long> listRestaurantIdsByUserId(@Param("userId") Long userId);
     
     /**
      * 分页查询菜品分类列表
      * @param categoryName 菜品分类名称
-     * @param restaurantId 餐厅ID
+     * @param restaurantId 餐厅ID（通过餐厅名称精确查询时使用）
+     * @param restaurantIds 餐厅ID列表（通过用户ID查询其名下全部餐厅时使用）
      * @param status 状态
      * @param offset 偏移量
      * @param pageSize 每页数量
@@ -46,6 +47,7 @@ public interface DishCategoryMapper {
     List<DishCategoryDTO> listDishCategoriesPaged(
             @Param("categoryName") String categoryName,
             @Param("restaurantId") Long restaurantId,
+            @Param("restaurantIds") List<Long> restaurantIds,
             @Param("status") Integer status,
             @Param("offset") int offset,
             @Param("pageSize") int pageSize
@@ -54,13 +56,15 @@ public interface DishCategoryMapper {
     /**
      * 查询菜品分类总数
      * @param categoryName 菜品分类名称
-     * @param restaurantId 餐厅ID
+     * @param restaurantId 餐厅ID（通过餐厅名称精确查询时使用）
+     * @param restaurantIds 餐厅ID列表（通过用户ID查询其名下全部餐厅时使用）
      * @param status 状态
      * @return 总数
      */
     int countDishCategories(
             @Param("categoryName") String categoryName,
             @Param("restaurantId") Long restaurantId,
+            @Param("restaurantIds") List<Long> restaurantIds,
             @Param("status") Integer status
     );
     

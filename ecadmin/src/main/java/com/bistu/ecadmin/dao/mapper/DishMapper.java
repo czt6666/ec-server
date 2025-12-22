@@ -49,14 +49,16 @@ public interface DishMapper {
      * @param categoryName 分类名称
      * @param dishName 菜品名称
      * @param status 状态
+     * @param restaurantIds 餐厅ID列表（通过用户ID查询其名下全部餐厅时使用）
      * @return 菜品列表
      */
-    List<DishDTO> listDishes(@Param("offset") int offset, 
+    List<DishDTO> listDishes(@Param("offset") int offset,
                              @Param("limit") int limit,
                              @Param("restaurantName") String restaurantName,
                              @Param("categoryName") String categoryName,
                              @Param("dishName") String dishName,
-                             @Param("status") Integer status);
+                             @Param("status") Integer status,
+                             @Param("restaurantIds") java.util.List<Long> restaurantIds);
     
     /**
      * 根据餐厅ID分页查询菜品列表
@@ -81,12 +83,14 @@ public interface DishMapper {
      * @param categoryName 分类名称
      * @param dishName 菜品名称
      * @param status 状态
+     * @param restaurantIds 餐厅ID列表（通过用户ID查询其名下全部餐厅时使用）
      * @return 菜品总数
      */
     int countDishes(@Param("restaurantName") String restaurantName,
                     @Param("categoryName") String categoryName,
                     @Param("dishName") String dishName,
-                    @Param("status") Integer status);
+                    @Param("status") Integer status,
+                    @Param("restaurantIds") java.util.List<Long> restaurantIds);
     
     /**
      * 根据餐厅ID查询菜品总数

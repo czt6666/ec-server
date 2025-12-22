@@ -118,45 +118,26 @@ public class DishServiceImpl implements DishService {
             Long userId = params.getLong("userId"); // 获取用户ID参数
             
             // 权限控制逻辑
-            Long restaurantId = null;
-            boolean isAdmin = false;
-            boolean skipAuth = false; // 是否跳过权限验证
-            
-            // 如果没有提供userId，则跳过权限验证，查询所有菜品
-            if (userId == null) {
-                skipAuth = true;
-            } else {
-                // 如果提供了userId，则进行权限控制
-                // 查询用户的角色ID列表
+            // 通过用户ID做数据范围控制：
+            // - 未传 userId：不过滤餐厅，查询所有菜品
+            // - 管理员：不过滤餐厅，查询所有菜品
+            // - 普通用户：限制在该用户名下的所有餐厅
+            List<Long> restaurantIds = null;
+
+            if (userId != null) {
                 List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(userId);
-                
-                // 检查用户是否具有管理员角色（role_id=1）
-                if (roleIds.contains(1L)) {
-                    isAdmin = true; // 管理员可以查看所有菜品
-                } else {
-                    // 非管理员用户只能查看自己关联餐厅的菜品
-                    restaurantId = dishCategoryMapper.getRestaurantIdByUserId(userId);
-                    if (restaurantId == null) {
+                boolean isAdmin = roleIds.contains(1L);
+                if (!isAdmin) {
+                    restaurantIds = dishCategoryMapper.listRestaurantIdsByUserId(userId);
+                    if (restaurantIds == null || restaurantIds.isEmpty()) {
                         return Result.error("未找到用户关联的餐厅");
                     }
                 }
             }
-            
-            // 查询总数
-            int total;
-            List<DishDTO> dishes;
-            
-            // 如果跳过权限验证或用户是管理员，则查询所有菜品
-            if (skipAuth || isAdmin) {
-                // 查询所有菜品
-                total = dishMapper.countDishes(restaurantName, categoryName, dishName, status);
-                dishes = dishMapper.listDishes(offset, pageSize, restaurantName, categoryName, dishName, status);
-            } else {
-                // 非管理员根据餐厅ID查询菜品
-                // 这里我们需要修改DishMapper的方法来支持通过restaurantId过滤
-                total = dishMapper.countDishesByRestaurantId(restaurantId, categoryName, dishName, status);
-                dishes = dishMapper.listDishesByRestaurantId(offset, pageSize, restaurantId, categoryName, dishName, status);
-            }
+
+            // 查询总数和数据列表（根据 restaurantIds 是否为空决定是否按餐厅过滤）
+            int total = dishMapper.countDishes(restaurantName, categoryName, dishName, status, restaurantIds);
+            List<DishDTO> dishes = dishMapper.listDishes(offset, pageSize, restaurantName, categoryName, dishName, status, restaurantIds);
             
             // 构造返回结果
             Map<String, Object> resultData = new HashMap<>();

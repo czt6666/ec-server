@@ -99,9 +99,15 @@
         <if test="dishName != null and dishName != ''">
             AND d.dish_name LIKE CONCAT('%', #{dishName}, '%')
         </if>
-        <if test="restaurantName != null and restaurantName != ''">
-            AND r.name LIKE CONCAT('%', #{restaurantName}, '%')
-        </if>
+                    <if test="restaurantName != null and restaurantName != ''">
+                        AND r.name LIKE CONCAT('%', #{restaurantName}, '%')
+                    </if>
+                    <if test="restaurantIds != null and restaurantIds.size &gt; 0">
+                        AND d.restaurant_id IN
+                        <foreach collection="restaurantIds" item="rid" open="(" separator="," close=")">
+                            #{rid}
+                        </foreach>
+                    </if>
         <if test="categoryName != null and categoryName != ''">
             AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
         </if>
@@ -159,9 +165,15 @@
         <if test="dishName != null and dishName != ''">
             AND d.dish_name LIKE CONCAT('%', #{dishName}, '%')
         </if>
-        <if test="restaurantName != null and restaurantName != ''">
-            AND r.name LIKE CONCAT('%', #{restaurantName}, '%')
-        </if>
+                    <if test="restaurantName != null and restaurantName != ''">
+                        AND r.name LIKE CONCAT('%', #{restaurantName}, '%')
+                    </if>
+                    <if test="restaurantIds != null and restaurantIds.size &gt; 0">
+                        AND d.restaurant_id IN
+                        <foreach collection="restaurantIds" item="rid" open="(" separator="," close=")">
+                            #{rid}
+                        </foreach>
+                    </if>
         <if test="categoryName != null and categoryName != ''">
             AND dc.category_name LIKE CONCAT('%', #{categoryName}, '%')
         </if>

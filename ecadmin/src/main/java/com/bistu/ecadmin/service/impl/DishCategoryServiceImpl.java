@@ -86,9 +86,11 @@ public class DishCategoryServiceImpl implements DishCategoryService {
             
             // 计算偏移量
             int offset = (page - 1) * pageSize;
-            
+
             // 如果提供了餐厅名称，查询对应的餐厅ID
             Long restaurantId = null;
+            // 如果通过用户ID查询，则可能拥有多个餐厅
+            List<Long> restaurantIds = null;
             if (restaurantName != null && !restaurantName.isEmpty()) {
                 restaurantId = dishCategoryMapper.getRestaurantIdByName(restaurantName);
                 if (restaurantId == null) {
@@ -102,22 +104,23 @@ public class DishCategoryServiceImpl implements DishCategoryService {
                 
                 // 检查用户是否拥有管理员角色(role_id=1)
                 boolean isAdmin = roleIds.contains(1L);
-                
-                // 如果不是管理员，则需要查询该用户关联的餐厅ID
+
                 if (!isAdmin) {
-                    restaurantId = dishCategoryMapper.getRestaurantIdByUserId(userId);
-                    // 如果无法获取restaurantId，则返回空数据
-                    if (restaurantId == null) {
+                    // 非管理员用户：查询该用户名下的所有餐厅ID
+                    restaurantIds = dishCategoryMapper.listRestaurantIdsByUserId(userId);
+                    if (restaurantIds == null || restaurantIds.isEmpty()) {
+                        // 该用户暂无绑定餐厅，直接返回空数据
                         return Result.success(new PageResult(0, Collections.emptyList()));
                     }
                 }
-                // 如果是管理员，则不设置restaurantId，查询所有分类
+                // 如果是管理员，则不设置 restaurantId/restaurantIds，查询所有分类
             }
             
             // 查询数据列表
             List<DishCategoryDTO> dishCategories = dishCategoryMapper.listDishCategoriesPaged(
                     categoryName,
                     restaurantId,
+                    restaurantIds,
                     status,
                     offset,
                     pageSize
@@ -127,6 +130,7 @@ public class DishCategoryServiceImpl implements DishCategoryService {
             int total = dishCategoryMapper.countDishCategories(
                     categoryName,
                     restaurantId,
+                    restaurantIds,
                     status
             );
             
