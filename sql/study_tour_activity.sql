@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 03/12/2025 17:41:05
+ Date: 24/12/2025 23:39:35
 */
 
 SET NAMES utf8mb4;
@@ -25,10 +25,10 @@ CREATE TABLE `study_tour_activity` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `activity_name` varchar(200) NOT NULL COMMENT '活动名称',
   `plan_id` bigint NOT NULL COMMENT '关联研学方案ID',
-  `apply_start_date` date NOT NULL COMMENT '报名开始日期',
-  `apply_end_date` date NOT NULL COMMENT '报名结束日期',
-  `activity_start_date` date NOT NULL COMMENT '活动开始日期',
-  `activity_end_date` date NOT NULL COMMENT '活动结束日期',
+  `apply_start_date` varchar(20) NOT NULL COMMENT '报名开始日期',
+  `apply_end_date` varchar(20) NOT NULL COMMENT '报名结束日期',
+  `activity_start_date` varchar(20) NOT NULL COMMENT '活动开始日期',
+  `activity_end_date` varchar(20) NOT NULL COMMENT '活动结束日期',
   `price` decimal(10,2) NOT NULL COMMENT '活动价格（元/人）',
   `recruit_num` int NOT NULL COMMENT '招生总人数',
   `registered_num` int DEFAULT '0' COMMENT '已报名人数',
@@ -40,6 +40,6 @@ CREATE TABLE `study_tour_activity` (
   KEY `idx_plan_id` (`plan_id`) COMMENT '方案ID索引，提升关联查询效率',
   KEY `idx_apply_date` (`apply_start_date`,`apply_end_date`) COMMENT '报名日期索引，便于筛选报名中活动',
   CONSTRAINT `fk_activity_plan` FOREIGN KEY (`plan_id`) REFERENCES `study_tour_plan` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='研学活动表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='研学活动表';
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -17,10 +17,10 @@ public class StudyTourActivityService {
     /**
      * 分页查询研学活动
      */
-    public List<StudyTourActivity> list(String activityName, Long planId, Integer status) {
+    public List<StudyTourActivity> list(String activityName, Long tourPlanId, Integer status) {
         // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
         Long userId = UserContext.getUserId();
-        return studyTourActivityDao.list(activityName, planId, status, userId);
+        return studyTourActivityDao.list(activityName, tourPlanId, status, userId);
     }
 
     /**

@@ -26,10 +26,10 @@ public class StudyTourActivityController {
     public Result page(@RequestParam(defaultValue = "1") Integer pageNum,
                        @RequestParam(defaultValue = "10") Integer pageSize,
                        @RequestParam(required = false) String activityName,
-                       @RequestParam(required = false) Long planId,
+                       @RequestParam(required = false) Long tourPlanId,
                        @RequestParam(required = false) Integer status) {
         PageHelper.startPage(pageNum, pageSize);
-        List<StudyTourActivity> list = studyTourActivityService.list(activityName, planId, status);
+        List<StudyTourActivity> list = studyTourActivityService.list(activityName, tourPlanId, status);
         PageInfo<StudyTourActivity> pageInfo = new PageInfo<>(list);
         return Result.success(pageInfo);
     }

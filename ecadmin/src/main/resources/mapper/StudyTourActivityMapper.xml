@@ -9,19 +9,19 @@
             <if test="activityName != null and activityName != ''">
                 activity_name = #{activityName},
             </if>
-            <if test="planId != null">
-                plan_id = #{planId},
+            <if test="tourPlanId != null">
+                plan_id = #{tourPlanId},
             </if>
-            <if test="applyStartDate != null">
+            <if test="applyStartDate != null and applyStartDate != ''">
                 apply_start_date = #{applyStartDate},
             </if>
-            <if test="applyEndDate != null">
+            <if test="applyEndDate != null and applyEndDate != ''">
                 apply_end_date = #{applyEndDate},
             </if>
-            <if test="activityStartDate != null">
+            <if test="activityStartDate != null and activityStartDate != ''">
                 activity_start_date = #{activityStartDate},
             </if>
-            <if test="activityEndDate != null">
+            <if test="activityEndDate != null and activityEndDate != ''">
                 activity_end_date = #{activityEndDate},
             </if>
             <if test="price != null">
@@ -36,7 +36,7 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            <if test="remark != null and remark != ''">
+            <if test="remark != null">
                 remark = #{remark},
             </if>
             update_time = NOW()
@@ -47,45 +47,47 @@
     <!-- 分页查询研学活动 -->
     <select id="list" resultType="com.bistu.ecadmin.pojo.StudyTourActivity">
         SELECT
-        id,
-        activity_name AS activityName,
-        plan_id AS planId,
-        apply_start_date AS applyStartDate,
-        apply_end_date AS applyEndDate,
-        activity_start_date AS activityStartDate,
-        activity_end_date AS activityEndDate,
-        price,
-        recruit_num AS recruitNum,
-        registered_num AS registeredNum,
-        status,
-        remark,
-        create_time AS createTime,
-        update_time AS updateTime,
+        sta.id,
+        sta.activity_name AS activityName,
+        sta.plan_id AS tourPlanId,
+        stp.plan_name AS planName,
+        sta.apply_start_date AS applyStartDate,
+        sta.apply_end_date AS applyEndDate,
+        sta.activity_start_date AS activityStartDate,
+        sta.activity_end_date AS activityEndDate,
+        sta.price,
+        sta.recruit_num AS recruitNum,
+        sta.registered_num AS registeredNum,
+        sta.status,
+        sta.remark,
+        sta.create_time AS createTime,
+        sta.update_time AS updateTime,
         COALESCE((
-        SELECT COUNT(*)
-        FROM user_collect uc
-        WHERE uc.target_type = 'study_activity'
-        AND uc.target_id = CAST(study_tour_activity.id AS CHAR)
+            SELECT COUNT(*)
+            FROM user_collect uc
+            WHERE uc.target_type = 'study_activity'
+            AND uc.target_id = CAST(sta.id AS CHAR)
         ), 0) AS collectNumber,
         CASE WHEN #{userId} IS NOT NULL AND EXISTS (
             SELECT 1 FROM user_collect uc2
             WHERE uc2.user_id = #{userId}
               AND uc2.target_type = 'study_activity'
-              AND uc2.target_id = CAST(study_tour_activity.id AS CHAR)
+              AND uc2.target_id = CAST(sta.id AS CHAR)
         ) THEN 1 ELSE 0 END AS isCollect
-        FROM study_tour_activity
+        FROM study_tour_activity sta
+        LEFT JOIN study_tour_plan stp ON sta.plan_id = stp.id
         <where>
             <if test="activityName != null and activityName != ''">
-                AND activity_name LIKE CONCAT('%', #{activityName}, '%')
+                AND sta.activity_name LIKE CONCAT('%', #{activityName}, '%')
             </if>
-            <if test="planId != null">
-                AND plan_id = #{planId}
+            <if test="tourPlanId != null">
+                AND sta.plan_id = #{tourPlanId}
             </if>
             <if test="status != null">
-                AND status = #{status}
+                AND sta.status = #{status}
             </if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY sta.create_time DESC
     </select>
 
 </mapper>
