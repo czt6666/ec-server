@@ -54,6 +54,18 @@ public class StudyTourPlanService {
     }
 
     /**
+     * 根据id查询研学方案
+     */
+    public StudyTourPlan getById(Long id, Long userId) {
+        try {
+            return studyTourPlanDao.getById(id, userId);
+        } catch (Exception e) {
+            log.error("查询研学方案失败", e);
+            return null;
+        }
+    }
+
+    /**
      * 修改研学方案
      */
     public Result updateStudyTourPlan(StudyTourPlan studyTourPlan) {

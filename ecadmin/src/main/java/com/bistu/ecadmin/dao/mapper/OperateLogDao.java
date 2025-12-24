@@ -35,4 +35,12 @@ public interface OperateLogDao {
      * 根据ID查询操作日志详情
      */
     OperateLog getOperateLogById(@Param("id") Long id);
+    
+    /**
+     * 查询所有匹配的操作日志（用于导出）
+     */
+    List<OperateLog> listAllOperateLogs(@Param("username") String username,
+                                       @Param("operation") String operation,
+                                       @Param("startTime") java.util.Date startTime,
+                                       @Param("endTime") java.util.Date endTime);
 }

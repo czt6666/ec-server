@@ -70,4 +70,24 @@
         SELECT * FROM operate_log WHERE id = #{id}
     </select>
 
+    <!-- 查询所有匹配的操作日志（用于导出） -->
+    <select id="listAllOperateLogs" resultMap="OperateLogMap">
+        SELECT * FROM operate_log
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="operation != null and operation != ''">
+                AND operation = #{operation}
+            </if>
+            <if test="startTime != null">
+                AND create_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
 </mapper>

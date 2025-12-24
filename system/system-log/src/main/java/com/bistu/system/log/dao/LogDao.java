@@ -30,6 +30,7 @@ public interface LogDao {
      */
     int countLoginLog(JSONObject jsonObject);
     List<JSONObject> listLoginLog(JSONObject jsonObject);
+    List<JSONObject> listAllLoginLogs(JSONObject jsonObject); // 用于导出所有数据
 
     String detailLoginLog(JSONObject jsonObject);
 

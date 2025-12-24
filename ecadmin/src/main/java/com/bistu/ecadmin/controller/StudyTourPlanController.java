@@ -4,6 +4,7 @@ import com.bistu.ecadmin.pojo.StudyTourPlan;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.service.StudyTourPlanService;
+import com.bistu.ecadmin.util.UserContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,23 @@ public class StudyTourPlanController {
         log.info("研学方案分页查询：planName={}, baseId={}, status={}, page={}, pageSize={}",
                 planName, baseId, status, page, pageSize);
         return studyTourPlanService.listStudyTourPlans(planName, baseId, status, page, pageSize);
+    }
+
+    /**
+     * 根据id查询研学方案
+     */
+    @GetMapping("/get/{id}")
+    @ApiOperation(value = "根据id查询研学方案")
+    public Result<StudyTourPlan> getById(@PathVariable Long id) {
+        log.info("根据id查询研学方案：id={}", id);
+        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
+        Long userId = UserContext.getUserId();
+        StudyTourPlan studyTourPlan = studyTourPlanService.getById(id, userId);
+        if (studyTourPlan != null) {
+            return Result.success(studyTourPlan);
+        } else {
+            return Result.error("研学方案不存在");
+        }
     }
 
     /**

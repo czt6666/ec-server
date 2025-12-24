@@ -64,6 +64,27 @@
         from logging_event where arg0='read' ORDER BY event_id DESC
             LIMIT #{offSet}, #{pageRow}
     </select>
+    
+    <select id="listAllLoginLogs" resultType="com.alibaba.fastjson.JSONObject" databaseId="mysql">
+        select
+            event_id "id",
+            arg2 "creator",
+            FROM_UNIXTIME(timestmp/1000,'%Y-%m-%d %H:%i:%s') "date",
+            arg3 "name",
+            arg1 "time",
+            caller_method "method"
+        from logging_event where arg0='read' ORDER BY event_id DESC
+    </select>
+    <select id="listAllLoginLogs" resultType="com.alibaba.fastjson.JSONObject" databaseId="hgdb">
+        select
+            event_id id,
+            arg2 creator,
+            to_char(to_timestamp( timestmp/1000), 'YYYY MM DD HH24:MI:SS') "date",
+            arg3 "name",
+            arg1 "time",
+            caller_method "method"
+        from logging_event where arg0='read' ORDER BY event_id DESC
+    </select>
 
     <select id="listOperateLog" resultType="com.alibaba.fastjson.JSONObject" databaseId="mysql">
         select
