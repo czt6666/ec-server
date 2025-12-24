@@ -1,5 +1,6 @@
 package com.bistu.ecadmin.controller;
 
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.pojo.OperateLog;
 import com.bistu.ecadmin.service.OperateLogService;
 import com.bistu.ecadmin.pojo.Result;
@@ -20,6 +21,7 @@ public class OperateLogController {
     /**
      * 分页查询操作日志
      */
+    @RequiresPermissions("operateLog:list")
     @GetMapping("/list")
     public Result listOperateLogs(@RequestParam(required = false) String username,
                                   @RequestParam(required = false) String operation,
@@ -41,6 +43,7 @@ public class OperateLogController {
     /**
      * 根据ID查询操作日志详情
      */
+    @RequiresPermissions("operateLog:list")
     @GetMapping("/detail/{id}")
     public Result getOperateLogDetail(@PathVariable Long id) {
         OperateLog log = operateLogService.getOperateLogById(id);
