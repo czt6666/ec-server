@@ -244,19 +244,33 @@ public class ProductServiceImpl implements ProductService {
             // 根据当前登录用户限制可见商品：
             // - 管理员(userId=10011 或 roleId 包含 1)：查看全部商品
             // - 普通用户：仅查看自己(userId)名下的商品
-            try {
-                SessionUserInfo userInfo = tokenUtil.getUserInfo();
-                if (userInfo != null) {
-                    List<Integer> roleIds = userInfo.getRoleIds();
-                    boolean isAdmin = (userInfo.getUserId() == 10011)
-                            || (roleIds != null && roleIds.contains(1));
-                    if (!isAdmin) {
-                        params.put("userId", userInfo.getUserId());
-                    }
+            // - 小程序端/匿名访问：没有token时，返回所有商品（不过滤）
+            
+            // 优先从UserContext获取userId（小程序端JWT token）
+            Long miniProgramUserId = UserContext.getUserId();
+            
+            // 如果UserContext中没有，尝试从TokenUtil获取（管理后台token）
+            SessionUserInfo userInfo = null;
+            if (miniProgramUserId == null) {
+                try {
+                    userInfo = tokenUtil.getUserInfo();
+                } catch (Exception e) {
+                    // 没有管理后台token，这是正常的（小程序端或匿名访问）
+                    log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
                 }
-            } catch (Exception e) {
-                log.warn("获取当前登录用户信息失败，商品列表默认不过滤用户: {}", e.getMessage());
             }
+            
+            // 如果从token获取到用户信息，进行权限过滤
+            if (userInfo != null) {
+                List<Integer> roleIds = userInfo.getRoleIds();
+                boolean isAdmin = (userInfo.getUserId() == 10011)
+                        || (roleIds != null && roleIds.contains(1));
+                if (!isAdmin) {
+                    params.put("userId", userInfo.getUserId());
+                }
+            }
+            // 注意：如果既没有UserContext的userId，也没有TokenUtil的userInfo，
+            // 说明是匿名访问或小程序端未登录，不设置userId过滤，返回所有商品
 
             // 获取分页参数
             int pageNum = params.getIntValue("pageNum");

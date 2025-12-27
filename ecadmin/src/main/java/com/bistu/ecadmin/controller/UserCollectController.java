@@ -1,23 +1,31 @@
 package com.bistu.ecadmin.controller;
 
+import com.bistu.common.dto.session.SessionUserInfo;
+import com.bistu.common.util.TokenUtil;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.UserCollect;
 import com.bistu.ecadmin.service.UserCollectService;
+import com.bistu.ecadmin.util.UserContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/ecadmin/collect")
 @Api(tags = "用户收藏管理")
+@Slf4j
 public class UserCollectController {
 
     @Autowired
     private UserCollectService userCollectService;
+    
+    @Autowired
+    private TokenUtil tokenUtil;
 
     @GetMapping("/list")
     @ApiOperation("分页查询收藏列表（返回收藏总数和是否收藏标记）")
@@ -37,35 +45,105 @@ public class UserCollectController {
     }
 
     @PostMapping("/create")
-    @ApiOperation("新增收藏")
+    @ApiOperation("新增收藏（从token中获取userId）")
     public Result<?> create(@RequestBody UserCollect collect) {
+        // 优先从UserContext获取userId（小程序端JWT token）
+        Long userId = UserContext.getUserId();
+        
+        // 如果UserContext中没有，尝试从TokenUtil获取（管理后台token）
+        if (userId == null) {
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null && userInfo.getUserId() > 0) {
+                    userId = (long) userInfo.getUserId();
+                }
+            } catch (Exception e) {
+                log.debug("从TokenUtil获取用户信息失败（可能是小程序端调用）: {}", e.getMessage());
+            }
+        }
+        
+        // 如果从token获取到userId，则使用它；否则使用传入的userId（兼容旧接口）
+        if (userId != null) {
+            collect.setUserId(userId);
+        }
+        
         return userCollectService.create(collect);
     }
 
     @GetMapping("/get")
-    @ApiOperation("查询是否收藏（按userId+targetType+targetId）")
+    @ApiOperation("查询是否收藏（从token中获取userId）")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "query"),
+            @ApiImplicitParam(name = "userId", value = "用户ID（可选，不传则从token获取）", required = false, dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "targetType", value = "收藏对象类型", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "targetId", value = "收藏对象ID", required = true, dataType = "String", paramType = "query")
     })
-    public Result<UserCollect> get(@RequestParam Long userId,
+    public Result<UserCollect> get(@RequestParam(required = false) Long userId,
                                    @RequestParam String targetType,
                                    @RequestParam String targetId) {
-        return userCollectService.get(userId, targetType, targetId);
+        // 优先从UserContext获取userId（小程序端JWT token）
+        Long finalUserId = UserContext.getUserId();
+        
+        // 如果UserContext中没有，尝试从TokenUtil获取（管理后台token）
+        if (finalUserId == null) {
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null && userInfo.getUserId() > 0) {
+                    finalUserId = (long) userInfo.getUserId();
+                }
+            } catch (Exception e) {
+                log.debug("从TokenUtil获取用户信息失败（可能是小程序端调用）: {}", e.getMessage());
+            }
+        }
+        
+        // 如果从token获取失败，使用传入的userId参数
+        if (finalUserId == null) {
+            finalUserId = userId;
+        }
+        
+        // 如果仍然为null，返回错误
+        if (finalUserId == null) {
+            return Result.error("无法获取用户ID，请提供userId或确保token有效");
+        }
+        
+        return userCollectService.get(finalUserId, targetType, targetId);
     }
 
     @DeleteMapping("/delete")
-    @ApiOperation("取消收藏")
+    @ApiOperation("取消收藏（从token中获取userId）")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "query"),
+            @ApiImplicitParam(name = "userId", value = "用户ID（可选，不传则从token获取）", required = false, dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "targetType", value = "收藏对象类型", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "targetId", value = "收藏对象ID", required = true, dataType = "String", paramType = "query")
     })
-    public Result<?> delete(@RequestParam Long userId,
+    public Result<?> delete(@RequestParam(required = false) Long userId,
                             @RequestParam String targetType,
                             @RequestParam String targetId) {
-        return userCollectService.delete(userId, targetType, targetId);
+        // 优先从UserContext获取userId（小程序端JWT token）
+        Long finalUserId = UserContext.getUserId();
+        
+        // 如果UserContext中没有，尝试从TokenUtil获取（管理后台token）
+        if (finalUserId == null) {
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null && userInfo.getUserId() > 0) {
+                    finalUserId = (long) userInfo.getUserId();
+                }
+            } catch (Exception e) {
+                log.debug("从TokenUtil获取用户信息失败（可能是小程序端调用）: {}", e.getMessage());
+            }
+        }
+        
+        // 如果从token获取失败，使用传入的userId参数
+        if (finalUserId == null) {
+            finalUserId = userId;
+        }
+        
+        // 如果仍然为null，返回错误
+        if (finalUserId == null) {
+            return Result.error("无法获取用户ID，请提供userId或确保token有效");
+        }
+        
+        return userCollectService.delete(finalUserId, targetType, targetId);
     }
 
     @GetMapping("/count")

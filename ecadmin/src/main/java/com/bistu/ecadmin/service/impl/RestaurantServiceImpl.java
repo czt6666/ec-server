@@ -39,20 +39,33 @@ public class RestaurantServiceImpl implements RestaurantService {
         // 根据当前登录用户限制可见门店：
         // - 管理员(userId=10011 或 roleId 包含 1)：查看全部门店
         // - 普通用户：仅查看自己(userId)名下的门店
-        try {
-            SessionUserInfo userInfo = tokenUtil.getUserInfo();
-            if (userInfo != null) {
-                List<Integer> roleIds = userInfo.getRoleIds();
-                boolean isAdmin = (userInfo.getUserId() == 10011)
-                        || (roleIds != null && roleIds.contains(1));
-                if (!isAdmin) {
-                    dto.setUserId((long) userInfo.getUserId());
-                }
+        // - 小程序端/匿名访问：没有token时，返回所有门店（不过滤）
+        
+        // 优先从UserContext获取userId（小程序端JWT token）
+        Long miniProgramUserId = UserContext.getUserId();
+        
+        // 如果UserContext中没有，尝试从TokenUtil获取（管理后台token）
+        SessionUserInfo userInfo = null;
+        if (miniProgramUserId == null) {
+            try {
+                userInfo = tokenUtil.getUserInfo();
+            } catch (Exception e) {
+                // 没有管理后台token，这是正常的（小程序端或匿名访问）
+                log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            // 未登录或获取失败时，不强制按用户过滤，保持原有逻辑
-            log.warn("获取当前登录用户信息失败，餐饮列表默认不过滤用户: {}", e.getMessage());
         }
+        
+        // 如果从token获取到用户信息，进行权限过滤
+        if (userInfo != null) {
+            List<Integer> roleIds = userInfo.getRoleIds();
+            boolean isAdmin = (userInfo.getUserId() == 10011)
+                    || (roleIds != null && roleIds.contains(1));
+            if (!isAdmin) {
+                dto.setUserId((long) userInfo.getUserId());
+            }
+        }
+        // 注意：如果既没有UserContext的userId，也没有TokenUtil的userInfo，
+        // 说明是匿名访问或小程序端未登录，不设置userId过滤，返回所有门店
 
         dto.setPageNum(dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum());
         dto.setPageSize(dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize());
