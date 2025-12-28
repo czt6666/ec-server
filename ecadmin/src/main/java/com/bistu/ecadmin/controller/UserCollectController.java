@@ -28,11 +28,11 @@ public class UserCollectController {
     private TokenUtil tokenUtil;
 
     @GetMapping("/list")
-    @ApiOperation("分页查询收藏列表（返回收藏总数和是否收藏标记）")
+    @ApiOperation("分页查询收藏列表（返回收藏总数和是否收藏标记，无token时使用匿名用户ID=0）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "页码", defaultValue = "1", dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "limit", value = "每页数量", defaultValue = "10", dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "userId", value = "用户ID（查询该用户的收藏列表）", dataType = "Long", paramType = "query"),
+            @ApiImplicitParam(name = "userId", value = "用户ID（查询该用户的收藏列表，不传则从token获取，无token时使用0）", dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "targetType", value = "收藏对象类型", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "currentUserId", value = "当前用户ID（用于判断是否收藏，可选，不传则使用userId）", dataType = "Long", paramType = "query")
     })
@@ -41,11 +41,41 @@ public class UserCollectController {
                                                 @RequestParam(required = false) Long userId,
                                                 @RequestParam(required = false) String targetType,
                                                 @RequestParam(required = false) Long currentUserId) {
-        return userCollectService.list(page, limit, userId, targetType, currentUserId);
+        // 如果传入了userId，直接使用
+        Long finalUserId = userId;
+        
+        // 如果没有传入userId，尝试从token获取
+        if (finalUserId == null) {
+            // 优先从UserContext获取userId（小程序端JWT token）
+            finalUserId = UserContext.getUserId();
+            
+            // 如果UserContext中没有，尝试从TokenUtil获取（管理后台token）
+            if (finalUserId == null) {
+                try {
+                    SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                    if (userInfo != null && userInfo.getUserId() > 0) {
+                        finalUserId = (long) userInfo.getUserId();
+                    }
+                } catch (Exception e) {
+                    log.debug("从TokenUtil获取用户信息失败（可能是小程序端或匿名访问）: {}", e.getMessage());
+                }
+            }
+            
+            // 如果仍然为null，说明是匿名用户，使用匿名用户ID=0
+            if (finalUserId == null) {
+                finalUserId = 0L;
+                log.debug("匿名用户查询收藏列表，使用userId=0");
+            }
+        }
+        
+        // 如果currentUserId未传入，使用finalUserId
+        Long finalCurrentUserId = (currentUserId != null) ? currentUserId : finalUserId;
+        
+        return userCollectService.list(page, limit, finalUserId, targetType, finalCurrentUserId);
     }
 
     @PostMapping("/create")
-    @ApiOperation("新增收藏（从token中获取userId）")
+    @ApiOperation("新增收藏（从token中获取userId，无token时使用匿名用户ID=0）")
     public Result<?> create(@RequestBody UserCollect collect) {
         // 优先从UserContext获取userId（小程序端JWT token）
         Long userId = UserContext.getUserId();
@@ -58,20 +88,24 @@ public class UserCollectController {
                     userId = (long) userInfo.getUserId();
                 }
             } catch (Exception e) {
-                log.debug("从TokenUtil获取用户信息失败（可能是小程序端调用）: {}", e.getMessage());
+                log.debug("从TokenUtil获取用户信息失败（可能是小程序端或匿名访问）: {}", e.getMessage());
             }
         }
         
-        // 如果从token获取到userId，则使用它；否则使用传入的userId（兼容旧接口）
+        // 如果从token获取到userId，则使用它；否则使用传入的userId；如果都没有，使用匿名用户ID=0
         if (userId != null) {
             collect.setUserId(userId);
+        } else if (collect.getUserId() == null) {
+            // 没有token且没有传入userId，使用匿名用户ID=0
+            collect.setUserId(0L);
+            log.debug("匿名用户点赞/收藏，使用userId=0");
         }
         
         return userCollectService.create(collect);
     }
 
     @GetMapping("/get")
-    @ApiOperation("查询是否收藏（从token中获取userId）")
+    @ApiOperation("查询是否收藏（从token中获取userId，无token时使用匿名用户ID=0）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", value = "用户ID（可选，不传则从token获取）", required = false, dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "targetType", value = "收藏对象类型", required = true, dataType = "String", paramType = "query"),
@@ -91,7 +125,7 @@ public class UserCollectController {
                     finalUserId = (long) userInfo.getUserId();
                 }
             } catch (Exception e) {
-                log.debug("从TokenUtil获取用户信息失败（可能是小程序端调用）: {}", e.getMessage());
+                log.debug("从TokenUtil获取用户信息失败（可能是小程序端或匿名访问）: {}", e.getMessage());
             }
         }
         
@@ -100,16 +134,17 @@ public class UserCollectController {
             finalUserId = userId;
         }
         
-        // 如果仍然为null，返回错误
+        // 如果仍然为null，说明是匿名用户，使用匿名用户ID=0
         if (finalUserId == null) {
-            return Result.error("无法获取用户ID，请提供userId或确保token有效");
+            finalUserId = 0L;
+            log.debug("匿名用户查询收藏状态，使用userId=0");
         }
         
         return userCollectService.get(finalUserId, targetType, targetId);
     }
 
     @DeleteMapping("/delete")
-    @ApiOperation("取消收藏（从token中获取userId）")
+    @ApiOperation("取消收藏（从token中获取userId，无token时使用匿名用户ID=0）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", value = "用户ID（可选，不传则从token获取）", required = false, dataType = "Long", paramType = "query"),
             @ApiImplicitParam(name = "targetType", value = "收藏对象类型", required = true, dataType = "String", paramType = "query"),
@@ -129,7 +164,7 @@ public class UserCollectController {
                     finalUserId = (long) userInfo.getUserId();
                 }
             } catch (Exception e) {
-                log.debug("从TokenUtil获取用户信息失败（可能是小程序端调用）: {}", e.getMessage());
+                log.debug("从TokenUtil获取用户信息失败（可能是小程序端或匿名访问）: {}", e.getMessage());
             }
         }
         
@@ -138,9 +173,10 @@ public class UserCollectController {
             finalUserId = userId;
         }
         
-        // 如果仍然为null，返回错误
+        // 如果仍然为null，说明是匿名用户，使用匿名用户ID=0
         if (finalUserId == null) {
-            return Result.error("无法获取用户ID，请提供userId或确保token有效");
+            finalUserId = 0L;
+            log.debug("匿名用户取消收藏，使用userId=0");
         }
         
         return userCollectService.delete(finalUserId, targetType, targetId);

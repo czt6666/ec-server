@@ -31,13 +31,14 @@ public class UserCollectServiceImpl implements UserCollectService {
 
     @Override
     public Result<?> create(UserCollect collect) {
+        // userId可以为0（匿名用户），但不能为null
         if (collect.getUserId() == null || !StringUtils.hasText(collect.getTargetType()) || !StringUtils.hasText(collect.getTargetId())) {
             return Result.error("userId/targetType/targetId 不能为空");
         }
         if (!ALLOWED_TYPES.contains(collect.getTargetType())) {
             return Result.error("targetType 非法");
         }
-        // 防重复收藏
+        // 防重复收藏（包括匿名用户）
         if (userCollectMapper.exists(collect.getUserId(), collect.getTargetType(), collect.getTargetId()) > 0) {
             return Result.success("已收藏");
         }
