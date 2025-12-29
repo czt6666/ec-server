@@ -3,6 +3,7 @@ package com.bistu.ecadmin.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.bistu.common.util.CommonUtil;
 import com.bistu.ecadmin.service.VillageNewsThemeService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class VillageNewsThemeController {
      * 新增乡村新闻主题
      */
     @PostMapping(value = "/add", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    @OperateLog(operation = "新增乡村新闻主题")
     public JSONObject addVillageNewsTheme(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -35,6 +37,7 @@ public class VillageNewsThemeController {
      * 更新乡村新闻主题
      */
     @PostMapping(value = "/update", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    @OperateLog(operation = "更新乡村新闻主题")
     public JSONObject updateVillageNewsTheme(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {
@@ -49,6 +52,7 @@ public class VillageNewsThemeController {
      * 删除乡村新闻主题
      */
     @PostMapping(value = "/delete", consumes = {"application/json", "application/x-www-form-urlencoded"})
+    @OperateLog(operation = "删除乡村新闻主题")
     public JSONObject deleteVillageNewsTheme(@RequestBody(required = false) JSONObject requestJson, HttpServletRequest request) {
         // 如果没有JSON请求体，则从请求参数中获取
         if (requestJson == null) {

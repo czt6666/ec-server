@@ -5,6 +5,7 @@ import com.bistu.ecadmin.pojo.StudyTourType;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.service.StudyTourBaseService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class StudyTourBaseController {
      */
     @PostMapping("/create")
     @ApiOperation(value = "新增研学基地")
+    @OperateLog(operation = "新增研学基地")
     public Result create(@RequestBody StudyTourBase studyTourBase) {
         log.info("新增研学基地：{}", studyTourBase);
         return studyTourBaseService.createStudyTourBase(studyTourBase);
@@ -53,6 +55,7 @@ public class StudyTourBaseController {
      */
     @PutMapping("/update")
     @ApiOperation(value = "根据id修改研学基地信息")
+    @OperateLog(operation = "更新研学基地")
     public Result update(@RequestBody StudyTourBase studyTourBase) {
         log.info("修改研学基地：{}", studyTourBase);
         return studyTourBaseService.updateStudyTourBase(studyTourBase);
@@ -63,6 +66,7 @@ public class StudyTourBaseController {
      */
     @DeleteMapping("/delete/{id}")
     @ApiOperation(value = "根据id删除研学基地")
+    @OperateLog(operation = "删除研学基地")
     public Result delete(@PathVariable Long id) {
         log.info("删除研学基地：id={}", id);
         return studyTourBaseService.deleteStudyTourBase(id);
@@ -73,6 +77,7 @@ public class StudyTourBaseController {
      */
     @PostMapping("/saveBaseTypes")
     @ApiOperation(value = "保存基地与研学类型的关联关系")
+    @OperateLog(operation = "保存基地与研学类型的关联关系")
     public Result saveBaseTypes(@RequestParam Long baseId, @RequestBody List<Long> typeIds) {
         log.info("保存基地与研学类型的关联关系：baseId={}, typeIds={}", baseId, typeIds);
         return studyTourBaseService.saveBaseTypes(baseId, typeIds);
