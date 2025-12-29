@@ -28,6 +28,7 @@
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="status" property="status"/>
+        <result column="company_id" property="companyId"/>
         <result column="collect_number" property="collectNumber"/>
         <result column="is_collect" property="isCollect"/>
     </resultMap>
@@ -36,18 +37,18 @@
         id, name, route_type, theme_tags, origin_address, origin_lat, origin_lng, dest_address, dest_lat, dest_lng,
         days, difficulty, itinerary, biz_status, target_crowd, price_range,
         safety_measures, service_guarantee, cost_included, cost_excluded,
-        create_time, update_time, status
+        create_time, update_time, status, company_id
     </sql>
 
     <insert id="insert" parameterType="com.bistu.ecadmin.pojo.TourRoute" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tour_route
         (name, route_type, theme_tags, origin_address, origin_lat, origin_lng, dest_address, dest_lat, dest_lng,
          days, difficulty, itinerary, biz_status, target_crowd, price_range,
-         safety_measures, service_guarantee, cost_included, cost_excluded, status)
+         safety_measures, service_guarantee, cost_included, cost_excluded, status, company_id)
         VALUES
             (#{name}, #{routeType}, #{themeTags}, #{originAddress}, #{originLat}, #{originLng}, #{destAddress}, #{destLat}, #{destLng},
              #{days}, #{difficulty}, #{itinerary}, #{bizStatus}, #{targetCrowd}, #{priceRange},
-             #{safetyMeasures}, #{serviceGuarantee}, #{costIncluded}, #{costExcluded}, #{status})
+             #{safetyMeasures}, #{serviceGuarantee}, #{costIncluded}, #{costExcluded}, #{status}, #{companyId})
     </insert>
 
     <update id="update" parameterType="com.bistu.ecadmin.pojo.TourRoute">
@@ -73,6 +74,7 @@
             <if test="costIncluded != null">cost_included = #{costIncluded},</if>
             <if test="costExcluded != null">cost_excluded = #{costExcluded},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="companyId != null">company_id = #{companyId},</if>
             update_time = NOW()
         </set>
         WHERE id = #{id}
@@ -132,6 +134,9 @@
             <if test="bizStatus != null">
                 AND tr.biz_status = #{bizStatus}
             </if>
+            <if test="companyId != null">
+                AND tr.company_id = #{companyId}
+            </if>
         </where>
         ORDER BY tr.create_time DESC
         LIMIT #{offset}, #{limit}
@@ -145,6 +150,9 @@
             </if>
             <if test="bizStatus != null">
                 AND biz_status = #{bizStatus}
+            </if>
+            <if test="companyId != null">
+                AND company_id = #{companyId}
             </if>
         </where>
     </select>

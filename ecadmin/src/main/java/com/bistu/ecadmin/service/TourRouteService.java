@@ -12,7 +12,7 @@ public interface TourRouteService {
 
     Result<?> delete(Long id);
 
-    Result<PageResult<TourRoute>> list(Integer page, Integer limit, String name, Integer bizStatus);
+    Result<PageResult<TourRoute>> list(Integer page, Integer limit, String name, Integer bizStatus, Long companyId);
 
     TourRoute getById(Long id);
 }

@@ -26,13 +26,15 @@ public class TourRouteController {
             @ApiImplicitParam(name = "page", value = "页码", defaultValue = "1", dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "limit", value = "每页数量", defaultValue = "10", dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "name", value = "路线名称", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "bizStatus", value = "经营状态", dataType = "Integer", paramType = "query")
+            @ApiImplicitParam(name = "bizStatus", value = "经营状态", dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "companyId", value = "公司ID", dataType = "Long", paramType = "query")
     })
     public Result<PageResult<TourRoute>> list(@RequestParam(defaultValue = "1") Integer page,
                                               @RequestParam(defaultValue = "10") Integer limit,
                                               @RequestParam(required = false) String name,
-                                              @RequestParam(required = false) Integer bizStatus) {
-        return tourRouteService.list(page, limit, name, bizStatus);
+                                              @RequestParam(required = false) Integer bizStatus,
+                                              @RequestParam(required = false) Long companyId) {
+        return tourRouteService.list(page, limit, name, bizStatus, companyId);
     }
 
     @GetMapping("/{id}")

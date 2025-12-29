@@ -1,9 +1,11 @@
 package com.bistu.ecadmin.service.impl;
 
 import com.bistu.ecadmin.dao.TourRouteMapper;
+import com.bistu.ecadmin.dao.TourCompanyMapper;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.TourRoute;
+import com.bistu.ecadmin.pojo.TourCompany;
 import com.bistu.ecadmin.service.TourRouteService;
 import com.bistu.ecadmin.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class TourRouteServiceImpl implements TourRouteService {
 
     @Autowired
     private TourRouteMapper tourRouteMapper;
+    
+    @Autowired
+    private TourCompanyMapper tourCompanyMapper;
 
     @Override
     public Result<?> create(TourRoute route) {
@@ -25,6 +30,13 @@ public class TourRouteServiceImpl implements TourRouteService {
         int dup = tourRouteMapper.countByName(route.getName(), null);
         if (dup > 0) {
             return Result.error("路线名称已存在");
+        }
+        // 验证公司是否存在
+        if (route.getCompanyId() != null) {
+            TourCompany company = tourCompanyMapper.selectById(route.getCompanyId());
+            if (company == null) {
+                return Result.error("关联的公司不存在");
+            }
         }
         if (route.getBizStatus() == null) {
             route.setBizStatus(1);
@@ -49,6 +61,13 @@ public class TourRouteServiceImpl implements TourRouteService {
                 return Result.error("路线名称已存在");
             }
         }
+        // 验证公司是否存在（如果提供了companyId）
+        if (route.getCompanyId() != null) {
+            TourCompany company = tourCompanyMapper.selectById(route.getCompanyId());
+            if (company == null) {
+                return Result.error("关联的公司不存在");
+            }
+        }
         int updated = tourRouteMapper.update(route);
         return updated > 0 ? Result.success("更新成功") : Result.error("更新失败");
     }
@@ -65,15 +84,15 @@ public class TourRouteServiceImpl implements TourRouteService {
     }
 
     @Override
-    public Result<PageResult<TourRoute>> list(Integer page, Integer limit, String name, Integer bizStatus) {
+    public Result<PageResult<TourRoute>> list(Integer page, Integer limit, String name, Integer bizStatus, Long companyId) {
         // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
         Long userId = UserContext.getUserId();
         
         int p = (page == null || page < 1) ? 1 : page;
         int l = (limit == null || limit < 1) ? 10 : limit;
         int offset = (p - 1) * l;
-        List<TourRoute> list = tourRouteMapper.page(name, bizStatus, userId, offset, l);
-        int total = tourRouteMapper.count(name, bizStatus);
+        List<TourRoute> list = tourRouteMapper.page(name, bizStatus, companyId, userId, offset, l);
+        int total = tourRouteMapper.count(name, bizStatus, companyId);
         PageResult<TourRoute> pr = new PageResult<>();
         pr.setTotal(total);
         pr.setRecords(list);
