@@ -5,6 +5,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.Shop;
 import com.bistu.ecadmin.service.ShopService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiImplicitParam;
@@ -33,6 +34,7 @@ public class ShopController {
     @RequiresPermissions("shop:add")
     @PostMapping("/add")
     @ApiOperation("新增店铺")
+    @OperateLog(operation = "新增农产品店铺")
     public Result<Shop> createShop(@RequestBody Shop shop) {
         try {
             return shopService.createShop(shop);
@@ -48,6 +50,7 @@ public class ShopController {
     @RequiresPermissions("shop:update")
     @PostMapping("/update")
     @ApiOperation("更新店铺")
+    @OperateLog(operation = "更新农产品店铺")
     public Result<Shop> updateShop(@RequestBody Shop shop) {
         try {
             return shopService.updateShop(shop);
@@ -64,6 +67,7 @@ public class ShopController {
     @DeleteMapping("/{id}")
     @ApiOperation("删除店铺")
     @ApiImplicitParam(name = "id", value = "店铺ID", required = true, dataType = "Long", paramType = "path")
+    @OperateLog(operation = "删除农产品店铺")
     public Result<String> deleteShop(@PathVariable Long id) {
         try {
             return shopService.deleteShop(id);

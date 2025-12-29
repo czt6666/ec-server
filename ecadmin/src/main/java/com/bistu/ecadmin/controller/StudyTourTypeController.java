@@ -4,6 +4,7 @@ import com.bistu.ecadmin.pojo.StudyTourType;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.service.StudyTourTypeService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class StudyTourTypeController {
      */
     @PostMapping("/create")
     @ApiOperation("创建研学类型")
+    @OperateLog(operation = "新增研学类型")
     public Result createStudyTourType(@RequestBody StudyTourType studyTourType) {
         log.info("创建研学类型：{}", studyTourType);
         return studyTourTypeService.createStudyTourType(studyTourType);
@@ -50,6 +52,7 @@ public class StudyTourTypeController {
      */
     @PostMapping("/update")
     @ApiOperation("更新研学类型")
+    @OperateLog(operation = "更新研学类型")
     public Result updateStudyTourType(@RequestBody StudyTourType studyTourType) {
         log.info("更新研学类型：{}", studyTourType);
         return studyTourTypeService.updateStudyTourType(studyTourType);
@@ -60,6 +63,7 @@ public class StudyTourTypeController {
      */
     @DeleteMapping("/delete/{id}")
     @ApiOperation("删除研学类型")
+    @OperateLog(operation = "删除研学类型")
     public Result deleteStudyTourType(@PathVariable Long id) {
         log.info("删除研学类型：id={}", id);
         return studyTourTypeService.deleteStudyTourType(id);

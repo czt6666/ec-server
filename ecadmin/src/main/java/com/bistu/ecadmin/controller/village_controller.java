@@ -5,6 +5,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.village;
 import com.bistu.ecadmin.service.impl.village_serviceIml;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiImplicitParam;
@@ -57,6 +58,7 @@ public class village_controller {
      */
     @ApiOperation("增加村庄村庄")
     @PostMapping("/add")
+    @OperateLog(operation = "新增村庄")
     public Result<String> add(@RequestBody village village) {
         try {
             villageServiceIml.add(village);
@@ -71,6 +73,7 @@ public class village_controller {
      * 修改村庄
      */
     @PutMapping("/update")
+    @OperateLog(operation = "更新村庄")
     public Result<String> update(@RequestBody village village) {
         try {
             villageServiceIml.update(village);
@@ -97,6 +100,7 @@ public class village_controller {
      * 删除村庄（带级联删除）
      */
     @DeleteMapping("/{id}")
+    @OperateLog(operation = "删除村庄")
     public Result<String> delete(@PathVariable Integer id) {
         try {
             // 先检查删除约束
@@ -122,6 +126,7 @@ public class village_controller {
      */
     @DeleteMapping("/force/{id}")
     @ApiOperation("强制删除村庄")
+    @OperateLog(operation = "强制删除村庄")
     public Result<String> forceDelete(@PathVariable Integer id) {
         try {
             villageServiceIml.deleteWithCascade(id);
@@ -152,6 +157,7 @@ public class village_controller {
      */
     @PostMapping("/import")
     @ApiOperation("导入村庄信息")
+    @OperateLog(operation = "导入村庄信息")
     public Result<Map<String, Object>> importVillages(@RequestParam("file") MultipartFile file) {
         try {
             Map<String, Object> result = villageServiceIml.importVillages(file);

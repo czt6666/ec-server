@@ -6,6 +6,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.VillageHomestay;
 import com.bistu.ecadmin.service.VillageHomestayService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ public class VillageHomestayController {
 
     @PostMapping
     @ApiOperation("新增民宿")
+    @OperateLog(operation = "新增乡村民宿")
     public Result add(@RequestBody VillageHomestay homestay) {
         boolean success = villageHomestayService.add(homestay);
         return success ? Result.success() : Result.error("新增失败");
@@ -61,6 +63,7 @@ public class VillageHomestayController {
 
     @PutMapping
     @ApiOperation("更新民宿")
+    @OperateLog(operation = "更新乡村民宿")
     public Result update(@RequestBody VillageHomestay homestay) {
         boolean success = villageHomestayService.update(homestay);
         return success ? Result.success() : Result.error("更新失败");
@@ -68,6 +71,7 @@ public class VillageHomestayController {
 
     @DeleteMapping("/{id}")
     @ApiOperation("删除民宿")
+    @OperateLog(operation = "删除乡村民宿")
     public Result deleteById(@PathVariable Integer id) {
         boolean success = villageHomestayService.deleteById(id);
         return success ? Result.success() : Result.error("删除失败");

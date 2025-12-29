@@ -4,6 +4,7 @@ import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.RouteTheme;
 import com.bistu.ecadmin.service.RouteThemeService;
+import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -21,12 +22,14 @@ public class RouteThemeController {
 
     @PostMapping("/create")
     @ApiOperation("创建线路主题")
+    @OperateLog(operation = "新增线路主题")
     public Result<?> create(@RequestBody RouteTheme routeTheme) {
         return routeThemeService.create(routeTheme);
     }
 
     @PostMapping("/update")
     @ApiOperation("更新线路主题")
+    @OperateLog(operation = "更新线路主题")
     public Result<?> update(@RequestBody RouteTheme routeTheme) {
         return routeThemeService.update(routeTheme);
     }
@@ -34,6 +37,7 @@ public class RouteThemeController {
     @DeleteMapping("/delete/{id}")
     @ApiOperation("删除线路主题")
     @ApiImplicitParam(name = "id", value = "主题ID", required = true, dataType = "Long", paramType = "path")
+    @OperateLog(operation = "删除线路主题")
     public Result<?> delete(@PathVariable Long id) {
         return routeThemeService.delete(id);
     }
@@ -53,12 +57,3 @@ public class RouteThemeController {
         return routeThemeService.list(page, limit, themeName, status);
     }
 }
-
-
-
-
-
-
-
-
-
