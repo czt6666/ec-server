@@ -89,5 +89,5 @@ public interface ProductDao {
     /**
      * 根据商品ID查询商品基本信息
      */
-    JSONObject getProductById(@Param("productId") Long productId, @Param("miniProgramUserId") Long miniProgramUserId);
+    JSONObject getProductById(@Param("productId") Long productId, @Param("userId") Long userId);
 }
