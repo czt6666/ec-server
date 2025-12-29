@@ -53,11 +53,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
+                // 允许任意来源（兼容旧版本Spring，使用allowedOrigins）
+                // 注意：allowedOrigins("*") 不能与 allowCredentials(true) 同时使用
                 .allowedOrigins("*")
                 // 需要允许 OPTIONS 以放行带自定义头的预检请求
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
-                .allowedHeaders("*")
-                .allowCredentials(true)
+                // 显式允许 Authorization 等自定义头，避免预检拦截
+                .allowedHeaders("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "Access-Control-Allow-Headers", "Access-Control-Allow-Origin")
+                // 如果使用 allowedOrigins("*")，必须设置为 false
+                .allowCredentials(false)
                 .maxAge(3600);
 
     }
