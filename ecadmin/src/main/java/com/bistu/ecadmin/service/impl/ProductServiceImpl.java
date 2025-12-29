@@ -261,16 +261,21 @@ public class ProductServiceImpl implements ProductService {
             }
             
             // 如果从token获取到用户信息，进行权限过滤
-            if (userInfo != null) {
-                List<Integer> roleIds = userInfo.getRoleIds();
-                boolean isAdmin = (userInfo.getUserId() == 10011)
-                        || (roleIds != null && roleIds.contains(1));
-                if (!isAdmin) {
-                    params.put("userId", userInfo.getUserId());
+                if (userInfo != null) {
+                    List<Integer> roleIds = userInfo.getRoleIds();
+                    boolean isAdmin = (userInfo.getUserId() == 10011)
+                            || (roleIds != null && roleIds.contains(1));
+                    if (!isAdmin) {
+                        params.put("userId", userInfo.getUserId());
+                    }
                 }
-            }
             // 注意：如果既没有UserContext的userId，也没有TokenUtil的userInfo，
             // 说明是匿名访问或小程序端未登录，不设置userId过滤，返回所有商品
+
+            // 设置小程序用户ID到userId字段（用于 isCollect 计算）
+            if (miniProgramUserId != null && !params.containsKey("userId")) {
+                params.put("userId", miniProgramUserId);
+            }
 
             // 获取分页参数
             int pageNum = params.getIntValue("pageNum");
@@ -361,10 +366,10 @@ public class ProductServiceImpl implements ProductService {
             }
 
             // 从 UserContext 获取小程序用户ID（用于 isCollect 计算）
-            Long miniProgramUserId = UserContext.getUserId();
+            Long userId = UserContext.getUserId();
 
             // 查询商品基本信息
-            JSONObject product = productDao.getProductById(productId, miniProgramUserId);
+            JSONObject product = productDao.getProductById(productId, userId);
             if (product == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }

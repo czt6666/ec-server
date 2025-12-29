@@ -63,9 +63,9 @@
                 WHERE uc.target_type = 'restaurant'
                 AND uc.target_id = CAST(r.id AS CHAR)
             ), 0) AS collectNumber,
-            CASE WHEN #{miniProgramUserId} IS NOT NULL AND EXISTS (
+            CASE WHEN #{userId} IS NOT NULL AND EXISTS (
                 SELECT 1 FROM user_collect uc2
-                WHERE uc2.user_id = #{miniProgramUserId}
+                WHERE uc2.user_id = #{userId}
                   AND uc2.target_type = 'restaurant'
                   AND uc2.target_id = CAST(r.id AS CHAR)
             ) THEN 1 ELSE 0 END AS isCollect
@@ -100,9 +100,9 @@
         WHERE uc.target_type = 'restaurant'
         AND uc.target_id = CAST(r.id AS CHAR)
         ), 0)            AS collectNumber,
-        CASE WHEN #{miniProgramUserId} IS NOT NULL AND EXISTS (
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
             SELECT 1 FROM user_collect uc2
-            WHERE uc2.user_id = #{miniProgramUserId}
+            WHERE uc2.user_id = #{userId}
               AND uc2.target_type = 'restaurant'
               AND uc2.target_id = CAST(r.id AS CHAR)
         ) THEN 1 ELSE 0 END AS isCollect

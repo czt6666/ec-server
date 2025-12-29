@@ -40,10 +40,10 @@ public class RestaurantServiceImpl implements RestaurantService {
         // - 管理员(userId=10011 或 roleId 包含 1)：查看全部门店
         // - 普通用户：仅查看自己(userId)名下的门店
         // - 小程序端/匿名访问：没有token时，返回所有门店（不过滤）
-        
+
         // 优先从UserContext获取userId（小程序端JWT token）
         Long miniProgramUserId = UserContext.getUserId();
-        
+
         // 如果UserContext中没有，尝试从TokenUtil获取（管理后台token）
         SessionUserInfo userInfo = null;
         if (miniProgramUserId == null) {
@@ -54,7 +54,7 @@ public class RestaurantServiceImpl implements RestaurantService {
                 log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
             }
         }
-        
+
         // 如果从token获取到用户信息，进行权限过滤
         if (userInfo != null) {
             List<Integer> roleIds = userInfo.getRoleIds();
@@ -64,8 +64,13 @@ public class RestaurantServiceImpl implements RestaurantService {
                 dto.setUserId((long) userInfo.getUserId());
             }
         }
-        // 注意：如果既没有UserContext的userId，也没有TokenUtil的userInfo，
+        // 如果既没有UserContext的userId，也没有TokenUtil的userInfo，
         // 说明是匿名访问或小程序端未登录，不设置userId过滤，返回所有门店
+
+        // 设置小程序用户ID到userId字段（用于 isCollect 计算）
+        if (miniProgramUserId != null && dto.getUserId() == null) {
+            dto.setUserId(miniProgramUserId);
+        }
 
         dto.setPageNum(dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum());
         dto.setPageSize(dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize());
@@ -79,8 +84,8 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public Restaurant getById(Long id) {
         // 从 UserContext 获取小程序用户ID（用于 isCollect 计算）
-        Long miniProgramUserId = UserContext.getUserId();
-        return restaurantMapper.selectById(id, miniProgramUserId);
+        Long userId = UserContext.getUserId();
+        return restaurantMapper.selectById(id, userId);
     }
 
     @Override
