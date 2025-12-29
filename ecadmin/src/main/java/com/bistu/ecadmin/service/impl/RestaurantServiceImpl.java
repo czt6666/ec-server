@@ -67,10 +67,8 @@ public class RestaurantServiceImpl implements RestaurantService {
         // 如果既没有UserContext的userId，也没有TokenUtil的userInfo，
         // 说明是匿名访问或小程序端未登录，不设置userId过滤，返回所有门店
 
-        // 设置小程序用户ID到userId字段（用于 isCollect 计算）
-        if (miniProgramUserId != null && dto.getUserId() == null) {
-            dto.setUserId(miniProgramUserId);
-        }
+        // 设置小程序用户ID（用于 isCollect 计算，不影响权限过滤）
+        dto.setMiniProgramUserId(miniProgramUserId);
 
         dto.setPageNum(dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum());
         dto.setPageSize(dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize());
@@ -84,8 +82,8 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public Restaurant getById(Long id) {
         // 从 UserContext 获取小程序用户ID（用于 isCollect 计算）
-        Long userId = UserContext.getUserId();
-        return restaurantMapper.selectById(id, userId);
+        Long miniProgramUserId = UserContext.getUserId();
+        return restaurantMapper.selectById(id, miniProgramUserId);
     }
 
     @Override

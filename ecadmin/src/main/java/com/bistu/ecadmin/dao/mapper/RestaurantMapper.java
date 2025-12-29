@@ -16,7 +16,7 @@ public interface RestaurantMapper {
 
     int deleteById(@Param("id") Long id);
 
-    Restaurant selectById(@Param("id") Long id, @Param("userId") Long userId);
+    Restaurant selectById(@Param("id") Long id, @Param("miniProgramUserId") Long miniProgramUserId);
 
     List<Restaurant> list(RestaurantQueryDTO dto);
 

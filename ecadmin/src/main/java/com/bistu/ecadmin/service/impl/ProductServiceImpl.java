@@ -272,9 +272,9 @@ public class ProductServiceImpl implements ProductService {
             // 注意：如果既没有UserContext的userId，也没有TokenUtil的userInfo，
             // 说明是匿名访问或小程序端未登录，不设置userId过滤，返回所有商品
 
-            // 设置小程序用户ID到userId字段（用于 isCollect 计算）
-            if (miniProgramUserId != null && !params.containsKey("userId")) {
-                params.put("userId", miniProgramUserId);
+            // 设置小程序用户ID（用于 isCollect 计算，不影响权限过滤）
+            if (miniProgramUserId != null) {
+                params.put("miniProgramUserId", miniProgramUserId);
             }
 
             // 获取分页参数
@@ -366,10 +366,10 @@ public class ProductServiceImpl implements ProductService {
             }
 
             // 从 UserContext 获取小程序用户ID（用于 isCollect 计算）
-            Long userId = UserContext.getUserId();
+            Long miniProgramUserId = UserContext.getUserId();
 
             // 查询商品基本信息
-            JSONObject product = productDao.getProductById(productId, userId);
+            JSONObject product = productDao.getProductById(productId, miniProgramUserId);
             if (product == null) {
                 return CommonUtil.errorJson(ErrorEnum.E_400, "商品不存在", new JSONObject());
             }
