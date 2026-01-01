@@ -19,8 +19,13 @@ public class CorsFilter implements Filter {
         String curOrigin = reqs.getHeader("Origin");
         response.setHeader("Access-Control-Allow-Origin", curOrigin == null ? "true" : curOrigin);
         response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE, PUT");
-        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE, PUT, OPTIONS, HEAD");
+        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+        // 处理 OPTIONS 预检请求
+        if ("OPTIONS".equalsIgnoreCase(reqs.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
         chain.doFilter(req, res);
     }
 

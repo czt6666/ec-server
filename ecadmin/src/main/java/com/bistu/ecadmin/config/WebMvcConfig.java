@@ -56,6 +56,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 // 指定可信任前端域名，支持凭证（本地调试 + 服务器 H5/小程序页面）
                 .allowedOrigins(
                         "http://localhost:5173",
+                        "https://dzk.czt666.cn",
                         "http://8.145.38.163:8020"
                 )
                 // 需要允许 OPTIONS 以放行带自定义头的预检请求
