@@ -8,8 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Component
-@WebFilter(urlPatterns = "/*", filterName = "CorsFilter", asyncSupported = true)
+// 已禁用：CORS配置已统一使用 ecadmin 模块的 WebMvcConfig
+// 避免与 WebMvcConfig 的 CORS 配置冲突
+// @Component
+// @WebFilter(urlPatterns = "/*", filterName = "CorsFilter", asyncSupported = true)
 public class CorsFilter implements Filter {
 
     @Override
