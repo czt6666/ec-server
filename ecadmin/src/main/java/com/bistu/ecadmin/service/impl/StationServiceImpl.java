@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -59,6 +61,16 @@ public class StationServiceImpl implements StationService {
         // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
         Long userId = UserContext.getUserId();
         return stationMapper.selectById(id, userId);
+    }
+
+    /**
+     * 将环境照片数组转换为逗号分隔的字符串存储到数据库
+     */
+    private void convertEnvironmentPhotosToString(Station station) {
+        if (station.getEnvironmentPhotos() != null && !station.getEnvironmentPhotos().isEmpty()) {
+            String photosStr = String.join(",", station.getEnvironmentPhotos());
+            station.setEnvironmentPhotos(photosStr);
+        }
     }
 
     @Override

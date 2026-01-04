@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -46,9 +48,64 @@ public class StationController {
 
     @GetMapping("/{id}")
     @ApiOperation("根据ID查询驿站详情")
-    public Result<Station> getById(@PathVariable Long id) {
+    public Result<Map<String, Object>> getById(@PathVariable Long id) {
         Station station = stationService.getById(id);
-        return Result.success(station);
+
+        // 转换为Map格式，将environmentPhotos转换为数组并去掉/api前缀
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("id", station.getId());
+        result.put("name", station.getName());
+        result.put("registeredAddress", station.getRegisteredAddress());
+        result.put("businessAddress", station.getBusinessAddress());
+        result.put("registeredLatitude", station.getRegisteredLatitude());
+        result.put("registeredLongitude", station.getRegisteredLongitude());
+        result.put("businessLatitude", station.getBusinessLatitude());
+        result.put("businessLongitude", station.getBusinessLongitude());
+        result.put("unifiedSocialCreditCode", station.getUnifiedSocialCreditCode());
+        result.put("legalRepresentative", station.getLegalRepresentative());
+        result.put("registeredCapital", station.getRegisteredCapital());
+        result.put("establishmentDate", station.getEstablishmentDate());
+        result.put("businessTerm", station.getBusinessTerm());
+        result.put("officialPhone", station.getOfficialPhone());
+        result.put("emergencyContact", station.getEmergencyContact());
+        result.put("emergencyPhone", station.getEmergencyPhone());
+        result.put("officialEmail", station.getOfficialEmail());
+        result.put("subjectTypeId", station.getSubjectTypeId());
+        result.put("serviceMode", station.getServiceMode());
+        result.put("elderlyLicenseNo", station.getElderlyLicenseNo());
+        result.put("medicalLicenseNo", station.getMedicalLicenseNo());
+        result.put("foodLicenseNo", station.getFoodLicenseNo());
+        result.put("fireAcceptanceNo", station.getFireAcceptanceNo());
+        result.put("businessStatus", station.getBusinessStatus());
+        result.put("totalBeds", station.getTotalBeds());
+        result.put("roomConfig", station.getRoomConfig());
+        result.put("careLevel", station.getCareLevel());
+        result.put("priceRange", station.getPriceRange());
+        result.put("introduction", station.getIntroduction());
+
+        // 处理环境照片：转换为数组并去掉/api前缀
+        List<String> environmentPhotos = new ArrayList<>();
+        if (station.getEnvironmentPhotos() != null && !station.getEnvironmentPhotos().trim().isEmpty()) {
+            String[] photos = station.getEnvironmentPhotos().split(",");
+            for (String photo : photos) {
+                String trimmedPhoto = photo.trim();
+                if (!trimmedPhoto.isEmpty()) {
+                    // 去掉/api前缀
+                    if (trimmedPhoto.startsWith("/api")) {
+                        trimmedPhoto = trimmedPhoto.substring(4);
+                    }
+                    environmentPhotos.add(trimmedPhoto);
+                }
+            }
+        }
+        result.put("environmentPhotos", environmentPhotos);
+
+        result.put("createTime", station.getCreateTime());
+        result.put("updateTime", station.getUpdateTime());
+        result.put("collectNumber", station.getCollectNumber());
+        result.put("isCollect", station.getIsCollect());
+
+        return Result.success(result);
     }
 
     @PostMapping("/add")

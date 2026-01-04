@@ -185,9 +185,9 @@
                 WHERE uc.target_type = 'product'
                 AND uc.target_id = CAST(s.id AS CHAR)
             ), 0) AS collectNumber,
-            CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            CASE WHEN #{miniProgramUserId} IS NOT NULL AND EXISTS (
                 SELECT 1 FROM user_collect uc2
-                WHERE uc2.user_id = #{userId}
+                WHERE uc2.user_id = #{miniProgramUserId}
                   AND uc2.target_type = 'product'
                   AND uc2.target_id = CAST(s.id AS CHAR)
             ) THEN 1 ELSE 0 END AS isCollect
