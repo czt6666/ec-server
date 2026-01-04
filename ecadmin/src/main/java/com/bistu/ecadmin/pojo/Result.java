@@ -35,4 +35,24 @@ public class Result<T> implements Serializable {
         return result;
     }
 
+    /**
+     * 自定义返回码和消息（可用于业务状态码）
+     */
+    public static <T> Result<T> of(int code, String msg) {
+        Result<T> result = new Result<>();
+        result.code = code;
+        result.msg = msg;
+        return result;
+    }
+
+    /**
+     * 自定义返回码和数据
+     */
+    public static <T> Result<T> of(int code, T data) {
+        Result<T> result = new Result<>();
+        result.code = code;
+        result.data = data;
+        return result;
+    }
+
 }

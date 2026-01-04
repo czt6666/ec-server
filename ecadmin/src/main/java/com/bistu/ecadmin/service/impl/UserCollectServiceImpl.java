@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
+import com.bistu.ecadmin.pojo.FavoriteStatusCode;
 
 @Service
 public class UserCollectServiceImpl implements UserCollectService {
@@ -38,15 +39,22 @@ public class UserCollectServiceImpl implements UserCollectService {
         if (!ALLOWED_TYPES.contains(collect.getTargetType())) {
             return Result.error("targetType 非法");
         }
-        // 防重复收藏（包括匿名用户）
+        // 如果是匿名用户（userId == 0），要求登录
+        if (collect.getUserId() != null && collect.getUserId() == 0L) {
+            return Result.of(FavoriteStatusCode.NOT_LOGGED_IN.getCode(), "未登录");
+        }
+
+        // 防重复收藏
         if (userCollectMapper.exists(collect.getUserId(), collect.getTargetType(), collect.getTargetId()) > 0) {
-            return Result.success("已收藏");
+            return Result.of(FavoriteStatusCode.ALREADY_COLLECTED.getCode(), "已收藏");
         }
         try {
             int inserted = userCollectMapper.insert(collect);
-            return inserted > 0 ? Result.success("收藏成功") : Result.error("收藏失败");
+            return inserted > 0 ? Result.of(FavoriteStatusCode.SUCCESS.getCode(), "收藏成功") : Result.of(FavoriteStatusCode.OTHER_ERROR.getCode(), "收藏失败");
         } catch (DuplicateKeyException e) {
-            return Result.success("已收藏");
+            return Result.of(FavoriteStatusCode.ALREADY_COLLECTED.getCode(), "已收藏");
+        } catch (Exception e) {
+            return Result.of(FavoriteStatusCode.OTHER_ERROR.getCode(), "收藏失败");
         }
     }
 
@@ -55,8 +63,16 @@ public class UserCollectServiceImpl implements UserCollectService {
         if (userId == null || !StringUtils.hasText(targetType) || !StringUtils.hasText(targetId)) {
             return Result.error("userId/targetType/targetId 不能为空");
         }
-        int deleted = userCollectMapper.delete(userId, targetType, targetId);
-        return deleted > 0 ? Result.success("已取消收藏") : Result.error("未找到记录");
+        // 匿名用户不允许取消收藏（要求登录）
+        if (userId != null && userId == 0L) {
+            return Result.of(FavoriteStatusCode.NOT_LOGGED_IN.getCode(), "未登录");
+        }
+        try {
+            int deleted = userCollectMapper.delete(userId, targetType, targetId);
+            return deleted > 0 ? Result.of(FavoriteStatusCode.SUCCESS.getCode(), "已取消收藏") : Result.of(FavoriteStatusCode.ALREADY_COLLECTED.getCode(), "未找到记录");
+        } catch (Exception e) {
+            return Result.of(FavoriteStatusCode.OTHER_ERROR.getCode(), "取消收藏失败");
+        }
     }
 
     @Override
