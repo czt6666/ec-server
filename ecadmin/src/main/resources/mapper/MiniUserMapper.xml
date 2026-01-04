@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.mapper.MiniUserMapper">
+
+    <resultMap id="MiniUserMap" type="com.bistu.ecadmin.pojo.MiniUser">
+        <id column="id" property="id"/>
+        <result column="phone" property="phone"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="nickname" property="nickname"/>
+        <result column="avatar" property="avatar"/>
+        <result column="gender" property="gender"/>
+        <result column="delete_status" property="deleteStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+    </resultMap>
+
+    <!-- 根据手机号查询小程序用户 -->
+    <select id="selectByPhone" parameterType="string" resultMap="MiniUserMap">
+        SELECT id,
+               phone,
+               username,
+               password,
+               nickname,
+               avatar,
+               gender,
+               delete_status,
+               create_time,
+               update_time,
+               last_login_time
+        FROM mini_user
+        WHERE phone = #{phone}
+          AND delete_status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 根据用户名查询小程序用户 -->
+    <select id="selectByUsername" parameterType="string" resultMap="MiniUserMap">
+        SELECT id,
+               phone,
+               username,
+               password,
+               nickname,
+               avatar,
+               gender,
+               delete_status,
+               create_time,
+               update_time,
+               last_login_time
+        FROM mini_user
+        WHERE username = #{username}
+          AND delete_status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 根据ID查询小程序用户 -->
+    <select id="selectById" parameterType="long" resultMap="MiniUserMap">
+        SELECT id,
+               phone,
+               username,
+               password,
+               nickname,
+               avatar,
+               gender,
+               delete_status,
+               create_time,
+               update_time,
+               last_login_time
+        FROM mini_user
+        WHERE id = #{id}
+          AND delete_status = 1
+    </select>
+
+    <!-- 新增小程序用户 -->
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.MiniUser"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO mini_user
+            (phone, username, password, nickname, avatar, gender, delete_status, create_time, update_time, last_login_time)
+        VALUES
+            (#{phone}, #{username}, #{password}, #{nickname}, #{avatar}, #{gender}, #{deleteStatus}, NOW(), NOW(), NOW())
+    </insert>
+
+    <!-- 更新小程序用户信息 -->
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.MiniUser">
+        UPDATE mini_user
+        <set>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="nickname != null">
+                nickname = #{nickname},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="deleteStatus != null">
+                delete_status = #{deleteStatus},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+          AND delete_status = 1
+    </update>
+
+    <!-- 更新最后登录时间 -->
+    <update id="updateLastLoginTime" parameterType="long">
+        UPDATE mini_user
+        SET last_login_time = NOW(),
+            update_time = NOW()
+        WHERE id = #{id}
+          AND delete_status = 1
+    </update>
+
+</mapper>
+
