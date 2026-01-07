@@ -90,6 +90,56 @@ public class AuthController {
     }
 
     /**
+     * 用户名密码注册
+     */
+    @PostMapping("/register")
+    @ApiOperation("用户名密码注册")
+    public Result<?> register(@RequestBody Map<String, String> params) {
+        String username = params.get("username");
+        String password = params.get("password");
+        String confirmPassword = params.get("confirmPassword");
+
+        if (username == null || username.trim().isEmpty()) {
+            return Result.error("用户名不能为空");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            return Result.error("密码不能为空");
+        }
+        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            return Result.error("确认密码不能为空");
+        }
+
+        return authService.register(username, password, confirmPassword);
+    }
+
+    /**
+     * 忘记密码重置
+     */
+    @PostMapping("/resetPassword")
+    @ApiOperation("忘记密码重置")
+    public Result<?> resetPassword(@RequestBody Map<String, String> params) {
+        String phone = params.get("phone");
+        String code = params.get("code");
+        String newPassword = params.get("newPassword");
+        String confirmPassword = params.get("confirmPassword");
+
+        if (phone == null || phone.trim().isEmpty()) {
+            return Result.error("手机号不能为空");
+        }
+        if (code == null || code.trim().isEmpty()) {
+            return Result.error("验证码不能为空");
+        }
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            return Result.error("新密码不能为空");
+        }
+        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            return Result.error("确认密码不能为空");
+        }
+
+        return authService.resetPassword(phone, code, newPassword, confirmPassword);
+    }
+
+    /**
      * 解析 token 测试接口
      * 前端在请求头传 Authorization: Bearer xxx 或直接传 token 都可以
      */

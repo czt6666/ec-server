@@ -51,5 +51,20 @@ public interface MiniUserMapper {
      * @return 影响行数
      */
     int updateLastLoginTime(@Param("id") Long id);
+
+    /**
+     * 更新用户密码
+     * @param id 用户ID
+     * @param newPassword 新密码（已加密）
+     * @return 影响行数
+     */
+    int updatePassword(@Param("id") Long id, @Param("newPassword") String newPassword);
+
+    /**
+     * 软删除用户（将delete_status设置为2）
+     * @param id 用户ID
+     * @return 影响行数
+     */
+    int deleteById(@Param("id") Long id);
 }
 

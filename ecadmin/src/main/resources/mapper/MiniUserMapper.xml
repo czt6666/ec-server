@@ -119,5 +119,23 @@
           AND delete_status = 1
     </update>
 
+    <!-- 更新用户密码 -->
+    <update id="updatePassword">
+        UPDATE mini_user
+        SET password = #{newPassword},
+            update_time = NOW()
+        WHERE id = #{id}
+          AND delete_status = 1
+    </update>
+
+    <!-- 软删除用户 -->
+    <update id="deleteById" parameterType="long">
+        UPDATE mini_user
+        SET delete_status = 2,
+            update_time = NOW()
+        WHERE id = #{id}
+          AND delete_status = 1
+    </update>
+
 </mapper>
 

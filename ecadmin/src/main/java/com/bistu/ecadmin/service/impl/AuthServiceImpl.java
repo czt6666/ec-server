@@ -202,8 +202,11 @@ public class AuthServiceImpl implements AuthService {
         }
         password = password.trim();
 
-        // 查询用户
+        // 查询用户：优先按用户名查找，若用户名看起来像手机号则尝试按手机号查找
         MiniUser miniUser = miniUserMapper.selectByUsername(username);
+        if (miniUser == null && PHONE_PATTERN.matcher(username).matches()) {
+            miniUser = miniUserMapper.selectByPhone(username);
+        }
         if (miniUser == null) {
             return Result.error("用户名或密码错误");
         }
@@ -246,6 +249,169 @@ public class AuthServiceImpl implements AuthService {
         log.info("小程序用户登录成功：用户名={}, userId={}", username, miniUser.getId());
 
         return Result.success(result);
+    }
+
+    @Override
+    public Result<?> register(String username, String password, String confirmPassword) {
+        // 验证用户名
+        if (username == null || username.trim().isEmpty()) {
+            return Result.error("用户名不能为空");
+        }
+        username = username.trim();
+
+        // 检查是否为手机号格式
+        boolean isPhoneFormat = PHONE_PATTERN.matcher(username).matches();
+
+        if (isPhoneFormat) {
+            // 如果是手机号格式，长度必须为11位（已在正则中验证）
+        } else {
+            // 如果不是手机号，验证普通用户名规则
+            if (username.length() < 4 || username.length() > 20) {
+                return Result.error("用户名长度必须在4-20位之间");
+            }
+            if (!username.matches("^[a-zA-Z][a-zA-Z0-9_]*$")) {
+                return Result.error("用户名必须以字母开头，只能包含字母、数字和下划线，或使用手机号格式");
+            }
+        }
+
+        // 验证密码
+        if (password == null || password.trim().isEmpty()) {
+            return Result.error("密码不能为空");
+        }
+        password = password.trim();
+        if (password.length() < 6) {
+            return Result.error("密码长度不能少于6位");
+        }
+
+        // 验证确认密码
+        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            return Result.error("确认密码不能为空");
+        }
+        confirmPassword = confirmPassword.trim();
+        if (!password.equals(confirmPassword)) {
+            return Result.error("两次输入的密码不一致");
+        }
+
+        // 检查用户名是否已存在
+        MiniUser existingUser = miniUserMapper.selectByUsername(username);
+        if (existingUser != null) {
+            return Result.error("用户名已存在");
+        }
+
+        // 如果用户名是手机号格式，额外检查手机号是否已被注册
+        if (isPhoneFormat) {
+            MiniUser phoneUser = miniUserMapper.selectByPhone(username);
+            if (phoneUser != null) {
+                return Result.error("该手机号已被注册，请使用其他手机号或用户名");
+            }
+        }
+
+        // 创建新用户
+        MiniUser miniUser = new MiniUser();
+        miniUser.setUsername(username);
+        miniUser.setPassword(encodePassword(password));
+
+        // 如果用户名是手机号格式，同时设置手机号字段
+        if (isPhoneFormat) {
+            miniUser.setPhone(username);
+            miniUser.setNickname("用户" + username.substring(7)); // 使用手机号后4位作为昵称
+        } else {
+            // 普通用户名也使用友好格式
+            miniUser.setNickname("用户" + username);
+        }
+
+        miniUser.setGender(0); // 默认未知性别
+        miniUser.setDeleteStatus(1); // 1表示启用状态
+
+        // 保存到数据库
+        int result = miniUserMapper.insert(miniUser);
+        if (result > 0) {
+            log.info("小程序用户注册成功：用户名={}", username);
+            return Result.success("注册成功");
+        } else {
+            log.error("小程序用户注册失败：用户名={}", username);
+            return Result.error("注册失败，请稍后再试");
+        }
+    }
+
+    @Override
+    public Result<?> resetPassword(String phone, String code, String newPassword, String confirmPassword) {
+        // 验证手机号格式
+        if (phone == null || phone.trim().isEmpty()) {
+            return Result.error("手机号不能为空");
+        }
+        phone = phone.trim();
+        if (!PHONE_PATTERN.matcher(phone).matches()) {
+            return Result.error("手机号格式不正确");
+        }
+
+        // 验证验证码
+        if (code == null || code.trim().isEmpty()) {
+            return Result.error("验证码不能为空");
+        }
+        code = code.trim();
+
+        // 支持测试后门验证码（例如输入 "dzk666" 可直接通过验证）
+        if (!"dzk666".equals(code)) {
+            CodeInfo codeInfo = CODE_CACHE.get(phone);
+            if (codeInfo == null) {
+                return Result.error("验证码不存在或已过期，请重新获取");
+            }
+
+            // 检查验证码是否过期
+            if (System.currentTimeMillis() > codeInfo.expireTime) {
+                CODE_CACHE.remove(phone);
+                return Result.error("验证码已过期，请重新获取");
+            }
+
+            // 验证验证码
+            if (!codeInfo.code.equals(code)) {
+                return Result.error("验证码错误");
+            }
+
+            // 验证码验证成功，删除验证码（防止重复使用）
+            CODE_CACHE.remove(phone);
+        }
+
+        // 验证新密码
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            return Result.error("新密码不能为空");
+        }
+        newPassword = newPassword.trim();
+        if (newPassword.length() < 6) {
+            return Result.error("密码长度不能少于6位");
+        }
+
+        // 验证确认密码
+        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            return Result.error("确认密码不能为空");
+        }
+        confirmPassword = confirmPassword.trim();
+        if (!newPassword.equals(confirmPassword)) {
+            return Result.error("两次输入的密码不一致");
+        }
+
+        // 查找用户（支持手机号和用户名都是手机号的情况）
+        MiniUser miniUser = miniUserMapper.selectByPhone(phone);
+        if (miniUser == null) {
+            // 如果手机号没找到用户，尝试按用户名查找（用户名可能是手机号）
+            miniUser = miniUserMapper.selectByUsername(phone);
+        }
+
+        if (miniUser == null) {
+            return Result.error("用户不存在");
+        }
+
+        // 更新密码
+        String encodedPassword = encodePassword(newPassword);
+        int result = miniUserMapper.updatePassword(miniUser.getId(), encodedPassword);
+        if (result > 0) {
+            log.info("用户忘记密码重置成功：phone={}, userId={}", phone, miniUser.getId());
+            return Result.success("密码重置成功");
+        } else {
+            log.error("用户忘记密码重置失败：phone={}, userId={}", phone, miniUser.getId());
+            return Result.error("密码重置失败，请稍后再试");
+        }
     }
 
     /**
