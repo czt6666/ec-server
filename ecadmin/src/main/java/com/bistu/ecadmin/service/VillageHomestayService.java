@@ -38,4 +38,14 @@ public interface VillageHomestayService {
      * 根据乡村ID查询民宿列表
      */
     List<VillageHomestay> getByVillageId(Integer villageId);
+
+    /**
+     * 管理员上架民宿（将状态改为1-营业）
+     */
+    boolean publish(Integer id);
+
+    /**
+     * 管理员下架民宿（将状态改为3-已下架）
+     */
+    boolean unpublish(Integer id);
 }

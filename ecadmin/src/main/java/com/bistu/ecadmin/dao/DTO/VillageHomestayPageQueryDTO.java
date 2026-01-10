@@ -11,10 +11,10 @@ public class VillageHomestayPageQueryDTO implements Serializable {
     
     @ApiModelProperty("页码")
     private Integer page;
-    
+
     @ApiModelProperty("每页大小")
     private Integer pageSize;
-    
+
     @ApiModelProperty("所属乡村ID")
     private Integer villageId;
     
@@ -38,4 +38,7 @@ public class VillageHomestayPageQueryDTO implements Serializable {
     
     @ApiModelProperty("当前用户ID（用于判断是否收藏）")
     private Long userId;
+    
+    @ApiModelProperty("商家用户ID（用于权限过滤：商家只能查看自己的数据）")
+    private Long merchantUserId;
 }

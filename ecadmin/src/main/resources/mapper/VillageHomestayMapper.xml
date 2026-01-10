@@ -4,6 +4,7 @@
 
     <resultMap id="VillageHomestayMap" type="com.bistu.ecadmin.pojo.VillageHomestay">
         <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
         <result column="village_id" property="villageId"/>
         <result column="homestay_name" property="homestayName"/>
         <result column="address" property="address"/>
@@ -24,18 +25,21 @@
         <result column="update_time" property="updateTime"/>
         <result column="collect_number" property="collectNumber"/>
         <result column="is_collect" property="isCollect"/>
+        <result column="user_name" property="userName"/>
     </resultMap>
 
     <!-- 分页查询民宿列表（支持模糊查询） -->
     <select id="pageQuery" parameterType="com.bistu.ecadmin.dao.DTO.VillageHomestayPageQueryDTO" resultMap="VillageHomestayMap">
         select
         vh.*,
+        u.username as user_name,
         COALESCE((
         select count(*)
         from user_collect uc
         where uc.target_type = 'homestay'
         and uc.target_id = CAST(vh.id AS CHAR)
         ), 0) as collect_number,
+        -- is_collect 表示"当前用户是否收藏过"，依赖传入的 userId
         CASE WHEN #{userId} IS NOT NULL AND EXISTS (
             SELECT 1 FROM user_collect uc2
             WHERE uc2.user_id = #{userId}
@@ -43,7 +47,11 @@
               AND uc2.target_id = CAST(vh.id AS CHAR)
         ) THEN 1 ELSE 0 END AS is_collect
         from village_homestay vh
+        LEFT JOIN sys_user u ON vh.user_id = u.id
         <where>
+            <if test="merchantUserId != null">
+                and vh.user_id = #{merchantUserId}
+            </if>
             <if test="villageId != null">
                 and vh.village_id = #{villageId}
             </if>
@@ -81,6 +89,7 @@
         where uc.target_type = 'homestay'
         and uc.target_id = CAST(vh.id AS CHAR)
         ), 0) as collect_number,
+        -- is_collect 表示"当前用户是否收藏过"，依赖传入的 userId
         CASE WHEN #{userId} IS NOT NULL AND EXISTS (
             SELECT 1 FROM user_collect uc2
             WHERE uc2.user_id = #{userId}
@@ -91,14 +100,19 @@
         where vh.id = #{id}
     </select>
 
+    <!-- 根据ID查询民宿（用于权限校验，不包含收藏信息） -->
+    <select id="selectByIdForCheck" resultMap="VillageHomestayMap">
+        select * from village_homestay where id = #{id}
+    </select>
+
     <!-- 新增民宿 -->
     <insert id="insert" parameterType="com.bistu.ecadmin.pojo.VillageHomestay" useGeneratedKeys="true" keyProperty="id">
         insert into village_homestay (
-            village_id, homestay_name, address, status, star_level,
+            user_id, village_id, homestay_name, address, status, star_level,
             room_count, bed_count, max_capacity, contact_name, contact_phone,
             description, cover_image, latitude, longitude, qualification_images, link_address, create_time
         ) values (
-                     #{villageId}, #{homestayName}, #{address}, #{status}, #{starLevel},
+                     #{userId}, #{villageId}, #{homestayName}, #{address}, #{status}, #{starLevel},
                      #{roomCount}, #{bedCount}, #{maxCapacity}, #{contactName}, #{contactPhone},
                      #{description}, #{coverImage}, #{latitude}, #{longitude}, #{qualificationImages}, #{linkAddress}, #{createTime}
                  )
@@ -108,6 +122,7 @@
     <update id="update" parameterType="com.bistu.ecadmin.pojo.VillageHomestay">
         update village_homestay
         <set>
+            <if test="userId != null">user_id = #{userId},</if>
             <if test="villageId != null">village_id = #{villageId},</if>
             <if test="homestayName != null and homestayName != ''">homestay_name = #{homestayName},</if>
             <if test="address != null">address = #{address},</if>
@@ -144,6 +159,9 @@
         select count(*)
         from village_homestay
         <where>
+            <if test="merchantUserId != null">
+                and user_id = #{merchantUserId}
+            </if>
             <if test="villageId != null">
                 and village_id = #{villageId}
             </if>

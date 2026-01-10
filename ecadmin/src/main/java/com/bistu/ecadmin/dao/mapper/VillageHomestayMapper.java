@@ -46,4 +46,9 @@ public interface VillageHomestayMapper {
      * 统计民宿总数
      */
     long count(VillageHomestayPageQueryDTO dto);
+
+    /**
+     * 根据ID查询民宿（用于权限校验）
+     */
+    VillageHomestay selectByIdForCheck(@Param("id") Integer id);
 }
