@@ -185,7 +185,29 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
 
     @Override
     public List<VillageHomestay> getByVillageId(Integer villageId) {
-        return villageHomestayMapper.selectByVillageId(villageId);
+        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
+        Long miniProgramUserId = UserContext.getUserId();
+        
+        // 尝试获取管理后台token
+        SessionUserInfo userInfo = null;
+        if (miniProgramUserId == null) {
+            try {
+                userInfo = tokenUtil.getUserInfo();
+            } catch (Exception e) {
+                // 没有管理后台token，这是正常的（小程序端或匿名访问）
+                log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
+            }
+        }
+        
+        // 如果是从管理后台访问，不过滤status；如果是小程序端/匿名访问，只显示已上架的（status=1）
+        Integer status = null;
+        if (userInfo == null) {
+            // 小程序端/匿名访问：只显示已上架的数据（status=1）
+            // 注意：即使小程序端用户登录了（有miniProgramUserId），只要没有管理后台token，就应该过滤status
+            status = 1;
+        }
+        
+        return villageHomestayMapper.selectByVillageId(villageId, miniProgramUserId, status);
     }
 
     @Override

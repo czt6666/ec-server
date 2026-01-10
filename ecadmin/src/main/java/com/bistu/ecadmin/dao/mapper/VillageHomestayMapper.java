@@ -39,8 +39,13 @@ public interface VillageHomestayMapper {
 
     /**
      * 根据乡村ID查询民宿列表
+     * @param villageId 乡村ID
+     * @param userId 小程序用户ID（用于判断是否收藏，可为null）
+     * @param status 状态过滤（小程序端传1-已上架，管理端可传null查看全部）
      */
-    List<VillageHomestay> selectByVillageId(@Param("villageId") Integer villageId);
+    List<VillageHomestay> selectByVillageId(@Param("villageId") Integer villageId, 
+                                             @Param("userId") Long userId,
+                                             @Param("status") Integer status);
 
     /**
      * 统计民宿总数

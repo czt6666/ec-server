@@ -150,8 +150,32 @@
     </delete>
 
     <!-- 根据乡村ID查询民宿列表 -->
-    <select id="selectByVillageId" parameterType="java.lang.Integer" resultMap="VillageHomestayMap">
-        select * from village_homestay where village_id = #{villageId} order by id desc
+    <select id="selectByVillageId" resultMap="VillageHomestayMap">
+        select
+        vh.*,
+        u.username as user_name,
+        COALESCE((
+        select count(*)
+        from user_collect uc
+        where uc.target_type = 'homestay'
+        and uc.target_id = CAST(vh.id AS CHAR)
+        ), 0) as collect_number,
+        -- is_collect 表示"当前用户是否收藏过"，依赖传入的 userId
+        CASE WHEN #{userId} IS NOT NULL AND EXISTS (
+            SELECT 1 FROM user_collect uc2
+            WHERE uc2.user_id = #{userId}
+              AND uc2.target_type = 'homestay'
+              AND uc2.target_id = CAST(vh.id AS CHAR)
+        ) THEN 1 ELSE 0 END AS is_collect
+        from village_homestay vh
+        LEFT JOIN sys_user u ON vh.user_id = u.id
+        <where>
+            vh.village_id = #{villageId}
+            <if test="status != null">
+                and vh.status = #{status}
+            </if>
+        </where>
+        order by vh.id desc
     </select>
 
     <!-- 统计民宿总数 -->

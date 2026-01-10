@@ -23,9 +23,14 @@ public class VillageHomestayController {
     @Autowired
     private VillageHomestayService villageHomestayService;
 
-    @RequiresPermissions("villageHomestay:list")
+    /**
+     * 分页查询民宿列表
+     * 说明：
+     * - 后端管理端登录用户：通过 TokenUtil 在 Service 层做"仅看自己"/"管理员看全部"的过滤
+     * - 小程序/匿名访问：不带后端登录 token 时，自动过滤只显示已上架的民宿（status=1）
+     */
     @GetMapping("/page")
-    @ApiOperation("分页查询民宿列表（支持模糊查询）")
+    @ApiOperation("分页查询民宿列表（支持模糊查询，小程序端可访问）")
     public Result<PageResult> page(@RequestParam(defaultValue = "1") Integer page,
                                    @RequestParam(defaultValue = "10") Integer pageSize,
                                    @RequestParam(required = false) Integer villageId,
@@ -48,8 +53,12 @@ public class VillageHomestayController {
         return Result.success(villageHomestayService.page(dto));
     }
 
+    /**
+     * 根据ID查询民宿详情
+     * 说明：小程序端可访问，会返回收藏信息
+     */
     @GetMapping("/{id}")
-    @ApiOperation("根据ID查询民宿详情")
+    @ApiOperation("根据ID查询民宿详情（小程序端可访问）")
     public Result<VillageHomestay> getById(@PathVariable Integer id) {
         VillageHomestay homestay = villageHomestayService.getById(id);
         return Result.success(homestay);
@@ -94,8 +103,14 @@ public class VillageHomestayController {
         }
     }
 
+    /**
+     * 根据乡村ID查询民宿列表
+     * 说明：
+     * - 后端管理端登录用户：可查看该乡村下的所有民宿（包括待审核、已下架等）
+     * - 小程序/匿名访问：自动过滤只显示已上架的民宿（status=1），并返回收藏信息
+     */
     @GetMapping("/village/{villageId}")
-    @ApiOperation("根据乡村ID查询民宿列表")
+    @ApiOperation("根据乡村ID查询民宿列表（小程序端可访问）")
     public Result<List<VillageHomestay>> getByVillageId(@PathVariable Integer villageId) {
         List<VillageHomestay> list = villageHomestayService.getByVillageId(villageId);
         return Result.success(list);
