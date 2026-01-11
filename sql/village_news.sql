@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 16/11/2025 12:57:46
+ Date: 10/01/2026 23:34:03
 */
 
 SET NAMES utf8mb4;
@@ -33,6 +33,7 @@ CREATE TABLE `village_news` (
   `updated_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `is_deleted` tinyint(1) DEFAULT '0' COMMENT '是否删除(0否,1是)',
   `publish_status` tinyint NOT NULL DEFAULT '1' COMMENT '发布状态：1-草稿 2-已发布 3-已下线',
+  `news_type` tinyint NOT NULL DEFAULT '1' COMMENT '新闻类型：1-固定新闻 2-实时新闻',
   PRIMARY KEY (`id`),
   KEY `idx_author_id` (`author`),
   KEY `idx_village_id` (`village_id`),

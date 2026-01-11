@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.ActualTimeNewsDao">
+
+    <!-- 新增实时新闻 - 使用数据库自增ID，固定设置news_type为2 -->
+    <insert id="addActualTimeNews" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO village_news (title, author, village_id, image_url, content, publish_status, news_type)
+        VALUES (#{title}, #{author}, #{villageId}, #{imageUrl}, #{content}, #{publish_status, jdbcType=TINYINT}, 2)
+    </insert>
+    
+    <!-- 更新实时新闻，确保news_type保持为2 -->
+    <update id="updateActualTimeNews" parameterType="com.alibaba.fastjson.JSONObject">
+        UPDATE village_news 
+        SET title = #{title}, author = #{author}, village_id = #{villageId}, image_url = #{imageUrl}, content = #{content}
+        <if test="publish_status != null">
+            , publish_status = #{publish_status}
+        </if>
+        WHERE id = #{id} AND news_type = 2
+    </update>
+    
+    <!-- 删除实时新闻（逻辑删除），只删除news_type为2的新闻 -->
+    <update id="deleteActualTimeNews" parameterType="com.alibaba.fastjson.JSONObject">
+        UPDATE village_news 
+        SET is_deleted = '1'
+        WHERE id = #{id} AND news_type = 2
+    </update>
+    
+    <!-- 根据ID查询实时新闻 -->
+    <select id="getActualTimeNewsById" resultType="com.alibaba.fastjson.JSONObject" parameterType="Integer">
+        SELECT 
+            vn.id,
+            vn.title,
+            vn.author,
+            vn.village_id as villageId,
+            vn.image_url as imageUrl,
+            vn.created_time as createTime,
+            vn.publish_status as publishStatus,
+            vn.content,
+            vn.news_type as newsType
+        FROM village_news vn
+        WHERE vn.id = #{id} AND vn.is_deleted = '0' AND vn.news_type = 2
+    </select>
+    
+    <!-- 查询实时新闻数量 -->
+    <select id="countActualTimeNews" resultType="Integer" parameterType="com.alibaba.fastjson.JSONObject">
+        SELECT COUNT(0)
+        FROM village_news vn
+        WHERE vn.is_deleted = '0' AND vn.news_type = 2
+        <if test="keyword != null and keyword != ''">
+            AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_id LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="publish_status != null">
+            AND vn.publish_status = #{publish_status}
+        </if>
+    </select>
+    
+    <!-- 分页查询实时新闻列表 -->
+    <select id="listActualTimeNews" resultType="com.alibaba.fastjson.JSONObject" parameterType="com.alibaba.fastjson.JSONObject">
+        SELECT 
+            vn.id,
+            vn.title,
+            vn.author,
+            vn.village_id as villageId,
+            vn.image_url as imageUrl,
+            vn.created_time as createTime,
+            vn.publish_status as publishStatus,
+            vn.content,
+            vn.news_type as newsType
+        FROM village_news vn
+        WHERE vn.is_deleted = '0' AND vn.news_type = 2
+        <if test="keyword != null and keyword != ''">
+            AND (vn.title LIKE CONCAT('%', #{keyword}, '%') OR vn.author LIKE CONCAT('%', #{keyword}, '%') OR vn.village_id LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="publish_status != null">
+            AND vn.publish_status = #{publish_status}
+        </if>
+        ORDER BY vn.id DESC
+        LIMIT #{offSet,jdbcType=INTEGER}, #{pageRow,jdbcType=INTEGER}
+    </select>
+
+</mapper>
