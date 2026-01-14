@@ -118,5 +118,11 @@ public class Station implements Serializable {
     
     @ApiModelProperty("当前用户是否已收藏：0-未收藏，1-已收藏")
     private Integer isCollect;
+
+    @ApiModelProperty("归属商户（后台用户）ID")
+    private Long userId;
+
+    @ApiModelProperty("归属商户（后台用户）名称")
+    private String userName;
 }
 

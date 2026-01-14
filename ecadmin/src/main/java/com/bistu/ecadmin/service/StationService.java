@@ -44,6 +44,16 @@ public interface StationService {
      * 导出驿站信息
      */
     Resource exportStations();
+
+    /**
+     * 上架驿站（仅管理员，将营业状态改为 1-营业中）
+     */
+    boolean publish(Long id);
+
+    /**
+     * 下架驿站（仅管理员，将营业状态改为 3-已注销/下架）
+     */
+    boolean unpublish(Long id);
 }
 
 

@@ -27,5 +27,8 @@ public class StationPageQueryDTO implements Serializable {
     
     @ApiModelProperty("当前用户ID（用于判断是否收藏）")
     private Long userId;
+
+    @ApiModelProperty("商户后台用户ID（用于商户模式：商户只看自己的数据）")
+    private Long merchantUserId;
 }
 

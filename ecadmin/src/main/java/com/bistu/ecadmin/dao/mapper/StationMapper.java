@@ -19,7 +19,10 @@ public interface StationMapper {
     /**
      * 根据ID查询驿站详情
      */
-    Station selectById(@Param("id") Long id, @Param("userId") Long userId);
+    Station selectById(@Param("id") Long id,
+                       @Param("userId") Long userId,
+                       @Param("status") Integer status,
+                       @Param("merchantUserId") Long merchantUserId);
 
     /**
      * 新增驿站

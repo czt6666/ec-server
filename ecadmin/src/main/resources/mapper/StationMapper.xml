@@ -37,12 +37,15 @@
         <result column="update_time" property="updateTime"/>
         <result column="collect_number" property="collectNumber"/>
         <result column="is_collect" property="isCollect"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
     </resultMap>
 
     <!-- 分页查询驿站列表（支持模糊查询） -->
     <select id="pageQuery" parameterType="com.bistu.ecadmin.dao.DTO.StationPageQueryDTO" resultMap="StationMap">
         select
         ess.*,
+        u.username as user_name,
         COALESCE((
         select count(*)
         from user_collect uc
@@ -56,7 +59,11 @@
               AND uc2.target_id = CAST(ess.id AS CHAR)
         ) THEN 1 ELSE 0 END AS is_collect
         from elderly_service_subject ess
+        LEFT JOIN sys_user u ON ess.user_id = u.id
         <where>
+            <if test="merchantUserId != null">
+                and ess.user_id = #{merchantUserId}
+            </if>
             <if test="name != null and name != ''">
                 and ess.name like concat('%', #{name}, '%')
             </if>
@@ -76,6 +83,7 @@
     <select id="selectById" resultMap="StationMap">
         select
         ess.*,
+        u.username as user_name,
         COALESCE((
         select count(*)
         from user_collect uc
@@ -89,7 +97,16 @@
               AND uc2.target_id = CAST(ess.id AS CHAR)
         ) THEN 1 ELSE 0 END AS is_collect
         from elderly_service_subject ess
-        where ess.id = #{id}
+        LEFT JOIN sys_user u ON ess.user_id = u.id
+        <where>
+            ess.id = #{id}
+            <if test="status != null">
+                and ess.business_status = #{status}
+            </if>
+            <if test="merchantUserId != null">
+                and ess.user_id = #{merchantUserId}
+            </if>
+        </where>
     </select>
 
     <!-- 新增驿站 -->
@@ -101,7 +118,7 @@
             official_phone, emergency_contact, emergency_phone, official_email,
             subject_type_id, service_mode, elderly_license_no, medical_license_no, food_license_no, fire_acceptance_no,
             business_status, total_beds, room_config, care_level, price_range, introduction,
-            environment_photos, create_time
+            environment_photos, create_time, user_id
         ) values (
                      #{name}, #{registeredAddress}, #{businessAddress}, #{registeredLatitude}, #{registeredLongitude}, #{businessLatitude}, #{businessLongitude},
                      #{unifiedSocialCreditCode}, #{legalRepresentative}, #{registeredCapital},
@@ -109,7 +126,7 @@
                      #{officialPhone}, #{emergencyContact}, #{emergencyPhone}, #{officialEmail},
                      #{subjectTypeId}, #{serviceMode}, #{elderlyLicenseNo}, #{medicalLicenseNo}, #{foodLicenseNo}, #{fireAcceptanceNo},
                      #{businessStatus}, #{totalBeds}, #{roomConfig}, #{careLevel}, #{priceRange},
-                     #{introduction}, #{environmentPhotos}, #{createTime}
+                     #{introduction}, #{environmentPhotos}, #{createTime}, #{userId}
                  )
     </insert>
 
@@ -146,6 +163,7 @@
             <if test="priceRange != null">price_range = #{priceRange},</if>
             <if test="introduction != null">introduction = #{introduction},</if>
             <if test="environmentPhotos != null">environment_photos = #{environmentPhotos},</if>
+            <if test="userId != null">user_id = #{userId},</if>
             update_time = now()
         </set>
         where id = #{id}
@@ -161,6 +179,9 @@
         select count(*)
         from elderly_service_subject
         <where>
+            <if test="merchantUserId != null">
+                and user_id = #{merchantUserId}
+            </if>
             <if test="name != null and name != ''">
                 and name like concat('%', #{name}, '%')
             </if>

@@ -1,5 +1,7 @@
 package com.bistu.ecadmin.service.impl;
 
+import com.bistu.common.dto.session.SessionUserInfo;
+import com.bistu.common.util.TokenUtil;
 import com.bistu.ecadmin.dao.DTO.StationPageQueryDTO;
 import com.bistu.ecadmin.dao.mapper.StationMapper;
 import com.bistu.ecadmin.pojo.PageResult;
@@ -8,6 +10,7 @@ import com.bistu.ecadmin.service.StationService;
 import com.bistu.ecadmin.util.UserContext;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -27,25 +30,50 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class StationServiceImpl implements StationService {
 
     @Autowired
     private StationMapper stationMapper;
+
+    @Autowired
+    private TokenUtil tokenUtil;
 
     @Value("${file.export.path}")
     private String exportPath;
 
     @Override
     public PageResult page(StationPageQueryDTO dto) {
-        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
-        Long userId = UserContext.getUserId();
-        dto.setUserId(userId);
+        // 1) 小程序用户：用于收藏判断
+        Long miniProgramUserId = UserContext.getUserId();
+        dto.setUserId(miniProgramUserId);
+
+        // 2) 后台 token：用于商户模式（商户只看自己 / 管理员看全部）
+        SessionUserInfo userInfo = null;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            // 没有管理后台 token：可能是小程序端或匿名访问
+            log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
+        }
+
+        if (userInfo != null) {
+            List<Integer> roleIds = userInfo.getRoleIds();
+            boolean isAdmin = (userInfo.getUserId() == 10011)
+                    || (roleIds != null && roleIds.contains(1));
+            if (!isAdmin) {
+                dto.setMerchantUserId((long) userInfo.getUserId());
+            }
+        } else {
+            // 小程序端 / 匿名访问：不传 status 时只展示营业中的驿站（business_status = 1）
+            if (dto.getStatus() == null) {
+                dto.setStatus(1);
+            }
+        }
         
         int pageNum = dto.getPage() == null || dto.getPage() < 1 ? 1 : dto.getPage();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 10 : dto.getPageSize();
@@ -58,9 +86,36 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public Station getById(Long id) {
-        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
-        Long userId = UserContext.getUserId();
-        return stationMapper.selectById(id, userId);
+        // 小程序用户：用于收藏判断
+        Long miniProgramUserId = UserContext.getUserId();
+
+        // 后台 token：用于控制权限与可见性
+        SessionUserInfo userInfo = null;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
+        }
+
+        Integer status = null;
+        Long merchantUserId = null;
+        if (userInfo != null) {
+            List<Integer> roleIds = userInfo.getRoleIds();
+            boolean isAdmin = (userInfo.getUserId() == 10011)
+                    || (roleIds != null && roleIds.contains(1));
+            if (!isAdmin) {
+                merchantUserId = (long) userInfo.getUserId();
+            }
+        } else {
+            // 小程序端 / 匿名访问：只允许查看营业中的驿站详情
+            status = 1;
+        }
+
+        Station station = stationMapper.selectById(id, miniProgramUserId, status, merchantUserId);
+        if (station == null) {
+            throw new IllegalArgumentException("驿站不存在或无权访问");
+        }
+        return station;
     }
 
     /**
@@ -75,6 +130,28 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public boolean add(Station station) {
+        // 后台 token：商户模式（商户新增 -> 归属自己 & 待审核/暂停；管理员可自由设置）
+        SessionUserInfo userInfo;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法新增驿站");
+        }
+
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+        if (!isAdmin) {
+            station.setUserId((long) userInfo.getUserId());
+            // 商户新增：默认待审核/暂停（2）
+            station.setBusinessStatus(2);
+        } else {
+            // 管理员新增：不传则默认营业中
+            if (station.getBusinessStatus() == null) {
+                station.setBusinessStatus(1);
+            }
+        }
+
         // 名称唯一校验
         if (stationMapper.countByName(station.getName(), null) > 0) {
             throw new IllegalArgumentException("驿站名称已存在");
@@ -89,6 +166,30 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public boolean update(Station station) {
+        // 权限校验：商户只能修改自己的数据，且不能修改 businessStatus
+        SessionUserInfo userInfo;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法更新驿站");
+        }
+
+        Station old = stationMapper.selectById(station.getId(), null, null, null);
+        if (old == null) {
+            throw new IllegalArgumentException("驿站不存在");
+        }
+
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+        if (!isAdmin) {
+            if (old.getUserId() == null || !old.getUserId().equals((long) userInfo.getUserId())) {
+                throw new IllegalArgumentException("无权修改其他商户的驿站");
+            }
+            station.setBusinessStatus(old.getBusinessStatus());
+            station.setUserId(old.getUserId());
+        }
+
         // 名称唯一校验（排除自身）
         if (stationMapper.countByName(station.getName(), station.getId()) > 0) {
             throw new IllegalArgumentException("驿站名称已存在");
@@ -98,12 +199,40 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public boolean deleteById(Long id) {
+        // 权限校验：商户只能删除自己的数据
+        SessionUserInfo userInfo;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法删除驿站");
+        }
+
+        Station old = stationMapper.selectById(id, null, null, null);
+        if (old == null) {
+            throw new IllegalArgumentException("驿站不存在");
+        }
+
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+        if (!isAdmin) {
+            if (old.getUserId() == null || !old.getUserId().equals((long) userInfo.getUserId())) {
+                throw new IllegalArgumentException("无权删除其他商户的驿站");
+            }
+        }
         return stationMapper.deleteById(id) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> importStations(MultipartFile file) {
+        // 导入：不做权限点限制，但必须是后台已登录用户（避免小程序/匿名导入）
+        try {
+            tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法导入驿站信息");
+        }
+
         Map<String, Object> result = new HashMap<>();
         int successCount = 0;
         int errorCount = 0;
@@ -194,6 +323,13 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public Resource exportStations() {
+        // 导出：不做权限点限制，但必须是后台已登录用户（避免小程序/匿名导出）
+        try {
+            tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法导出驿站信息");
+        }
+
         try {
             // 获取所有驿站数据
             List<Station> stationList = stationMapper.listAll();
@@ -518,6 +654,52 @@ public class StationServiceImpl implements StationService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean publish(Long id) {
+        // 只有管理员可以上架
+        SessionUserInfo userInfo;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法上架驿站");
+        }
+
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+        if (!isAdmin) {
+            throw new IllegalArgumentException("只有管理员可以上架驿站");
+        }
+
+        Station station = new Station();
+        station.setId(id);
+        station.setBusinessStatus(1); // 1-营业中
+        return stationMapper.update(station) > 0;
+    }
+
+    @Override
+    public boolean unpublish(Long id) {
+        // 只有管理员可以下架
+        SessionUserInfo userInfo;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法下架驿站");
+        }
+
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+        if (!isAdmin) {
+            throw new IllegalArgumentException("只有管理员可以下架驿站");
+        }
+
+        Station station = new Station();
+        station.setId(id);
+        station.setBusinessStatus(3); // 3-已注销/下架
+        return stationMapper.update(station) > 0;
     }
 }
 

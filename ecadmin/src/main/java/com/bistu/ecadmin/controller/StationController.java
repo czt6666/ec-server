@@ -1,5 +1,6 @@
 package com.bistu.ecadmin.controller;
 
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.dao.DTO.StationPageQueryDTO;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
@@ -111,6 +112,7 @@ public class StationController {
     @PostMapping("/add")
     @ApiOperation("新增驿站")
     @OperateLog(operation = "新增养老驿站")
+    @RequiresPermissions("station:add")
     public Result add(@RequestBody Station station) {
         boolean success = stationService.add(station);
         return success ? Result.success() : Result.error("新增失败");
@@ -119,6 +121,7 @@ public class StationController {
     @PutMapping("/update")
     @ApiOperation("更新驿站")
     @OperateLog(operation = "更新养老驿站")
+    @RequiresPermissions("station:update")
     public Result update(@RequestBody Station station) {
         boolean success = stationService.update(station);
         return success ? Result.success() : Result.error("更新失败");
@@ -127,6 +130,7 @@ public class StationController {
     @DeleteMapping("/deleted/{id}")
     @ApiOperation("删除驿站")
     @OperateLog(operation = "删除养老驿站")
+    @RequiresPermissions("station:delete")
     public Result deleteById(@PathVariable Long id) {
         boolean success = stationService.deleteById(id);
         return success ? Result.success() : Result.error("删除失败");
@@ -163,6 +167,32 @@ public class StationController {
         } catch (Exception e) {
             log.error("导出驿站失败", e);
             throw new RuntimeException("导出失败：" + e.getMessage());
+        }
+    }
+
+    @RequiresPermissions("station:publish")
+    @PostMapping("/{id}/publish")
+    @ApiOperation("上架驿站（仅管理员，将营业状态改为1-营业中）")
+    @OperateLog(operation = "上架养老驿站")
+    public Result publish(@PathVariable Long id) {
+        try {
+            boolean success = stationService.publish(id);
+            return success ? Result.success("上架成功") : Result.error("上架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    @RequiresPermissions("station:unpublish")
+    @PostMapping("/{id}/unpublish")
+    @ApiOperation("下架驿站（仅管理员，将营业状态改为3-已注销）")
+    @OperateLog(operation = "下架养老驿站")
+    public Result unpublish(@PathVariable Long id) {
+        try {
+            boolean success = stationService.unpublish(id);
+            return success ? Result.success("下架成功") : Result.error("下架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
         }
     }
 }
