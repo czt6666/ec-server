@@ -318,18 +318,18 @@ public class StationServiceImpl implements StationService {
     public Resource exportStations() {
         try {
             // 获取所有驿站数据：
-            // - 管理员：导出全部
-            // - 普通商户：只导出自己(user_id)名下的驿站
+            // - 超级管理员(userId=10011)：导出全部
+            // - 其他已登录用户：只导出自己(user_id)名下的驿站
+            // - 无后台 token（如某些内部调用）：保持兼容，导出全部
             List<Station> stationList;
             try {
                 SessionUserInfo userInfo = tokenUtil.getUserInfo();
                 if (userInfo != null) {
-                    List<Integer> roleIds = userInfo.getRoleIds();
-                    boolean isAdmin = (userInfo.getUserId() == 10011)
-                            || (roleIds != null && roleIds.contains(1));
-                    if (isAdmin) {
+                    // 仅 userId==10011 视为超级管理员，导出全部
+                    if (userInfo.getUserId() == 10011) {
                         stationList = stationMapper.listAll();
                     } else {
+                        // 其他用户（包括拥有某些管理员角色的商户），只导出自己的驿站
                         stationList = stationMapper.listByMerchantUserId((long) userInfo.getUserId());
                     }
                 } else {
