@@ -21,9 +21,10 @@ public interface TourCompanyMapper {
 
     List<TourCompany> page(@Param("name") String name,
                            @Param("status") Integer status,
+                           @Param("merchantUserId") Long merchantUserId,
                            @Param("offset") int offset,
                            @Param("limit") int limit);
 
-    int count(@Param("name") String name, @Param("status") Integer status);
+    int count(@Param("name") String name, @Param("status") Integer status, @Param("merchantUserId") Long merchantUserId);
 }
 

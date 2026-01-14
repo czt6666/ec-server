@@ -34,10 +34,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, route_type, theme_tags, origin_address, origin_lat, origin_lng, dest_address, dest_lat, dest_lng,
-        days, difficulty, itinerary, biz_status, target_crowd, price_range,
-        safety_measures, service_guarantee, cost_included, cost_excluded,
-        create_time, update_time, status, company_id
+        tr.id, tr.name, tr.route_type, tr.theme_tags, tr.origin_address, tr.origin_lat, tr.origin_lng, tr.dest_address, tr.dest_lat, tr.dest_lng,
+        tr.days, tr.difficulty, tr.itinerary, tr.biz_status, tr.target_crowd, tr.price_range,
+        tr.safety_measures, tr.service_guarantee, tr.cost_included, tr.cost_excluded,
+        tr.create_time, tr.update_time, tr.status, tr.company_id
     </sql>
 
     <insert id="insert" parameterType="com.bistu.ecadmin.pojo.TourRoute" useGeneratedKeys="true" keyProperty="id">
@@ -100,7 +100,7 @@
               AND uc2.target_id = CAST(tr.id AS CHAR)
         ) THEN 1 ELSE 0 END AS is_collect
         FROM tour_route tr
-        WHERE tr.id = #{id}
+        WHERE tr.id = #{id} AND tr.status = 1
     </select>
 
     <select id="countByName" resultType="int">
@@ -113,7 +113,30 @@
 
     <select id="page" resultMap="BaseResultMap">
         SELECT
-        <include refid="Base_Column_List"/>,
+        tr.id,
+        tr.name,
+        tr.route_type,
+        tr.theme_tags,
+        tr.origin_address,
+        tr.origin_lat,
+        tr.origin_lng,
+        tr.dest_address,
+        tr.dest_lat,
+        tr.dest_lng,
+        tr.days,
+        tr.difficulty,
+        tr.itinerary,
+        tr.biz_status,
+        tr.target_crowd,
+        tr.price_range,
+        tr.safety_measures,
+        tr.service_guarantee,
+        tr.cost_included,
+        tr.cost_excluded,
+        tr.create_time,
+        tr.update_time,
+        tr.status,
+        tr.company_id,
         COALESCE((
         SELECT COUNT(*)
         FROM user_collect uc
@@ -127,7 +150,17 @@
               AND uc2.target_id = CAST(tr.id AS CHAR)
         ) THEN 1 ELSE 0 END AS is_collect
         FROM tour_route tr
+        <choose>
+            <when test="merchantUserId != null">
+                INNER JOIN tour_company tc ON tr.company_id = tc.id AND tc.user_id = #{merchantUserId}
+            </when>
+            <otherwise>
+                LEFT JOIN tour_company tc ON tr.company_id = tc.id
+            </otherwise>
+        </choose>
         <where>
+            AND tr.status = 1
+            AND tr.company_id IS NOT NULL
             <if test="name != null and name != ''">
                 AND tr.name LIKE CONCAT('%', #{name}, '%')
             </if>
@@ -143,16 +176,26 @@
     </select>
 
     <select id="count" resultType="int">
-        SELECT COUNT(*) FROM tour_route
+        SELECT COUNT(*) FROM tour_route tr
+        <choose>
+            <when test="merchantUserId != null">
+                INNER JOIN tour_company tc ON tr.company_id = tc.id AND tc.user_id = #{merchantUserId}
+            </when>
+            <otherwise>
+                LEFT JOIN tour_company tc ON tr.company_id = tc.id
+            </otherwise>
+        </choose>
         <where>
+            AND tr.status = 1
+            AND tr.company_id IS NOT NULL
             <if test="name != null and name != ''">
-                AND name LIKE CONCAT('%', #{name}, '%')
+                AND tr.name LIKE CONCAT('%', #{name}, '%')
             </if>
             <if test="bizStatus != null">
-                AND biz_status = #{bizStatus}
+                AND tr.biz_status = #{bizStatus}
             </if>
             <if test="companyId != null">
-                AND company_id = #{companyId}
+                AND tr.company_id = #{companyId}
             </if>
         </where>
     </select>

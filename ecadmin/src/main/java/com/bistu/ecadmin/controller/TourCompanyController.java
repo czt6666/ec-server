@@ -1,5 +1,6 @@
 package com.bistu.ecadmin.controller;
 
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.pojo.TourCompany;
@@ -41,25 +42,54 @@ public class TourCompanyController {
         return Result.success(tourCompanyService.getById(id));
     }
 
+    @RequiresPermissions("tourCompany:add")
     @PostMapping("/create")
-    @ApiOperation("创建公司")
+    @ApiOperation("创建公司（商家上传默认为待审核状态）")
     @OperateLog(operation = "新增旅游公司")
     public Result<?> create(@RequestBody TourCompany company) {
         return tourCompanyService.create(company);
     }
 
+    @RequiresPermissions("tourCompany:update")
     @PostMapping("/update")
-    @ApiOperation("更新公司")
+    @ApiOperation("更新公司（商家只能更新自己的数据，且不能修改状态）")
     @OperateLog(operation = "更新旅游公司")
     public Result<?> update(@RequestBody TourCompany company) {
         return tourCompanyService.update(company);
     }
 
+    @RequiresPermissions("tourCompany:delete")
     @DeleteMapping("/delete/{id}")
-    @ApiOperation("删除公司")
+    @ApiOperation("删除公司（商家只能删除自己的数据）")
     @ApiImplicitParam(name = "id", value = "公司ID", required = true, dataType = "Long", paramType = "path")
     @OperateLog(operation = "删除旅游公司")
     public Result<?> delete(@PathVariable Long id) {
         return tourCompanyService.delete(id);
+    }
+
+    @RequiresPermissions("tourCompany:publish")
+    @PostMapping("/{id}/publish")
+    @ApiOperation("上架旅游公司（仅管理员，将营业状态改为1-营业中）")
+    @OperateLog(operation = "上架旅游公司")
+    public Result<?> publish(@PathVariable Long id) {
+        try {
+            boolean success = tourCompanyService.publish(id);
+            return success ? Result.success("上架成功") : Result.error("上架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    @RequiresPermissions("tourCompany:unpublish")
+    @PostMapping("/{id}/unpublish")
+    @ApiOperation("下架旅游公司（仅管理员，将营业状态改为3-已注销）")
+    @OperateLog(operation = "下架旅游公司")
+    public Result<?> unpublish(@PathVariable Long id) {
+        try {
+            boolean success = tourCompanyService.unpublish(id);
+            return success ? Result.success("下架成功") : Result.error("下架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 }

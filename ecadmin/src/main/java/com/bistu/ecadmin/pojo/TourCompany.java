@@ -93,5 +93,11 @@ public class TourCompany implements Serializable {
 
     @ApiModelProperty("逻辑状态：1正常 0删除")
     private Integer status;
+
+    @ApiModelProperty(value = "关联用户ID（商家ID）", required = true)
+    private Long userId;
+
+    @ApiModelProperty("商户用户名")
+    private String userName;
 }
 

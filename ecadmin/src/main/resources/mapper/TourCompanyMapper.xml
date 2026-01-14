@@ -31,6 +31,8 @@
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="status" property="status"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -47,13 +49,13 @@
          business_address, business_latitude, business_longitude, business_scope, business_status,
          unified_social_credit_code, legal_representative, registered_capital, establishment_date,
          business_term, official_phone, emergency_contact, emergency_phone, official_email,
-         intro, logo_url, website, status)
+         intro, logo_url, website, status, user_id)
         VALUES
         (#{name}, #{shortName}, #{registeredAddress}, #{registeredLatitude}, #{registeredLongitude},
          #{businessAddress}, #{businessLatitude}, #{businessLongitude}, #{businessScope}, #{businessStatus},
          #{unifiedSocialCreditCode}, #{legalRepresentative}, #{registeredCapital}, #{establishmentDate},
          #{businessTerm}, #{officialPhone}, #{emergencyContact}, #{emergencyPhone}, #{officialEmail},
-         #{intro}, #{logoUrl}, #{website}, #{status})
+         #{intro}, #{logoUrl}, #{website}, #{status}, #{userId})
     </insert>
 
     <update id="update" parameterType="com.bistu.ecadmin.pojo.TourCompany">
@@ -82,6 +84,7 @@
             <if test="logoUrl != null">logo_url = #{logoUrl},</if>
             <if test="website != null">website = #{website},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="userId != null">user_id = #{userId},</if>
             update_time = NOW()
         </set>
         WHERE id = #{id}
@@ -92,7 +95,12 @@
     </delete>
 
     <select id="selectById" parameterType="long" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/> FROM tour_company WHERE id = #{id}
+        SELECT
+            tc.*,
+            u.username as user_name
+        FROM tour_company tc
+        LEFT JOIN sys_user u ON tc.user_id = u.id
+        WHERE tc.id = #{id}
     </select>
 
     <select id="countByName" resultType="int">
@@ -104,22 +112,32 @@
     </select>
 
     <select id="page" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/> FROM tour_company
+        SELECT
+            tc.*,
+            u.username as user_name
+        FROM tour_company tc
+        LEFT JOIN sys_user u ON tc.user_id = u.id
         <where>
+            <if test="merchantUserId != null">
+                AND tc.user_id = #{merchantUserId}
+            </if>
             <if test="name != null and name != ''">
-                AND name LIKE CONCAT('%', #{name}, '%')
+                AND tc.name LIKE CONCAT('%', #{name}, '%')
             </if>
             <if test="status != null">
-                AND business_status = #{status}
+                AND tc.business_status = #{status}
             </if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY tc.create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
 
     <select id="count" resultType="int">
         SELECT COUNT(*) FROM tour_company
         <where>
+            <if test="merchantUserId != null">
+                AND user_id = #{merchantUserId}
+            </if>
             <if test="name != null and name != ''">
                 AND name LIKE CONCAT('%', #{name}, '%')
             </if>
