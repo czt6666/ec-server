@@ -211,5 +211,12 @@
         order by create_time desc
     </select>
 
+    <!-- 按商户用户ID查询驿站（用于导出） -->
+    <select id="listByMerchantUserId" resultMap="StationMap">
+        select * from elderly_service_subject
+        where user_id = #{merchantUserId}
+        order by create_time desc
+    </select>
+
 </mapper>
 

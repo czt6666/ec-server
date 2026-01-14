@@ -317,8 +317,29 @@ public class StationServiceImpl implements StationService {
     @Override
     public Resource exportStations() {
         try {
-            // 获取所有驿站数据
-            List<Station> stationList = stationMapper.listAll();
+            // 获取所有驿站数据：
+            // - 管理员：导出全部
+            // - 普通商户：只导出自己(user_id)名下的驿站
+            List<Station> stationList;
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null) {
+                    List<Integer> roleIds = userInfo.getRoleIds();
+                    boolean isAdmin = (userInfo.getUserId() == 10011)
+                            || (roleIds != null && roleIds.contains(1));
+                    if (isAdmin) {
+                        stationList = stationMapper.listAll();
+                    } else {
+                        stationList = stationMapper.listByMerchantUserId((long) userInfo.getUserId());
+                    }
+                } else {
+                    // 没有后台 token（如系统任务）：默认导出全部
+                    stationList = stationMapper.listAll();
+                }
+            } catch (Exception e) {
+                // 获取 token 失败时，为兼容老逻辑，仍导出全部
+                stationList = stationMapper.listAll();
+            }
 
             // 创建导出目录
             File exportDir = new File(exportPath);

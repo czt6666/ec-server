@@ -55,5 +55,10 @@ public interface StationMapper {
      * 查询所有驿站（用于导出）
      */
     List<Station> listAll();
+
+    /**
+     * 按商户用户ID查询驿站（用于商户导出）
+     */
+    List<Station> listByMerchantUserId(@Param("merchantUserId") Long merchantUserId);
 }
 
