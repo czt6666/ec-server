@@ -226,13 +226,6 @@ public class StationServiceImpl implements StationService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> importStations(MultipartFile file) {
-        // 导入：不做权限点限制，但必须是后台已登录用户（避免小程序/匿名导入）
-        try {
-            tokenUtil.getUserInfo();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("未登录，无法导入驿站信息");
-        }
-
         Map<String, Object> result = new HashMap<>();
         int successCount = 0;
         int errorCount = 0;
@@ -323,13 +316,6 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public Resource exportStations() {
-        // 导出：不做权限点限制，但必须是后台已登录用户（避免小程序/匿名导出）
-        try {
-            tokenUtil.getUserInfo();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("未登录，无法导出驿站信息");
-        }
-
         try {
             // 获取所有驿站数据
             List<Station> stationList = stationMapper.listAll();
