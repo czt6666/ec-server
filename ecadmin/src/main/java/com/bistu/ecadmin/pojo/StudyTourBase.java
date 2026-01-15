@@ -75,6 +75,16 @@ public class StudyTourBase {
      */
     private String contactPhone;
 
+    /**
+     * 归属商户（后台用户）ID
+     */
+    private Long userId;
+
+    /**
+     * 归属商户用户名
+     */
+    private String userName;
+
 
 
 

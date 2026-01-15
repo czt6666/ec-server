@@ -22,7 +22,7 @@ public interface TourCompanyService {
     boolean publish(Long id);
     
     /**
-     * 下架旅游公司（仅管理员，将营业状态改为3-已注销）
+     * 下架旅游公司（仅管理员，将营业状态改为2-待审核）
      */
     boolean unpublish(Long id);
 }

@@ -1,4 +1,123 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bistu.ecadmin.dao.StudyTourBaseDao">
+
+    <resultMap id="BaseResultMap" type="com.bistu.ecadmin.pojo.StudyTourBase">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="base_name" property="baseName"/>
+        <result column="operation_unit" property="operationUnit"/>
+        <result column="address" property="address"/>
+        <result column="latitude" property="latitude"/>
+        <result column="longitude" property="longitude"/>
+        <result column="legal_representative" property="legalRepresentative"/>
+        <result column="unified_social_credit_code" property="unifiedSocialCreditCode"/>
+        <result column="qualification_cert" property="qualificationCert"/>
+        <result column="feature_desc" property="featureDesc"/>
+        <result column="business_status" property="businessStatus"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.bistu.ecadmin.pojo.StudyTourBase" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO study_tour_base
+        (base_name, operation_unit, address, latitude, longitude, legal_representative,
+         unified_social_credit_code, qualification_cert, feature_desc, business_status,
+         contact_person, contact_phone, create_time, update_time, user_id)
+        VALUES
+        (#{baseName}, #{operationUnit}, #{address}, #{latitude}, #{longitude}, #{legalRepresentative},
+         #{unifiedSocialCreditCode}, #{qualificationCert}, #{featureDesc}, #{businessStatus},
+         #{contactPerson}, #{contactPhone}, #{createTime}, #{updateTime}, #{userId})
+    </insert>
+
+    <update id="update" parameterType="com.bistu.ecadmin.pojo.StudyTourBase">
+        UPDATE study_tour_base
+        <set>
+            <if test="baseName != null">base_name = #{baseName},</if>
+            <if test="operationUnit != null">operation_unit = #{operationUnit},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="legalRepresentative != null">legal_representative = #{legalRepresentative},</if>
+            <if test="unifiedSocialCreditCode != null">unified_social_credit_code = #{unifiedSocialCreditCode},</if>
+            <if test="qualificationCert != null">qualification_cert = #{qualificationCert},</if>
+            <if test="featureDesc != null">feature_desc = #{featureDesc},</if>
+            <if test="businessStatus != null">business_status = #{businessStatus},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM study_tour_base WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT
+            stb.*,
+            u.username as user_name
+        FROM study_tour_base stb
+        LEFT JOIN sys_user u ON stb.user_id = u.id
+        WHERE stb.id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT
+            stb.*,
+            u.username as user_name
+        FROM study_tour_base stb
+        LEFT JOIN sys_user u ON stb.user_id = u.id
+        <where>
+            <if test="merchantUserId != null">
+                AND stb.user_id = #{merchantUserId}
+            </if>
+            <if test="baseName != null and baseName != ''">
+                AND stb.base_name LIKE CONCAT('%', #{baseName}, '%')
+            </if>
+            <if test="operationUnit != null and operationUnit != ''">
+                AND stb.operation_unit LIKE CONCAT('%', #{operationUnit}, '%')
+            </if>
+            <if test="businessStatus != null">
+                AND stb.business_status = #{businessStatus}
+            </if>
+        </where>
+        ORDER BY stb.create_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM study_tour_base
+        <where>
+            <if test="merchantUserId != null">
+                AND user_id = #{merchantUserId}
+            </if>
+            <if test="baseName != null and baseName != ''">
+                AND base_name LIKE CONCAT('%', #{baseName}, '%')
+            </if>
+            <if test="operationUnit != null and operationUnit != ''">
+                AND operation_unit LIKE CONCAT('%', #{operationUnit}, '%')
+            </if>
+            <if test="businessStatus != null">
+                AND business_status = #{businessStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+            stb.*,
+            u.username as user_name
+        FROM study_tour_base stb
+        LEFT JOIN sys_user u ON stb.user_id = u.id
+        ORDER BY stb.create_time DESC
+    </select>
+
 </mapper>

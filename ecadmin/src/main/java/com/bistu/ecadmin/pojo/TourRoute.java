@@ -54,7 +54,7 @@ public class TourRoute implements Serializable {
     @ApiModelProperty("行程安排（文字描述）")
     private String itinerary;
 
-    @ApiModelProperty(value = "经营状态：1发布 2进行中 3暂停", example = "1")
+    @ApiModelProperty(value = "经营状态：1发布 2待审核", example = "1")
     private Integer bizStatus;
 
     @ApiModelProperty("目标人群")

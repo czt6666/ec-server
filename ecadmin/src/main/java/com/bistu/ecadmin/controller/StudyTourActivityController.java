@@ -1,5 +1,6 @@
 package com.bistu.ecadmin.controller;
 
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.pojo.StudyTourActivity;
 import com.bistu.ecadmin.service.StudyTourActivityService;
 import com.bistu.ecadmin.pojo.Result;
@@ -20,7 +21,7 @@ public class StudyTourActivityController {
     private StudyTourActivityService studyTourActivityService;
 
     /**
-     * 分页查询研学活动
+     * 分页查询研学活动（小程序可访问）
      */
     @GetMapping("/page")
     public Result page(@RequestParam(defaultValue = "1") Integer pageNum,
@@ -37,6 +38,7 @@ public class StudyTourActivityController {
     /**
      * 新增研学活动
      */
+    @RequiresPermissions("studyActivity:add")
     @PostMapping
     @OperateLog(operation = "新增研学活动")
     public Result save(@RequestBody StudyTourActivity studyTourActivity) {
@@ -45,7 +47,7 @@ public class StudyTourActivityController {
     }
 
     /**
-     * 根据id查询研学活动
+     * 根据id查询研学活动（小程序可访问）
      */
     @GetMapping("/{id}")
     public Result getById(@PathVariable Long id) {
@@ -56,6 +58,7 @@ public class StudyTourActivityController {
     /**
      * 更新研学活动
      */
+    @RequiresPermissions("studyActivity:update")
     @PutMapping
     @OperateLog(operation = "更新研学活动")
     public Result update(@RequestBody StudyTourActivity studyTourActivity) {
@@ -66,6 +69,7 @@ public class StudyTourActivityController {
     /**
      * 删除研学活动
      */
+    @RequiresPermissions("studyActivity:delete")
     @DeleteMapping("/{id}")
     @OperateLog(operation = "删除研学活动")
     public Result deleteById(@PathVariable Long id) {

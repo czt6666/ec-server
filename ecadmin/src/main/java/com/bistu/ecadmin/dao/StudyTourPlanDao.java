@@ -38,7 +38,7 @@ public interface StudyTourPlanDao {
     /**
      * 分页查询研学方案
      */
-    List<StudyTourPlan> list(@Param("planName") String planName, @Param("baseId") Long baseId, @Param("status") Integer status, @Param("userId") Long userId);
+    List<StudyTourPlan> list(@Param("planName") String planName, @Param("baseId") Long baseId, @Param("status") Integer status, @Param("merchantUserId") Long merchantUserId, @Param("userId") Long userId);
 
     /**
      * 查询所有启用的研学方案

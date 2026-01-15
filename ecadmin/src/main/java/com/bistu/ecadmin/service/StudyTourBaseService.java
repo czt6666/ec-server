@@ -43,4 +43,14 @@ public interface StudyTourBaseService {
      * 查询所有研学基地列表（用于下拉选择）
      */
     Result<List<StudyTourBase>> listStudyTourBases();
+
+    /**
+     * 上架研学基地（仅管理员，将营业状态改为1-营业中）
+     */
+    boolean publish(Long id);
+
+    /**
+     * 下架研学基地（仅管理员，将营业状态改为3-已注销）
+     */
+    boolean unpublish(Long id);
 }

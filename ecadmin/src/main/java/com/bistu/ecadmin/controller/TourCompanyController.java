@@ -82,7 +82,7 @@ public class TourCompanyController {
 
     @RequiresPermissions("tourCompany:unpublish")
     @PostMapping("/{id}/unpublish")
-    @ApiOperation("下架旅游公司（仅管理员，将营业状态改为3-已注销）")
+    @ApiOperation("下架旅游公司（仅管理员，将营业状态改为2-待审核）")
     @OperateLog(operation = "下架旅游公司")
     public Result<?> unpublish(@PathVariable Long id) {
         try {

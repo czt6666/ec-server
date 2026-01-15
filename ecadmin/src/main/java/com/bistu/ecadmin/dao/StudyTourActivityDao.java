@@ -40,7 +40,12 @@ public interface StudyTourActivityDao {
     /**
      * 分页查询研学活动
      */
-    List<StudyTourActivity> list(@Param("activityName") String activityName, @Param("tourPlanId") Long tourPlanId, @Param("status") Integer status, @Param("userId") Long userId);
+    List<StudyTourActivity> list(@Param("activityName") String activityName,
+                                 @Param("tourPlanId") Long tourPlanId,
+                                 @Param("status") Integer status,
+                                 @Param("excludeCancelled") Boolean excludeCancelled,
+                                 @Param("merchantUserId") Long merchantUserId,
+                                 @Param("userId") Long userId);
 
 
 

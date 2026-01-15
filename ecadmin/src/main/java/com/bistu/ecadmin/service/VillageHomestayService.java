@@ -45,7 +45,7 @@ public interface VillageHomestayService {
     boolean publish(Integer id);
 
     /**
-     * 管理员下架民宿（将状态改为3-已下架）
+     * 管理员下架民宿（将状态改为2-待审核/下架）
      */
     boolean unpublish(Integer id);
 }

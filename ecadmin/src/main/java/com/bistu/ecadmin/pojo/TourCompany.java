@@ -46,7 +46,7 @@ public class TourCompany implements Serializable {
     @ApiModelProperty("经营范围")
     private String businessScope;
 
-    @ApiModelProperty(value = "营业状态：1营业中 2暂停 3已注销", example = "1")
+    @ApiModelProperty(value = "营业状态：1营业中 2待审核", example = "1")
     private Integer businessStatus;
 
     @ApiModelProperty("统一社会信用代码")

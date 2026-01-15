@@ -76,7 +76,13 @@
         ) THEN 1 ELSE 0 END AS isCollect
         FROM study_tour_activity sta
         LEFT JOIN study_tour_plan stp ON sta.plan_id = stp.id
+        <if test="merchantUserId != null">
+            INNER JOIN study_tour_base stb ON stp.base_id = stb.id
+        </if>
         <where>
+            <if test="merchantUserId != null">
+                AND stb.user_id = #{merchantUserId}
+            </if>
             <if test="activityName != null and activityName != ''">
                 AND sta.activity_name LIKE CONCAT('%', #{activityName}, '%')
             </if>
@@ -85,6 +91,9 @@
             </if>
             <if test="status != null">
                 AND sta.status = #{status}
+            </if>
+            <if test="excludeCancelled != null and excludeCancelled">
+                AND sta.status != 5
             </if>
         </where>
         ORDER BY sta.create_time DESC

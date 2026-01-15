@@ -101,14 +101,14 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
                     || (roleIds != null && roleIds.contains(1));
 
             if (!isAdmin) {
-                // 商家用户：自动设置userId，状态强制设为待审核（0）
+                // 商家用户：自动设置userId，状态强制设为待审核（2）
                 homestay.setUserId((long) userInfo.getUserId());
-                homestay.setStatus(0); // 0-待审核，商家用户新增时强制为待审核状态
+                homestay.setStatus(2); // 2-待审核/下架，商家用户新增时强制为待审核状态
             } else {
                 // 管理员：如果没有设置userId，设置为null（允许管理员创建时指定）
-                // 如果没有设置status，默认为1（营业）
+                // 如果没有设置status，默认为1（营业中）
                 if (homestay.getStatus() == null) {
-                    homestay.setStatus(1); // 1-营业
+                    homestay.setStatus(1); // 1-营业中
                 }
             }
         } else {
@@ -252,7 +252,7 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
 
         VillageHomestay homestay = new VillageHomestay();
         homestay.setId(id);
-        homestay.setStatus(3); // 3-已下架
+        homestay.setStatus(2); // 2-待审核/下架
         return villageHomestayMapper.update(homestay) > 0;
     }
 }

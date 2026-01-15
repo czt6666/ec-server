@@ -182,7 +182,7 @@ public class TourRouteServiceImpl implements TourRouteService {
 
         TourRoute route = new TourRoute();
         route.setId(id);
-        route.setBizStatus(3); // 3-待审核/暂停
+        route.setBizStatus(2); // 2-待审核
         return tourRouteMapper.update(route) > 0;
     }
 

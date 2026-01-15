@@ -229,7 +229,7 @@ public class TourCompanyServiceImpl implements TourCompanyService {
 
         TourCompany company = new TourCompany();
         company.setId(id);
-        company.setBusinessStatus(3); // 3-已注销（已下架）
+        company.setBusinessStatus(2); // 2-待审核（已下架）
         return tourCompanyMapper.update(company) > 0;
     }
 }

@@ -1,5 +1,6 @@
 package com.bistu.ecadmin.controller;
 
+import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.pojo.StudyTourPlan;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.Result;
@@ -29,6 +30,7 @@ public class StudyTourPlanController {
     /**
      * 新增研学方案
      */
+    @RequiresPermissions("studyPlan:add")
     @PostMapping("/create")
     @ApiOperation(value = "新增研学方案")
     @OperateLog(operation = "新增研学方案")
@@ -38,10 +40,10 @@ public class StudyTourPlanController {
     }
 
     /**
-     * 研学方案分页查询
+     * 研学方案分页查询（小程序可访问）
      */
     @GetMapping("/page")
-    @ApiOperation(value = "研学方案分页查询")
+    @ApiOperation(value = "研学方案分页查询（小程序可访问）")
     public Result<PageResult<StudyTourPlan>> page(String planName, Long baseId, Integer status,
                                                   @RequestParam(defaultValue = "1") int page,
                                                   @RequestParam(defaultValue = "10") int pageSize) {
@@ -51,10 +53,10 @@ public class StudyTourPlanController {
     }
 
     /**
-     * 根据id查询研学方案
+     * 根据id查询研学方案（小程序可访问）
      */
     @GetMapping("/get/{id}")
-    @ApiOperation(value = "根据id查询研学方案")
+    @ApiOperation(value = "根据id查询研学方案（小程序可访问）")
     public Result<StudyTourPlan> getById(@PathVariable Long id) {
         log.info("根据id查询研学方案：id={}", id);
         // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
@@ -70,6 +72,7 @@ public class StudyTourPlanController {
     /**
      * 根据id修改研学方案信息
      */
+    @RequiresPermissions("studyPlan:update")
     @PutMapping("/update")
     @ApiOperation(value = "根据id修改研学方案信息")
     @OperateLog(operation = "更新研学方案")
@@ -81,12 +84,45 @@ public class StudyTourPlanController {
     /**
      * 根据id删除研学方案
      */
+    @RequiresPermissions("studyPlan:delete")
     @DeleteMapping("/delete/{id}")
     @ApiOperation(value = "根据id删除研学方案")
     @OperateLog(operation = "删除研学方案")
     public Result delete(@PathVariable Long id) {
         log.info("删除研学方案：id={}", id);
         return studyTourPlanService.deleteStudyTourPlan(id);
+    }
+
+    /**
+     * 上架研学方案（仅管理员，将状态改为1-启用）
+     */
+    @RequiresPermissions("studyPlan:publish")
+    @PostMapping("/{id}/publish")
+    @ApiOperation(value = "上架研学方案（仅管理员）")
+    @OperateLog(operation = "上架研学方案")
+    public Result publish(@PathVariable Long id) {
+        try {
+            boolean success = studyTourPlanService.publish(id);
+            return success ? Result.success("上架成功") : Result.error("上架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 下架研学方案（仅管理员，将状态改为0-禁用）
+     */
+    @RequiresPermissions("studyPlan:unpublish")
+    @PostMapping("/{id}/unpublish")
+    @ApiOperation(value = "下架研学方案（仅管理员）")
+    @OperateLog(operation = "下架研学方案")
+    public Result unpublish(@PathVariable Long id) {
+        try {
+            boolean success = studyTourPlanService.unpublish(id);
+            return success ? Result.success("下架成功") : Result.error("下架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 
     /**

@@ -38,42 +38,48 @@
     <!-- 分页查询研学方案 -->
     <select id="list" resultType="com.bistu.ecadmin.pojo.StudyTourPlan">
         SELECT
-        id,
-        plan_name AS planName,
-        base_id AS baseId,
-        route,
-        brief_intro AS briefIntro,
-        details,
-        suitable_crowd AS suitableCrowd,
-        duration,
-        status,
-        create_time AS createTime,
-        update_time AS updateTime,
+        stp.id,
+        stp.plan_name AS planName,
+        stp.base_id AS baseId,
+        stp.route,
+        stp.brief_intro AS briefIntro,
+        stp.details,
+        stp.suitable_crowd AS suitableCrowd,
+        stp.duration,
+        stp.status,
+        stp.create_time AS createTime,
+        stp.update_time AS updateTime,
         COALESCE((
         SELECT COUNT(*)
         FROM user_collect uc
         WHERE uc.target_type = 'study_plan'
-        AND uc.target_id = CAST(study_tour_plan.id AS CHAR)
+        AND uc.target_id = CAST(stp.id AS CHAR)
         ), 0) AS collectNumber,
         CASE WHEN #{userId} IS NOT NULL AND EXISTS (
             SELECT 1 FROM user_collect uc2
             WHERE uc2.user_id = #{userId}
               AND uc2.target_type = 'study_plan'
-              AND uc2.target_id = CAST(study_tour_plan.id AS CHAR)
+              AND uc2.target_id = CAST(stp.id AS CHAR)
         ) THEN 1 ELSE 0 END AS isCollect
-        FROM study_tour_plan
+        FROM study_tour_plan stp
+        <if test="merchantUserId != null">
+            INNER JOIN study_tour_base stb ON stp.base_id = stb.id
+        </if>
         <where>
+            <if test="merchantUserId != null">
+                AND stb.user_id = #{merchantUserId}
+            </if>
             <if test="planName != null and planName != ''">
-                AND plan_name LIKE CONCAT('%', #{planName}, '%')
+                AND stp.plan_name LIKE CONCAT('%', #{planName}, '%')
             </if>
             <if test="baseId != null">
-                AND base_id = #{baseId}
+                AND stp.base_id = #{baseId}
             </if>
             <if test="status != null">
-                AND status = #{status}
+                AND stp.status = #{status}
             </if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY stp.create_time DESC
     </select>
 
 </mapper>

@@ -25,7 +25,7 @@ public class VillageHomestay {
     @ApiModelProperty("民宿详细地址")
     private String address;
     
-    @ApiModelProperty("营业状态：0-待审核 1-营业（已上架） 2-暂停营业 3-已下架")
+    @ApiModelProperty("营业状态：1-营业中（上架），2-待审核/下架（统一视为待审核）")
     private Integer status;
     
     @ApiModelProperty("星级/等级：0-未评 1-5星")

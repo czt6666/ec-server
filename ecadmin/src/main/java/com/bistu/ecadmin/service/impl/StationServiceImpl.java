@@ -705,7 +705,7 @@ public class StationServiceImpl implements StationService {
 
         Station station = new Station();
         station.setId(id);
-        station.setBusinessStatus(3); // 3-已注销/下架
+        station.setBusinessStatus(2); // 2-待审核/下架
         return stationMapper.update(station) > 0;
     }
 }
