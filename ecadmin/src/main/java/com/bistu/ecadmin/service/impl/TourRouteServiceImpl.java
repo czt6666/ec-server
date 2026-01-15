@@ -241,7 +241,7 @@ public class TourRouteServiceImpl implements TourRouteService {
                 log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
             }
 
-            // 如果从token获取到用户信息，进行权限过滤
+            // 如果从 token 获取到用户信息，进行权限过滤（后台管理端）
             if (userInfo != null) {
                 List<Integer> roleIds = userInfo.getRoleIds();
                 boolean isAdmin = (userInfo.getUserId() == 10011)
@@ -249,6 +249,12 @@ public class TourRouteServiceImpl implements TourRouteService {
                 if (!isAdmin) {
                     // 商家用户只能查看自己公司下的线路
                     merchantUserId = (long) userInfo.getUserId();
+                }
+            } else {
+                // 小程序端 / 匿名访问：
+                // 如果未显式传入 bizStatus，则只展示已发布的线路（biz_status = 1）
+                if (bizStatus == null) {
+                    bizStatus = 1;
                 }
             }
         
