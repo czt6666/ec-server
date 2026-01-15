@@ -247,7 +247,26 @@ public class StudyTourPlanService {
      */
     public Result<List<StudyTourPlan>> listAllEnabled() {
         try {
-            List<StudyTourPlan> studyTourPlanList = studyTourPlanDao.listAllEnabled();
+            // 根据当前登录用户限制可见方案（用于后台下拉选择）：
+            // - 管理员(userId=10011 或 roleId 包含 1)：查看所有已启用方案
+            // - 普通商家用户：仅查看自己基地下的已启用方案
+            Long merchantUserId = null;
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null) {
+                    List<Integer> roleIds = userInfo.getRoleIds();
+                    boolean isAdmin = (userInfo.getUserId() == 10011)
+                            || (roleIds != null && roleIds.contains(1));
+                    if (!isAdmin) {
+                        merchantUserId = (long) userInfo.getUserId();
+                    }
+                }
+            } catch (Exception e) {
+                // 未获取到管理后台token（可能是小程序端或匿名访问），不做商户过滤
+                log.debug("未获取到管理后台token，listAllEnabled 不进行商户过滤: {}", e.getMessage());
+            }
+
+            List<StudyTourPlan> studyTourPlanList = studyTourPlanDao.listAllEnabled(merchantUserId);
             return Result.success(studyTourPlanList);
         } catch (Exception e) {
             log.error("查询启用的研学方案失败", e);

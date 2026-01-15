@@ -43,6 +43,5 @@ public interface StudyTourPlanDao {
     /**
      * 查询所有启用的研学方案
      */
-    @Select("SELECT id, plan_name AS planName, base_id AS baseId, route, brief_intro AS briefIntro, details, suitable_crowd AS suitableCrowd, duration, status, create_time AS createTime, update_time AS updateTime FROM study_tour_plan WHERE status = 1")
-    List<StudyTourPlan> listAllEnabled();
+    List<StudyTourPlan> listAllEnabled(@Param("merchantUserId") Long merchantUserId);
 }

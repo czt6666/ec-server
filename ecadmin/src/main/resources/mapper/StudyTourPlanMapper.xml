@@ -82,4 +82,29 @@
         ORDER BY stp.create_time DESC
     </select>
 
+    <!-- 查询所有启用的研学方案（用于下拉选择），按商户过滤 -->
+    <select id="listAllEnabled" resultType="com.bistu.ecadmin.pojo.StudyTourPlan">
+        SELECT
+            stp.id,
+            stp.plan_name AS planName,
+            stp.base_id AS baseId,
+            stp.route,
+            stp.brief_intro AS briefIntro,
+            stp.details,
+            stp.suitable_crowd AS suitableCrowd,
+            stp.duration,
+            stp.status,
+            stp.create_time AS createTime,
+            stp.update_time AS updateTime
+        FROM study_tour_plan stp
+        <if test="merchantUserId != null">
+            INNER JOIN study_tour_base stb ON stp.base_id = stb.id
+        </if>
+        WHERE stp.status = 1
+        <if test="merchantUserId != null">
+            AND stb.user_id = #{merchantUserId}
+        </if>
+        ORDER BY stp.create_time DESC
+    </select>
+
 </mapper>
