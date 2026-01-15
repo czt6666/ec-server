@@ -74,4 +74,30 @@ public class TourRouteController {
     public Result<?> delete(@PathVariable Long id) {
         return tourRouteService.delete(id);
     }
+
+    @RequiresPermissions("tourRoute:publish")
+    @PostMapping("/{id}/publish")
+    @ApiOperation("上架旅游路线（仅管理员，将经营状态改为1-发布）")
+    @OperateLog(operation = "上架旅游路线")
+    public Result<?> publish(@PathVariable Long id) {
+        try {
+            boolean success = tourRouteService.publish(id);
+            return success ? Result.success("上架成功") : Result.error("上架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    @RequiresPermissions("tourRoute:unpublish")
+    @PostMapping("/{id}/unpublish")
+    @ApiOperation("下架旅游路线（仅管理员，将经营状态改为3-待审核/暂停）")
+    @OperateLog(operation = "下架旅游路线")
+    public Result<?> unpublish(@PathVariable Long id) {
+        try {
+            boolean success = tourRouteService.unpublish(id);
+            return success ? Result.success("下架成功") : Result.error("下架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
 }

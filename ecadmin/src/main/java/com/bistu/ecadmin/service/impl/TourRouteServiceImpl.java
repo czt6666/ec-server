@@ -118,6 +118,9 @@ public class TourRouteServiceImpl implements TourRouteService {
             if (route.getCompanyId() != null && !route.getCompanyId().equals(old.getCompanyId())) {
                 throw new IllegalArgumentException("无权修改线路所属公司");
             }
+
+            // 商家用户不能修改经营状态（上架/下架由管理员控制）
+            route.setBizStatus(old.getBizStatus());
         }
 
         if (route.getName() != null && !route.getName().equals(old.getName())) {
@@ -135,6 +138,52 @@ public class TourRouteServiceImpl implements TourRouteService {
         }
         int updated = tourRouteMapper.update(route);
         return updated > 0 ? Result.success("更新成功") : Result.error("更新失败");
+    }
+
+    @Override
+    public boolean publish(Long id) {
+        // 只有管理员可以上架
+        SessionUserInfo userInfo = null;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法上架旅游线路");
+        }
+
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+        if (!isAdmin) {
+            throw new IllegalArgumentException("只有管理员可以上架旅游线路");
+        }
+
+        TourRoute route = new TourRoute();
+        route.setId(id);
+        route.setBizStatus(1); // 1-发布
+        return tourRouteMapper.update(route) > 0;
+    }
+
+    @Override
+    public boolean unpublish(Long id) {
+        // 只有管理员可以下架
+        SessionUserInfo userInfo = null;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法下架旅游线路");
+        }
+
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+        if (!isAdmin) {
+            throw new IllegalArgumentException("只有管理员可以下架旅游线路");
+        }
+
+        TourRoute route = new TourRoute();
+        route.setId(id);
+        route.setBizStatus(3); // 3-待审核/暂停
+        return tourRouteMapper.update(route) > 0;
     }
 
     @Override
