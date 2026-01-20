@@ -157,6 +157,9 @@ public class ProductsController {
     @ApiOperation(value = "获取商品详情", notes = "根据商品ID获取商品详细信息")
     @ApiImplicitParam(name = "id", value = "商品ID", required = true, dataType = "Long", paramType = "query")
     public JSONObject getProductById(@RequestParam Long id) {
+        System.out.println(
+                "根据商品ID查询商品详情，商品ID：" + id
+        );
         try {
             return productService.getProductById(id);
         } catch (Exception e) {
