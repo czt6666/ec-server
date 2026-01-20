@@ -4,8 +4,8 @@
 
     <!-- 新增商品 - 使用数据库自增ID -->
     <insert id="addProduct" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO spu (title, intro, link, status, user_id, mini_program_appid, mini_program_path, micro_shop_appid, micro_shop_product_id, upload_method_status)
-        VALUES (#{title}, #{description}, #{productUrl}, #{status}, #{userId}, #{miniProgramAppid}, #{miniProgramPath}, #{microShopAppid}, #{microShopProductId}, #{uploadMethodStatus})
+        INSERT INTO spu (title, intro, link, status, user_id, mini_program_appid, mini_program_path, micro_shop_appid, micro_shop_product_id, merchant_poster_img, upload_method_status)
+        VALUES (#{title}, #{description}, #{productUrl}, #{status}, #{userId}, #{miniProgramAppid}, #{miniProgramPath}, #{microShopAppid}, #{microShopProductId}, #{merchantPosterImg}, #{uploadMethodStatus})
     </insert>
 
     <!-- 更新商品 -->
@@ -20,6 +20,7 @@
             mini_program_path = #{miniProgramPath},
             micro_shop_appid = #{microShopAppid},
             micro_shop_product_id = #{microShopProductId},
+            merchant_poster_img = #{merchantPosterImg},
             upload_method_status = #{uploadMethodStatus},
             update_time = NOW()
         WHERE id = #{id}
@@ -92,6 +93,11 @@
         s.view_cnt as viewCount,
         s.cart_add_cnt as cartCount,
         s.upload_method_status as uploadMethodStatus,
+        CONCAT('/uploads/', s.merchant_poster_img) as merchantPosterImg,
+        s.mini_program_appid as miniProgramAppid,
+        s.mini_program_path as miniProgramPath,
+        s.micro_shop_appid as microShopAppid,
+        s.micro_shop_product_id as microShopProductId,
         sh.shop_name as shopName,
         sh.shop_avatar as shopAvatar,
         COALESCE((
@@ -187,6 +193,8 @@
             s.mini_program_path as miniProgramPath,
             s.micro_shop_appid as microShopAppid,
             s.micro_shop_product_id as microShopProductId,
+            CONCAT('/uploads/', s.merchant_poster_img) as merchantPosterImg,
+            s.upload_method_status as uploadMethodStatus,
             sh.shop_name as storeName,
             sh.shop_avatar as shopAvatar,
             COALESCE((
