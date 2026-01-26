@@ -52,6 +52,13 @@ public interface StationMapper {
     long countByName(@Param("name") String name, @Param("excludeId") Long excludeId);
 
     /**
+     * 按统一社会信用代码统计数量（用于唯一性校验）
+     * @param unifiedSocialCreditCode 统一社会信用代码
+     * @param excludeId 排除的ID（更新时传自身ID）
+     */
+    long countByUnifiedSocialCreditCode(@Param("unifiedSocialCreditCode") String unifiedSocialCreditCode, @Param("excludeId") Long excludeId);
+
+    /**
      * 查询所有驿站（用于导出）
      */
     List<Station> listAll();

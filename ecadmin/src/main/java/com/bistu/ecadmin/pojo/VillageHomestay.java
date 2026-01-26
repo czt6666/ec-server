@@ -46,7 +46,7 @@ public class VillageHomestay {
     @ApiModelProperty("负责人电话")
     private String contactPhone;
     
-    @ApiModelProperty("民宿简介、特色亮点")
+    @ApiModelProperty("民宿简介、特色亮点（最多500字）")
     private String description;
     
     @ApiModelProperty("封面图")

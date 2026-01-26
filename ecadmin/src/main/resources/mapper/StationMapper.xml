@@ -205,6 +205,15 @@
         </if>
     </select>
 
+    <!-- 按统一社会信用代码统计数量（用于唯一性校验） -->
+    <select id="countByUnifiedSocialCreditCode" resultType="long">
+        select count(*) from elderly_service_subject
+        where unified_social_credit_code = #{unifiedSocialCreditCode}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+    </select>
+
     <!-- 查询所有驿站（用于导出） -->
     <select id="listAll" resultMap="StationMap">
         select * from elderly_service_subject

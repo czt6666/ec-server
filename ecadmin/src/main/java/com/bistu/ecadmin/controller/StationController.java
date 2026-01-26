@@ -114,8 +114,15 @@ public class StationController {
     @OperateLog(operation = "新增养老驿站")
     @RequiresPermissions("station:add")
     public Result add(@RequestBody Station station) {
-        boolean success = stationService.add(station);
-        return success ? Result.success() : Result.error("新增失败");
+        try {
+            boolean success = stationService.add(station);
+            return success ? Result.success() : Result.error("新增失败");
+        } catch (IllegalArgumentException e) {
+            return Result.error(e.getMessage());
+        } catch (Exception e) {
+            log.error("新增驿站失败", e);
+            return Result.error("新增失败：" + e.getMessage());
+        }
     }
 
     @PutMapping("/update")
@@ -123,8 +130,15 @@ public class StationController {
     @OperateLog(operation = "更新养老驿站")
     @RequiresPermissions("station:update")
     public Result update(@RequestBody Station station) {
-        boolean success = stationService.update(station);
-        return success ? Result.success() : Result.error("更新失败");
+        try {
+            boolean success = stationService.update(station);
+            return success ? Result.success() : Result.error("更新失败");
+        } catch (IllegalArgumentException e) {
+            return Result.error(e.getMessage());
+        } catch (Exception e) {
+            log.error("更新驿站失败", e);
+            return Result.error("更新失败：" + e.getMessage());
+        }
     }
 
     @DeleteMapping("/deleted/{id}")

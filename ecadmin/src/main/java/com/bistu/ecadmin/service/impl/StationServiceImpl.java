@@ -156,6 +156,12 @@ public class StationServiceImpl implements StationService {
         if (stationMapper.countByName(station.getName(), null) > 0) {
             throw new IllegalArgumentException("驿站名称已存在");
         }
+        // 统一社会信用代码唯一性校验
+        if (station.getUnifiedSocialCreditCode() != null && !station.getUnifiedSocialCreditCode().trim().isEmpty()) {
+            if (stationMapper.countByUnifiedSocialCreditCode(station.getUnifiedSocialCreditCode(), null) > 0) {
+                throw new IllegalArgumentException("统一社会信用代码已存在");
+            }
+        }
         // subject_type_id 允许为空，若前端未传则设为 0 以避免数据库非空/外键约束
         if (station.getSubjectTypeId() == null) {
             station.setSubjectTypeId(0L);
@@ -193,6 +199,14 @@ public class StationServiceImpl implements StationService {
         // 名称唯一校验（排除自身）
         if (stationMapper.countByName(station.getName(), station.getId()) > 0) {
             throw new IllegalArgumentException("驿站名称已存在");
+        }
+        // 统一社会信用代码唯一性校验（排除自身）
+        if (station.getUnifiedSocialCreditCode() != null && !station.getUnifiedSocialCreditCode().trim().isEmpty()) {
+            if (old.getUnifiedSocialCreditCode() == null || !station.getUnifiedSocialCreditCode().equals(old.getUnifiedSocialCreditCode())) {
+                if (stationMapper.countByUnifiedSocialCreditCode(station.getUnifiedSocialCreditCode(), station.getId()) > 0) {
+                    throw new IllegalArgumentException("统一社会信用代码已存在");
+                }
+            }
         }
         return stationMapper.update(station) > 0;
     }

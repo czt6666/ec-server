@@ -120,4 +120,12 @@
         ORDER BY stb.create_time DESC
     </select>
 
+    <select id="countByUnifiedSocialCreditCode" resultType="int">
+        SELECT COUNT(*) FROM study_tour_base
+        WHERE unified_social_credit_code = #{unifiedSocialCreditCode}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
 </mapper>

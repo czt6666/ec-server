@@ -45,7 +45,7 @@ public class ProductsController {
 
         return productService.createProduct(requestJson);
     }
-    
+
     /**
      * 更新商品
      */
@@ -64,7 +64,7 @@ public class ProductsController {
 
         return productService.updateProduct(requestJson);
     }
-    
+
     /**
      * 删除商品
      */
@@ -74,7 +74,7 @@ public class ProductsController {
     @OperateLog(operation = "删除农产品商品")
     public JSONObject deleteProduct(@RequestBody JSONObject requestJson) {
         try {
-            // 验证必填参数
+            // 验证必参数
             CommonUtil.hasAllRequired(requestJson, "id");
 
             Long productId = requestJson.getLong("id");
@@ -84,7 +84,7 @@ public class ProductsController {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
-    
+
     /**
      * 查询商品列表
      * 说明：
@@ -122,7 +122,7 @@ public class ProductsController {
             if (shopName != null && !shopName.isEmpty()) {
                 params.put("shopName", shopName);
             }
-            
+
             PageResult result = productService.listProducts(params);
             return CommonUtil.successJson(result);
         } catch (Exception e) {
@@ -130,7 +130,7 @@ public class ProductsController {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
-    
+
     /**
      * 增加商品浏览次数
      */
@@ -148,7 +148,7 @@ public class ProductsController {
             return CommonUtil.errorJson(ErrorEnum.E_400);
         }
     }
-    
+
     /**
      * 根据商品ID查询商品详情
      * 说明：对外开放给小程序使用，不强制要求后端登录权限

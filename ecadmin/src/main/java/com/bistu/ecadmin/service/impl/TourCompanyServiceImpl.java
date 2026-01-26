@@ -61,6 +61,13 @@ public class TourCompanyServiceImpl implements TourCompanyService {
         if (dup > 0) {
             return Result.error("公司名称已存在");
         }
+        // 统一社会信用代码唯一性校验
+        if (company.getUnifiedSocialCreditCode() != null && !company.getUnifiedSocialCreditCode().trim().isEmpty()) {
+            int creditCodeDup = tourCompanyMapper.countByUnifiedSocialCreditCode(company.getUnifiedSocialCreditCode(), null);
+            if (creditCodeDup > 0) {
+                return Result.error("统一社会信用代码已存在");
+            }
+        }
         if (company.getStatus() == null) {
             company.setStatus(1);
         }
@@ -102,6 +109,15 @@ public class TourCompanyServiceImpl implements TourCompanyService {
             int dup = tourCompanyMapper.countByName(company.getName(), company.getId());
             if (dup > 0) {
                 return Result.error("公司名称已存在");
+            }
+        }
+        // 统一社会信用代码唯一性校验（排除自身）
+        if (company.getUnifiedSocialCreditCode() != null && !company.getUnifiedSocialCreditCode().trim().isEmpty()) {
+            if (old.getUnifiedSocialCreditCode() == null || !company.getUnifiedSocialCreditCode().equals(old.getUnifiedSocialCreditCode())) {
+                int creditCodeDup = tourCompanyMapper.countByUnifiedSocialCreditCode(company.getUnifiedSocialCreditCode(), company.getId());
+                if (creditCodeDup > 0) {
+                    return Result.error("统一社会信用代码已存在");
+                }
             }
         }
         int updated = tourCompanyMapper.update(company);

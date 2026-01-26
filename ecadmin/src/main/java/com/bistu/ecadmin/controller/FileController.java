@@ -79,10 +79,19 @@ public class FileController {
 
     @PostMapping("/upload")
     @ApiOperation("上传文件")
-    public Result<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) {
+    public Result<Map<String, Object>> upload(@RequestParam("file") MultipartFile file,
+                                               @RequestParam(required = false) Long maxSizeKB) {
         try {
             if (file.isEmpty()) {
                 return Result.error("文件不能为空");
+            }
+
+            // 如果指定了最大文件大小（单位：KB），进行验证
+            if (maxSizeKB != null && maxSizeKB > 0) {
+                long fileSizeKB = file.getSize() / 1024;
+                if (fileSizeKB > maxSizeKB) {
+                    return Result.error("文件大小不能超过" + maxSizeKB + "KB");
+                }
             }
 
             String originalFilename = file.getOriginalFilename();

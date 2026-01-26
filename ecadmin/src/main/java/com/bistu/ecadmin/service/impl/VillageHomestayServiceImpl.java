@@ -115,6 +115,11 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
             throw new IllegalArgumentException("未登录，无法新增民宿");
         }
 
+        // 验证简介字数限制（最多500字）
+        if (homestay.getDescription() != null && homestay.getDescription().length() > 500) {
+            throw new IllegalArgumentException("民宿简介不能超过500字");
+        }
+
         homestay.setCreateTime(LocalDateTime.now());
         return villageHomestayMapper.insert(homestay) > 0;
     }
@@ -147,6 +152,11 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
             }
             // 商家不能修改status，保持原状态
             homestay.setStatus(existing.getStatus());
+        }
+
+        // 验证简介字数限制（最多500字）
+        if (homestay.getDescription() != null && homestay.getDescription().length() > 500) {
+            throw new IllegalArgumentException("民宿简介不能超过500字");
         }
 
         return villageHomestayMapper.update(homestay) > 0;

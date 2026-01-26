@@ -76,4 +76,11 @@ public interface StudyTourBaseDao {
      * 查询所有研学基地列表
      */
     List<StudyTourBase> selectAll();
+
+    /**
+     * 按统一社会信用代码统计数量（用于唯一性校验）
+     * @param unifiedSocialCreditCode 统一社会信用代码
+     * @param excludeId 排除的ID（更新时传自身ID）
+     */
+    int countByUnifiedSocialCreditCode(@Param("unifiedSocialCreditCode") String unifiedSocialCreditCode, @Param("excludeId") Long excludeId);
 }

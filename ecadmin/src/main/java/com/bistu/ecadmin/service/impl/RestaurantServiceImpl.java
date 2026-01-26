@@ -56,14 +56,14 @@ public class RestaurantServiceImpl implements RestaurantService {
         }
 
         // 如果从token获取到用户信息，进行权限过滤
-        if (userInfo != null) {
-            List<Integer> roleIds = userInfo.getRoleIds();
-            boolean isAdmin = (userInfo.getUserId() == 10011)
-                    || (roleIds != null && roleIds.contains(1));
-            if (!isAdmin) {
-                dto.setUserId((long) userInfo.getUserId());
+            if (userInfo != null) {
+                List<Integer> roleIds = userInfo.getRoleIds();
+                boolean isAdmin = (userInfo.getUserId() == 10011)
+                        || (roleIds != null && roleIds.contains(1));
+                if (!isAdmin) {
+                    dto.setUserId((long) userInfo.getUserId());
+                }
             }
-        }
         // 如果既没有UserContext的userId，也没有TokenUtil的userInfo，
         // 说明是匿名访问或小程序端未登录，不设置userId过滤，返回所有门店
 

@@ -66,6 +66,14 @@ public class StudyTourBaseServiceImpl implements StudyTourBaseService {
             throw new IllegalArgumentException("未登录，无法新增研学基地");
         }
 
+        // 统一社会信用代码唯一性校验
+        if (studyTourBase.getUnifiedSocialCreditCode() != null && !studyTourBase.getUnifiedSocialCreditCode().trim().isEmpty()) {
+            int creditCodeDup = studyTourBaseDao.countByUnifiedSocialCreditCode(studyTourBase.getUnifiedSocialCreditCode(), null);
+            if (creditCodeDup > 0) {
+                return Result.error("统一社会信用代码已存在");
+            }
+        }
+
         // 设置创建时间和更新时间
         studyTourBase.setCreateTime(LocalDateTime.now());
         studyTourBase.setUpdateTime(LocalDateTime.now());
@@ -141,6 +149,16 @@ public class StudyTourBaseServiceImpl implements StudyTourBaseService {
         StudyTourBase existing = studyTourBaseDao.selectById(studyTourBase.getId());
         if (existing == null) {
             return Result.error("研学基地不存在");
+        }
+
+        // 统一社会信用代码唯一性校验（排除自身）
+        if (studyTourBase.getUnifiedSocialCreditCode() != null && !studyTourBase.getUnifiedSocialCreditCode().trim().isEmpty()) {
+            if (existing.getUnifiedSocialCreditCode() == null || !studyTourBase.getUnifiedSocialCreditCode().equals(existing.getUnifiedSocialCreditCode())) {
+                int creditCodeDup = studyTourBaseDao.countByUnifiedSocialCreditCode(studyTourBase.getUnifiedSocialCreditCode(), studyTourBase.getId());
+                if (creditCodeDup > 0) {
+                    return Result.error("统一社会信用代码已存在");
+                }
+            }
         }
 
         // 判断是否为管理员
