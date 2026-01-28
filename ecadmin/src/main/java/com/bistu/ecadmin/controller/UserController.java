@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,9 +33,19 @@ public class UserController {
      */
     @GetMapping("/options")
     @ApiOperation("获取用户下拉选项")
-    public Result<List<User>> listUserOptions() {
+    public Result<List<User>> listUserOptions(@RequestParam(required = false) String permissionCode) {
         try {
-            List<User> users = userMapper.listActiveUsers();
+            // 不传 permissionCode：兼容旧逻辑，返回所有启用用户
+            // 传入 permissionCode：按“拥有该权限”的用户过滤（适用于民宿/旅游/研学/养老/餐饮等模块的商户绑定）
+            List<User> users;
+            if (permissionCode == null || permissionCode.trim().isEmpty()) {
+                users = userMapper.listActiveUsers();
+            } else if ("villageHomestay:add".equals(permissionCode.trim())) {
+                // 兼容已有专用SQL（也可直接走通用方法）
+                users = userMapper.listHomestayUserOptions();
+            } else {
+                users = userMapper.listUserOptionsByPermissionCode(permissionCode.trim());
+            }
             return Result.success(users);
         } catch (Exception e) {
             log.error("获取用户下拉列表失败", e);
