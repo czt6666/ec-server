@@ -17,6 +17,8 @@
         <result column="contact_phone" property="contactPhone"/>
         <result column="description" property="description"/>
         <result column="cover_image" property="coverImage"/>
+        <result column="mini_program_appid" property="miniProgramAppid"/>
+        <result column="mini_program_path" property="miniProgramPath"/>
         <result column="latitude" property="latitude"/>
         <result column="longitude" property="longitude"/>
         <result column="qualification_images" property="qualificationImages"/>
@@ -39,7 +41,7 @@
         where uc.target_type = 'homestay'
         and uc.target_id = CAST(vh.id AS CHAR)
         ), 0) as collect_number,
-        -- is_collect 表示"当前用户是否收藏过"，依赖传入的 userId
+        -- is_collect 表示“当前用户是否收藏过”，依赖传入的 userId
         CASE WHEN #{userId} IS NOT NULL AND EXISTS (
             SELECT 1 FROM user_collect uc2
             WHERE uc2.user_id = #{userId}
@@ -110,11 +112,11 @@
         insert into village_homestay (
             user_id, village_id, homestay_name, address, status, star_level,
             room_count, bed_count, max_capacity, contact_name, contact_phone,
-            description, cover_image, latitude, longitude, qualification_images, link_address, create_time
+            description, cover_image, mini_program_appid, mini_program_path, latitude, longitude, qualification_images, link_address, create_time
         ) values (
                      #{userId}, #{villageId}, #{homestayName}, #{address}, #{status}, #{starLevel},
                      #{roomCount}, #{bedCount}, #{maxCapacity}, #{contactName}, #{contactPhone},
-                     #{description}, #{coverImage}, #{latitude}, #{longitude}, #{qualificationImages}, #{linkAddress}, #{createTime}
+                     #{description}, #{coverImage}, #{miniProgramAppid}, #{miniProgramPath}, #{latitude}, #{longitude}, #{qualificationImages}, #{linkAddress}, #{createTime}
                  )
     </insert>
 
@@ -135,6 +137,8 @@
             <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
             <if test="description != null">description = #{description},</if>
             <if test="coverImage != null">cover_image = #{coverImage},</if>
+            <if test="miniProgramAppid != null">mini_program_appid = #{miniProgramAppid},</if>
+            <if test="miniProgramPath != null">mini_program_path = #{miniProgramPath},</if>
             <if test="latitude != null">latitude = #{latitude},</if>
             <if test="longitude != null">longitude = #{longitude},</if>
             <if test="qualificationImages != null">qualification_images = #{qualificationImages},</if>

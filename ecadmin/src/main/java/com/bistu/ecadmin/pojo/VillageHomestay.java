@@ -49,8 +49,14 @@ public class VillageHomestay {
     @ApiModelProperty("民宿简介、特色亮点（最多500字）")
     private String description;
     
-    @ApiModelProperty("封面图")
+    @ApiModelProperty("封面图（JSON数组，支持多张）")
     private String coverImage;
+    
+    @ApiModelProperty("小程序APPID")
+    private String miniProgramAppid;
+    
+    @ApiModelProperty("小程序页面路径")
+    private String miniProgramPath;
     
     @ApiModelProperty("创建时间")
     private LocalDateTime createTime;
