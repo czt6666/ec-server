@@ -24,7 +24,6 @@
     <insert id="addShop" parameterType="com.bistu.ecadmin.pojo.Shop" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO shop (
             shop_name,
-            shop_abbreviation,
             product_type,
             business_status,
             village,
@@ -33,13 +32,12 @@
             shop_address,
             qualification_files,
             user_id,
-            display_no
+            display_no,
             latitude,
-            longitude,
+            longitude
         )
         VALUES (
                    #{shopName},
-                   #{shopAbbreviation},
                    #{productType},
                    #{businessStatus},
                    #{village},
@@ -48,9 +46,9 @@
                    #{shopAddress},
                    #{qualificationFiles},
                    #{userId},
-                   #{displayNo}
+                   #{displayNo},
                    #{latitude},
-                   #{longitude},
+                   #{longitude}
                )
     </insert>
 
@@ -58,7 +56,6 @@
         UPDATE shop
         SET
         shop_name = #{shopName},
-        shop_abbreviation = #{shopAbbreviation},
         product_type = #{productType},
         business_status = #{businessStatus},
         village = #{village},
@@ -68,6 +65,9 @@
         latitude = #{latitude},
         longitude = #{longitude},
         qualification_files = #{qualificationFiles},
+        <if test="userId != null">
+            user_id = #{userId},
+        </if>
         <if test="displayNo != null">
             display_no = #{displayNo},
         </if>

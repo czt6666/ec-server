@@ -7,6 +7,7 @@ import com.bistu.ecadmin.dao.mapper.*;
 import com.bistu.ecadmin.pojo.*;
 import com.bistu.ecadmin.service.ShopService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,32 +55,9 @@ public class ShopServiceImpl implements ShopService {
     @Transactional(rollbackFor = Exception.class)
     public Result<Shop> createShop(Shop shop) {
         try {
-            if (shop.getShopName() == null || shop.getShopName().trim().isEmpty()) {
-                return Result.error("店铺名称不能为空");
-            }
-            if (shop.getShopAbbreviation() == null || shop.getShopAbbreviation().trim().isEmpty()) {
-                return Result.error("店铺缩写不能为空");
-            }
-
-            int count = shopMapper.countByShopName(shop.getShopName(), null);
-            if (count > 0) {
-                return Result.error("店铺名称已存在");
-            }
-
-            // 1. 创建默认账号（用户名=店铺缩写，密码=123456）
-            String username = shop.getShopAbbreviation().trim();
-            Long userId = createUserAccount(username, DEFAULT_PASSWORD, shop.getShopName());
-            if (userId == null) {
-                return Result.error("创建店铺失败：账号创建失败");
-            }
-
-            // 2. 分配“农产品商户”角色
-            assignRole(userId, MERCHANT_ROLE_NAME);
-
-            // 3. 回写账号ID
-            shop.setUserId(userId);
-
-            // 4. 生成展示顺序并保存店铺
+            validate(shop, null);
+            
+            // 生成展示顺序并保存店铺
             int maxDisplayNo = shopMapper.getMaxDisplayNo();
             shop.setDisplayNo(maxDisplayNo + 1);
 
@@ -89,6 +67,8 @@ public class ShopServiceImpl implements ShopService {
                 return Result.success(createdShop);
             }
             return Result.error("创建店铺失败");
+        } catch (IllegalArgumentException e) {
+            return Result.error(e.getMessage());
         } catch (Exception e) {
             log.error("创建店铺失败", e);
             throw new RuntimeException("创建店铺失败：" + e.getMessage(), e);
@@ -108,13 +88,29 @@ public class ShopServiceImpl implements ShopService {
                 return Result.error("店铺不存在");
             }
 
-            // 校验店铺名称是否重复
-            if (shop.getShopName() != null) {
-                int count = shopMapper.countByShopName(shop.getShopName(), shop.getId());
-                if (count > 0) {
-                    return Result.error("店铺名称已存在");
+            // 权限校验：普通商户只能修改自己的店铺，且不能修改 userId
+            try {
+                SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                if (userInfo != null) {
+                    boolean isAdmin = (userInfo.getUserId() == 10011) || 
+                                     (userInfo.getRoleIds() != null && userInfo.getRoleIds().contains(1L));
+                    if (!isAdmin) {
+                        // 普通商户：只能修改自己的店铺，且不能修改 userId
+                        if (!existingShop.getUserId().equals(userInfo.getUserId())) {
+                            return Result.error("无权修改其他商户的店铺");
+                        }
+                        // 保持原有的 userId，不允许修改
+                        shop.setUserId(existingShop.getUserId());
+                    }
+                    // 管理员可以修改任何店铺和 userId
                 }
+            } catch (Exception e) {
+                log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
+                // 如果没有 token，按普通商户处理
+                shop.setUserId(existingShop.getUserId());
             }
+
+            validate(shop, shop.getId());
 
             // 更新店铺信息（displayNo 仅当传入非空时才更新）
             int result = shopMapper.updateShop(shop);
@@ -124,6 +120,8 @@ public class ShopServiceImpl implements ShopService {
             } else {
                 return Result.error("更新店铺失败");
             }
+        } catch (IllegalArgumentException e) {
+            return Result.error(e.getMessage());
         } catch (Exception e) {
             log.error("更新店铺失败", e);
             throw new RuntimeException("更新店铺失败：" + e.getMessage(), e);
@@ -232,8 +230,42 @@ public class ShopServiceImpl implements ShopService {
     }
 
     /**
-     * 创建用户账号
+     * 验证店铺数据
      */
+    private void validate(Shop shop, Long excludeId) {
+        if (shop == null) {
+            throw new IllegalArgumentException("参数不能为空");
+        }
+        if (StringUtils.isBlank(shop.getShopName()) || shop.getShopName().length() > 100) {
+            throw new IllegalArgumentException("店铺名称不能为空且不超过100字符");
+        }
+        if (shop.getUserId() == null || userMapper.selectById(shop.getUserId()) == null) {
+            throw new IllegalArgumentException("关联用户不存在");
+        }
+        if (StringUtils.isNotBlank(shop.getProductType()) && shop.getProductType().length() > 100) {
+            throw new IllegalArgumentException("产品类型不超过100字符");
+        }
+        if (shop.getBusinessStatus() == null || (shop.getBusinessStatus() != 0 && shop.getBusinessStatus() != 1)) {
+            throw new IllegalArgumentException("经营状态必须为0（停业）或1（营业）");
+        }
+        if (StringUtils.isNotBlank(shop.getShopIntro()) && shop.getShopIntro().length() > 500) {
+            throw new IllegalArgumentException("店铺简介不超过500字符");
+        }
+        if (StringUtils.isNotBlank(shop.getShopAddress()) && shop.getShopAddress().length() > 200) {
+            throw new IllegalArgumentException("店铺地址不超过200字符");
+        }
+        
+        // 校验店铺名称是否重复
+        int count = shopMapper.countByShopName(shop.getShopName(), excludeId);
+        if (count > 0) {
+            throw new IllegalArgumentException("店铺名称已存在");
+        }
+    }
+
+    /**
+     * 创建用户账号（已废弃，不再使用）
+     */
+    @Deprecated
     private Long createUserAccount(String username, String password, String nickname) {
         try {
             User existing = userMapper.selectByUsername(username);
