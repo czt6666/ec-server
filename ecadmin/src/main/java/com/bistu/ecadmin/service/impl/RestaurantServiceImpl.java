@@ -88,12 +88,68 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public void create(Restaurant restaurant) {
+        // 获取当前登录用户信息
+        SessionUserInfo userInfo = null;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            log.debug("未获取到管理后台token: {}", e.getMessage());
+        }
+
+        if (userInfo != null) {
+            // 判断是否为管理员
+            List<Integer> roleIds = userInfo.getRoleIds();
+            boolean isAdmin = (userInfo.getUserId() == 10011)
+                    || (roleIds != null && roleIds.contains(1));
+
+            if (!isAdmin) {
+                // 普通商户：自动设置userId，状态强制设为待审核（2）
+                restaurant.setUserId((long) userInfo.getUserId());
+                restaurant.setStatus(2); // 2-待审核，普通商户新增时强制为待审核状态
+            } else {
+                // 管理员：如果没有设置status，默认为1（营业）
+                if (restaurant.getStatus() == null) {
+                    restaurant.setStatus(1); // 1-营业
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("未登录，无法新增门店");
+        }
+
         validate(restaurant, null);
         restaurantMapper.insert(restaurant);
     }
 
     @Override
     public void update(Restaurant restaurant) {
+        // 权限校验：普通商户只能修改自己的门店，且不能修改 status
+        if (restaurant.getId() != null) {
+            Restaurant existing = restaurantMapper.selectById(restaurant.getId(), null);
+            if (existing != null) {
+                try {
+                    SessionUserInfo userInfo = tokenUtil.getUserInfo();
+                    if (userInfo != null) {
+                        List<Integer> roleIds = userInfo.getRoleIds();
+                        boolean isAdmin = (userInfo.getUserId() == 10011)
+                                || (roleIds != null && roleIds.contains(1));
+                        if (!isAdmin) {
+                            // 普通商户：只能修改自己的门店，且不能修改 status
+                            if (!existing.getUserId().equals((long) userInfo.getUserId())) {
+                                throw new IllegalArgumentException("无权修改其他商户的门店");
+                            }
+                            // 保持原有的 status，不允许修改
+                            restaurant.setStatus(existing.getStatus());
+                        }
+                        // 管理员可以修改任何门店和 status
+                    }
+                } catch (Exception e) {
+                    log.debug("未获取到管理后台token: {}", e.getMessage());
+                    // 如果没有 token，按普通商户处理
+                    restaurant.setStatus(existing.getStatus());
+                }
+            }
+        }
+
         validate(restaurant, restaurant.getId());
         restaurantMapper.update(restaurant);
     }

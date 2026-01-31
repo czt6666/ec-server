@@ -55,6 +55,34 @@ public class ShopServiceImpl implements ShopService {
     @Transactional(rollbackFor = Exception.class)
     public Result<Shop> createShop(Shop shop) {
         try {
+            // 获取当前登录用户信息
+            SessionUserInfo userInfo = null;
+            try {
+                userInfo = tokenUtil.getUserInfo();
+            } catch (Exception e) {
+                log.debug("未获取到管理后台token: {}", e.getMessage());
+            }
+
+            if (userInfo != null) {
+                // 判断是否为管理员
+                List<Integer> roleIds = userInfo.getRoleIds();
+                boolean isAdmin = (userInfo.getUserId() == 10011)
+                        || (roleIds != null && roleIds.contains(1));
+
+                if (!isAdmin) {
+                    // 普通商户：自动设置userId，状态强制设为待审核（2）
+                    shop.setUserId((long) userInfo.getUserId());
+                    shop.setBusinessStatus(2); // 2-待审核，普通商户新增时强制为待审核状态
+                } else {
+                    // 管理员：如果没有设置businessStatus，默认为1（营业）
+                    if (shop.getBusinessStatus() == null) {
+                        shop.setBusinessStatus(1); // 1-营业
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException("未登录，无法新增店铺");
+            }
+
             validate(shop, null);
             
             // 生成展示顺序并保存店铺
@@ -88,26 +116,28 @@ public class ShopServiceImpl implements ShopService {
                 return Result.error("店铺不存在");
             }
 
-            // 权限校验：普通商户只能修改自己的店铺，且不能修改 userId
+            // 权限校验：普通商户只能修改自己的店铺，且不能修改 userId 和 businessStatus
             try {
                 SessionUserInfo userInfo = tokenUtil.getUserInfo();
                 if (userInfo != null) {
                     boolean isAdmin = (userInfo.getUserId() == 10011) || 
                                      (userInfo.getRoleIds() != null && userInfo.getRoleIds().contains(1L));
                     if (!isAdmin) {
-                        // 普通商户：只能修改自己的店铺，且不能修改 userId
+                        // 普通商户：只能修改自己的店铺，且不能修改 userId 和 businessStatus
                         if (!existingShop.getUserId().equals(userInfo.getUserId())) {
                             return Result.error("无权修改其他商户的店铺");
                         }
-                        // 保持原有的 userId，不允许修改
+                        // 保持原有的 userId 和 businessStatus，不允许修改
                         shop.setUserId(existingShop.getUserId());
+                        shop.setBusinessStatus(existingShop.getBusinessStatus());
                     }
-                    // 管理员可以修改任何店铺和 userId
+                    // 管理员可以修改任何店铺和 userId、businessStatus
                 }
             } catch (Exception e) {
                 log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
                 // 如果没有 token，按普通商户处理
                 shop.setUserId(existingShop.getUserId());
+                shop.setBusinessStatus(existingShop.getBusinessStatus());
             }
 
             validate(shop, shop.getId());
@@ -245,8 +275,8 @@ public class ShopServiceImpl implements ShopService {
         if (StringUtils.isNotBlank(shop.getProductType()) && shop.getProductType().length() > 100) {
             throw new IllegalArgumentException("产品类型不超过100字符");
         }
-        if (shop.getBusinessStatus() == null || (shop.getBusinessStatus() != 0 && shop.getBusinessStatus() != 1)) {
-            throw new IllegalArgumentException("经营状态必须为0（停业）或1（营业）");
+        if (shop.getBusinessStatus() == null || (shop.getBusinessStatus() != 0 && shop.getBusinessStatus() != 1 && shop.getBusinessStatus() != 2)) {
+            throw new IllegalArgumentException("经营状态必须为0（停业）、1（营业）或2（待审核）");
         }
         if (StringUtils.isNotBlank(shop.getShopIntro()) && shop.getShopIntro().length() > 500) {
             throw new IllegalArgumentException("店铺简介不超过500字符");
