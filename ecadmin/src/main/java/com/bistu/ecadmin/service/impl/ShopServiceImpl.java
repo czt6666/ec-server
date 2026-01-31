@@ -211,6 +211,7 @@ public class ShopServiceImpl implements ShopService {
             // 按当前登录用户限制可见店铺：
             // - 管理员(userId=10011 或 roleId 包含 1)：查看全部店铺
             // - 普通用户：仅查看自己(userId)名下的店铺
+            // - 小程序端/匿名访问：只显示营业中的店铺（businessStatus=1）
             Long userIdFilter = null;
             try {
                 SessionUserInfo userInfo = tokenUtil.getUserInfo();
@@ -221,9 +222,19 @@ public class ShopServiceImpl implements ShopService {
                     if (!isAdmin) {
                         userIdFilter = (long) userInfo.getUserId();
                     }
+                } else {
+                    // 小程序端/匿名访问：只显示营业中的店铺（businessStatus=1）
+                    if (businessStatus == null) {
+                        businessStatus = 1;
+                    }
                 }
             } catch (Exception e) {
-                log.warn("获取当前登录用户信息失败，店铺列表默认不过滤用户: {}", e.getMessage());
+                // 没有管理后台token，说明是小程序端/匿名访问
+                log.debug("未获取到管理后台token（可能是小程序端或匿名访问）: {}", e.getMessage());
+                // 小程序端/匿名访问：只显示营业中的店铺（businessStatus=1）
+                if (businessStatus == null) {
+                    businessStatus = 1;
+                }
             }
 
             // 查询列表
