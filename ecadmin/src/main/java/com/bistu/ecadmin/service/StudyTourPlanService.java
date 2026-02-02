@@ -14,7 +14,13 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -76,7 +82,10 @@ public class StudyTourPlanService {
 
         try {
             studyTourPlanDao.insert(studyTourPlan);
-            return Result.success("新增成功");
+            // 返回包含id的结果，以便前端处理图片
+            Map<String, Object> data = new java.util.HashMap<>();
+            data.put("id", studyTourPlan.getId());
+            return Result.success(data, "新增成功");
         } catch (Exception e) {
             log.error("新增研学方案失败", e);
             return Result.error("新增失败");
@@ -197,50 +206,7 @@ public class StudyTourPlanService {
         }
     }
 
-    /**
-     * 删除研学方案
-     */
-    public Result deleteStudyTourPlan(Long id) {
-        // 权限校验：商家只能删除自己基地下的方案
-        SessionUserInfo userInfo = null;
-        try {
-            userInfo = tokenUtil.getUserInfo();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("未登录，无法删除研学方案");
-        }
 
-        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
-        Long userId = UserContext.getUserId();
-        StudyTourPlan existing = studyTourPlanDao.getById(id, userId);
-        if (existing == null) {
-            return Result.error("研学方案不存在");
-        }
-
-        // 判断是否为管理员
-        List<Integer> roleIds = userInfo.getRoleIds();
-        boolean isAdmin = (userInfo.getUserId() == 10011)
-                || (roleIds != null && roleIds.contains(1));
-
-        if (!isAdmin) {
-            // 商家用户：只能删除自己基地下的方案
-            if (existing.getBaseId() != null) {
-                StudyTourBase base = studyTourBaseDao.selectById(existing.getBaseId());
-                if (base == null || base.getUserId() == null || !base.getUserId().equals((long) userInfo.getUserId())) {
-                    throw new IllegalArgumentException("无权删除其他基地的研学方案");
-                }
-            } else {
-                throw new IllegalArgumentException("方案未关联基地，无法验证权限");
-            }
-        }
-
-        try {
-            studyTourPlanDao.deleteById(id);
-            return Result.success("删除成功");
-        } catch (Exception e) {
-            log.error("删除研学方案失败", e);
-            return Result.error("删除失败");
-        }
-    }
 
     /**
      * 查询所有启用的研学方案（用于下拉选择）
@@ -322,5 +288,192 @@ public class StudyTourPlanService {
         plan.setStatus(0); // 0-禁用（下架）
         studyTourPlanDao.update(plan);
         return true;
+    }
+    
+    /**
+     * 上传方案图片
+     */
+    public String uploadImage(MultipartFile file) throws Exception {
+        // 验证文件类型
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.matches("(?i).*\\.(jpg|jpeg|png)$")) {
+            throw new IllegalArgumentException("只支持JPG、PNG格式的图片");
+        }
+        
+        // 验证文件大小
+        if (file.getSize() > 5 * 1024 * 1024) { // 5MB
+            throw new IllegalArgumentException("图片大小不能超过5MB");
+        }
+        
+        // 生成文件名
+        String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
+        
+        // 上传路径
+        String uploadPath = "D:/ecadmin/upload/images/"; // 实际部署时需要修改
+        File dir = new File(uploadPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        
+        // 保存文件
+        File dest = new File(uploadPath + fileName);
+        file.transferTo(dest);
+        
+        // 返回相对路径
+        return "/upload/images/" + fileName;
+    }
+    
+    /**
+     * 获取方案的图片列表
+     */
+    public List<Map<String, Object>> getImagesByPlanId(Long planId) {
+        return studyTourPlanDao.getImagesByPlanId(planId);
+    }
+    
+    /**
+     * 保存方案图片
+     */
+    public void saveImages(Long planId, List<Map<String, Object>> images) {
+        // 先删除旧的图片
+        // 1. 先获取旧图片的URL，以便删除真实文件
+        List<Map<String, Object>> oldImages = studyTourPlanDao.getImagesByPlanId(planId);
+        
+        // 2. 删除数据库中的旧图片
+        studyTourPlanDao.deleteImagesByPlanId(planId);
+        
+        // 3. 删除真实的图片文件
+        for (Map<String, Object> oldImage : oldImages) {
+            String imageUrl = (String) oldImage.get("imageUrl");
+            if (imageUrl != null) {
+                // 提取文件名并删除文件
+                try {
+                    // 从URL中提取文件名
+                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                    String filePath = "D:/ecadmin/upload/images/" + fileName;
+                    File file = new File(filePath);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                } catch (Exception e) {
+                    log.error("删除旧图片文件失败: " + imageUrl, e);
+                }
+            }
+        }
+        
+        // 保存新的图片
+        for (int i = 0; i < images.size(); i++) {
+            Map<String, Object> image = images.get(i);
+            Map<String, Object> imageData = new java.util.HashMap<>();
+            imageData.put("relatedId", planId);
+            imageData.put("relatedType", "plan");
+            
+            // 尝试多种可能的字段名
+            Object imageUrlObj = image.get("imageUrl");
+            if (imageUrlObj == null) {
+                imageUrlObj = image.get("url");
+            }
+            imageData.put("imageUrl", imageUrlObj);
+            
+            Object imageNameObj = image.get("imageName");
+            if (imageNameObj == null) {
+                imageNameObj = image.get("name");
+            }
+            imageData.put("imageName", imageNameObj);
+            
+            Object sortOrderObj = image.get("sortOrder");
+            if (sortOrderObj == null) {
+                sortOrderObj = i;
+            }
+            imageData.put("sortOrder", sortOrderObj);
+            
+            Object isCoverObj = image.get("isCover");
+            if (isCoverObj == null) {
+                isCoverObj = (i == 0 ? 1 : 0); // 默认第一张为封面图
+            }
+            imageData.put("isCover", isCoverObj);
+            
+            // 确保所有图片都保存到数据库
+            studyTourPlanDao.insertImage(imageData);
+        }
+    }
+    
+    /**
+     * 删除方案图片
+     */
+    public boolean deleteImage(Long imageId) {
+        studyTourPlanDao.deleteImage(imageId);
+        return true;
+    }
+    
+    /**
+     * 设置封面图
+     */
+    public boolean setCoverImage(Long imageId) {
+        studyTourPlanDao.setCoverImage(imageId);
+        return true;
+    }
+    
+    /**
+     * 更新图片排序
+     */
+    public boolean updateImageSort(List<Map<String, Object>> images) {
+        for (int i = 0; i < images.size(); i++) {
+            Map<String, Object> image = images.get(i);
+            Map<String, Object> sortData = new java.util.HashMap<>();
+            sortData.put("id", image.get("id"));
+            sortData.put("sortOrder", i);
+            
+            studyTourPlanDao.updateImageSort(sortData);
+        }
+        return true;
+    }
+    
+    /**
+     * 确保删除方案时同时删除关联的图片
+     */
+    public Result deleteStudyTourPlan(Long id) {
+        // 权限校验：商家只能删除自己基地下的方案
+        SessionUserInfo userInfo = null;
+        try {
+            userInfo = tokenUtil.getUserInfo();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("未登录，无法删除研学方案");
+        }
+
+        // 从 UserContext 获取小程序用户ID（用于判断是否收藏）
+        Long userId = UserContext.getUserId();
+        StudyTourPlan existing = studyTourPlanDao.getById(id, userId);
+        if (existing == null) {
+            return Result.error("研学方案不存在");
+        }
+
+        // 判断是否为管理员
+        List<Integer> roleIds = userInfo.getRoleIds();
+        boolean isAdmin = (userInfo.getUserId() == 10011)
+                || (roleIds != null && roleIds.contains(1));
+
+        if (!isAdmin) {
+            // 商家用户：只能删除自己基地下的方案
+            if (existing.getBaseId() != null) {
+                StudyTourBase base = studyTourBaseDao.selectById(existing.getBaseId());
+                if (base == null || base.getUserId() == null || !base.getUserId().equals((long) userInfo.getUserId())) {
+                    throw new IllegalArgumentException("无权删除其他基地的研学方案");
+                }
+            } else {
+                throw new IllegalArgumentException("方案未关联基地，无法验证权限");
+            }
+        }
+
+        try {
+            // 先删除关联的图片
+            studyTourPlanDao.deleteImagesByPlanId(id);
+            
+            // 再删除方案
+            studyTourPlanDao.deleteById(id);
+            return Result.success("删除成功");
+        } catch (Exception e) {
+            log.error("删除研学方案失败", e);
+            return Result.error("删除失败");
+        }
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 研学方案管理控制器
@@ -133,5 +135,96 @@ public class StudyTourPlanController {
     public Result<List<StudyTourPlan>> list() {
         log.info("查询所有启用的研学方案");
         return studyTourPlanService.listAllEnabled();
+    }
+    
+    /**
+     * 上传方案图片
+     */
+    @PostMapping("/uploadImage")
+    @ApiOperation(value = "上传方案图片")
+    public Result uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = studyTourPlanService.uploadImage(file);
+            return Result.success(imageUrl, "图片上传成功");
+        } catch (Exception e) {
+            log.error("图片上传失败", e);
+            return Result.error("图片上传失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 获取方案的图片列表
+     */
+    @GetMapping("/images/{planId}")
+    @ApiOperation(value = "获取方案的图片列表")
+    public Result<List<Map<String, Object>>> getImages(@PathVariable Long planId) {
+        try {
+            List<Map<String, Object>> images = studyTourPlanService.getImagesByPlanId(planId);
+            return Result.success(images);
+        } catch (Exception e) {
+            log.error("获取图片列表失败", e);
+            return Result.error("获取图片列表失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 删除方案图片
+     */
+    @DeleteMapping("/images/{imageId}")
+    @ApiOperation(value = "删除方案图片")
+    public Result deleteImage(@PathVariable Long imageId) {
+        try {
+            boolean success = studyTourPlanService.deleteImage(imageId);
+            return success ? Result.success("图片删除成功") : Result.error("图片删除失败");
+        } catch (Exception e) {
+            log.error("删除图片失败", e);
+            return Result.error("删除图片失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 设置封面图
+     */
+    @PostMapping("/images/{imageId}/setCover")
+    @ApiOperation(value = "设置封面图")
+    public Result setCoverImage(@PathVariable Long imageId) {
+        try {
+            boolean success = studyTourPlanService.setCoverImage(imageId);
+            return success ? Result.success("封面图设置成功") : Result.error("封面图设置失败");
+        } catch (Exception e) {
+            log.error("设置封面图失败", e);
+            return Result.error("设置封面图失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 更新图片排序
+     */
+    @PutMapping("/images/sort")
+    @ApiOperation(value = "更新图片排序")
+    public Result updateImageSort(@RequestBody List<Map<String, Object>> images) {
+        try {
+            boolean success = studyTourPlanService.updateImageSort(images);
+            return success ? Result.success("图片排序更新成功") : Result.error("图片排序更新失败");
+        } catch (Exception e) {
+            log.error("更新图片排序失败", e);
+            return Result.error("更新图片排序失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 保存方案图片
+     */
+    @PostMapping("/{planId}/images")
+    @ApiOperation(value = "保存方案图片")
+    public Result saveImages(@PathVariable Long planId, @RequestBody Map<String, Object> params) {
+        try {
+            List<Map<String, Object>> images = (List<Map<String, Object>>) params.get("images");
+            studyTourPlanService.saveImages(planId, images);
+            return Result.success("图片保存成功");
+        } catch (Exception e) {
+            log.error("保存图片失败", e);
+            return Result.error("保存图片失败：" + e.getMessage());
+        }
     }
 }

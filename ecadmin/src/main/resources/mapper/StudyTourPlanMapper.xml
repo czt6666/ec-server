@@ -106,5 +106,72 @@
         </if>
         ORDER BY stp.create_time DESC
     </select>
+    
+    <!-- 插入方案图片 -->
+    <insert id="insertImage" parameterType="java.util.Map">
+        INSERT INTO study_images (
+            related_id,
+            related_type,
+            image_url,
+            image_name,
+            sort_order,
+            is_cover,
+            create_time,
+            update_time
+        ) VALUES (
+            #{relatedId},
+            #{relatedType},
+            #{imageUrl},
+            #{imageName},
+            #{sortOrder},
+            #{isCover},
+            NOW(),
+            NOW()
+        )
+    </insert>
+    
+    <!-- 根据方案ID获取图片列表 -->
+    <select id="getImagesByPlanId" resultType="java.util.Map">
+        SELECT
+            id,
+            related_id AS relatedId,
+            related_type AS relatedType,
+            image_url AS imageUrl,
+            image_name AS imageName,
+            sort_order AS sortOrder,
+            is_cover AS isCover,
+            create_time AS createTime,
+            update_time AS updateTime
+        FROM study_images
+        WHERE related_id = #{planId}
+        AND related_type = 'plan'
+        ORDER BY sort_order ASC, create_time DESC
+    </select>
+    
+    <!-- 删除方案图片 -->
+    <delete id="deleteImage" parameterType="java.lang.Long">
+        DELETE FROM study_images WHERE id = #{imageId}
+    </delete>
+    
+    <!-- 删除方案关联的所有图片 -->
+    <delete id="deleteImagesByPlanId" parameterType="java.lang.Long">
+        DELETE FROM study_images WHERE related_id = #{planId} AND related_type = 'plan'
+    </delete>
+    
+    <!-- 设置封面图 -->
+    <update id="setCoverImage" parameterType="java.lang.Long">
+        <!-- 先将所有图片的is_cover设为0 -->
+        UPDATE study_images SET is_cover = 0 WHERE related_id = (
+            SELECT related_id FROM study_images WHERE id = #{imageId}
+        ) AND related_type = 'plan';
+        
+        <!-- 再将指定图片的is_cover设为1 -->
+        UPDATE study_images SET is_cover = 1 WHERE id = #{imageId};
+    </update>
+    
+    <!-- 更新图片排序 -->
+    <update id="updateImageSort" parameterType="java.util.Map">
+        UPDATE study_images SET sort_order = #{sortOrder} WHERE id = #{id};
+    </update>
 
 </mapper>

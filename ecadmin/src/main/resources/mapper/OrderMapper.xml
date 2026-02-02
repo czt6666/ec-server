@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bistu.ecadmin.dao.OrderDao">
+
+    <!-- 插入订单 -->
+    <insert id="addOrder" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_info (
+            order_no,
+            user_id,
+            restaurant_id,
+            order_status,
+            total_amount,
+            remark,
+            create_time,
+            update_time
+        ) VALUES (
+            #{orderNo},
+            #{userId},
+            #{restaurantId},
+            #{orderStatus},
+            #{totalAmount},
+            #{remark},
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <!-- 插入订单项 -->
+    <insert id="addOrderItem" parameterType="com.alibaba.fastjson.JSONObject">
+        INSERT INTO order_item (
+            order_id,
+            dish_id,
+            dish_name,
+            dish_price,
+            quantity,
+            subtotal_amount,
+            create_time
+        ) VALUES (
+            #{orderId},
+            #{dishId},
+            #{dishName},
+            #{dishPrice},
+            #{quantity},
+            #{subtotalAmount},
+            NOW()
+        )
+    </insert>
+
+    <!-- 获取订单列表 -->
+    <select id="getOrderList" parameterType="com.alibaba.fastjson.JSONObject" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            oi.id,
+            oi.order_no as orderNo,
+            oi.user_id as userId,
+            oi.restaurant_id as restaurantId,
+            r.name as restaurantName,
+            oi.order_status as orderStatus,
+            oi.total_amount as totalAmount,
+            oi.remark,
+            oi.create_time as createTime,
+            oi.update_time as updateTime
+        FROM order_info oi
+        LEFT JOIN restaurant r ON oi.restaurant_id = r.id
+        WHERE 1=1
+        <if test="orderNo != null and orderNo != ''">
+            AND oi.order_no LIKE CONCAT('%', #{orderNo}, '%')
+        </if>
+        <if test="userId != null">
+            AND oi.user_id = #{userId}
+        </if>
+        <if test="restaurantId != null">
+            AND oi.restaurant_id = #{restaurantId}
+        </if>
+        <if test="orderStatus != null">
+            AND oi.order_status = #{orderStatus}
+        </if>
+        ORDER BY oi.create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 获取订单总数 -->
+    <select id="getOrderCount" parameterType="com.alibaba.fastjson.JSONObject" resultType="int">
+        SELECT COUNT(*)
+        FROM order_info
+        WHERE 1=1
+        <if test="orderNo != null and orderNo != ''">
+            AND order_no LIKE CONCAT('%', #{orderNo}, '%')
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="restaurantId != null">
+            AND restaurant_id = #{restaurantId}
+        </if>
+        <if test="orderStatus != null">
+            AND order_status = #{orderStatus}
+        </if>
+    </select>
+
+    <!-- 获取订单详情 -->
+    <select id="getOrderDetail" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            oi.id,
+            oi.order_no as orderNo,
+            oi.user_id as userId,
+            oi.restaurant_id as restaurantId,
+            r.name as restaurantName,
+            oi.order_status as orderStatus,
+            oi.total_amount as totalAmount,
+            oi.remark,
+            oi.create_time as createTime,
+            oi.update_time as updateTime
+        FROM order_info oi
+        LEFT JOIN restaurant r ON oi.restaurant_id = r.id
+        WHERE oi.id = #{id}
+    </select>
+
+    <!-- 获取订单项 -->
+    <select id="getOrderItemsByOrderId" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            id,
+            dish_id as dishId,
+            dish_name as dishName,
+            dish_price as dishPrice,
+            quantity,
+            subtotal_amount as subtotalAmount,
+            create_time as createTime
+        FROM order_item
+        WHERE order_id = #{id}
+    </select>
+
+    <!-- 更新订单状态 -->
+    <update id="updateOrderStatus" parameterType="com.alibaba.fastjson.JSONObject">
+        UPDATE order_info
+        SET
+            order_status = #{orderStatus},
+            update_time = NOW()
+        WHERE id = #{orderId}
+    </update>
+
+    <!-- 获取订单统计信息 -->
+    <select id="getOrderStatistics" parameterType="com.alibaba.fastjson.JSONObject" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            DATE(create_time) as statDate,
+            restaurant_id as restaurantId,
+            COUNT(*) as orderCount,
+            SUM(total_amount) as totalAmount,
+            COUNT(DISTINCT user_id) as customerCount
+        FROM order_info
+        WHERE 1=1
+        <if test="restaurantId != null">
+            AND restaurant_id = #{restaurantId}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND DATE(create_time) >= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(create_time) &lt;= #{endDate}
+        </if>
+        GROUP BY DATE(create_time), restaurant_id
+        ORDER BY statDate DESC
+    </select>
+
+    <!-- 根据日期删除统计信息 -->
+    <delete id="deleteOrderStatisticsByDate" parameterType="string">
+        DELETE FROM order_statistics WHERE stat_date = #{statDate}
+    </delete>
+
+    <!-- 从订单表插入统计数据 -->
+    <insert id="insertOrderStatisticsFromOrders" parameterType="com.alibaba.fastjson.JSONObject">
+        INSERT INTO order_statistics (
+            stat_date,
+            restaurant_id,
+            order_count,
+            total_amount,
+            customer_count,
+            create_time,
+            update_time
+        )
+        SELECT
+            DATE(create_time) as stat_date,
+            restaurant_id,
+            COUNT(*) as order_count,
+            SUM(total_amount) as total_amount,
+            COUNT(DISTINCT user_id) as customer_count,
+            NOW() as create_time,
+            NOW() as update_time
+        FROM order_info
+        WHERE DATE(create_time) = #{statDate}
+        GROUP BY restaurant_id
+    </insert>
+
+    <!-- 根据ID查询菜品信息 -->
+    <select id="getDishById" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            id,
+            dish_name as dishName,
+            price as dishPrice
+        FROM dish
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据用户ID查询餐厅ID -->
+    <select id="getRestaurantIdByUserId" parameterType="long" resultType="long">
+        SELECT id
+        FROM restaurant
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

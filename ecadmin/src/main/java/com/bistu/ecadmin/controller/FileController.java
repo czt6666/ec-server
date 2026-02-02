@@ -106,11 +106,16 @@ public class FileController {
             File destFile = new File(uploadDir, filename);
             file.transferTo(destFile);
 
+            // 构建相对路径，前端直接使用
+            String imageUrl = accessPath + filename;
+            
             Map<String, Object> result = new HashMap<>();
             result.put("filename", filename);
             result.put("originalName", originalFilename);
             result.put("size", file.getSize());
-            result.put("url", accessPath + filename);
+            result.put("url", imageUrl);
+            
+            System.out.println("上传文件成功，返回的URL: " + imageUrl);
 
             return Result.success(result);
         } catch (Exception e) {
