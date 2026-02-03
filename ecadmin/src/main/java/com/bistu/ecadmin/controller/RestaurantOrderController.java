@@ -119,23 +119,10 @@ public class RestaurantOrderController {
     /**
      * 创建餐厅订单
      */
-    @RequiresPermissions("dishOrder:add")
     @PostMapping("/create")
     public Result createRestaurantOrder(
-            @RequestBody JSONObject params,
-            @RequestHeader("x-user-id") Long currentUserId) {
+            @RequestBody JSONObject params) {
         try {
-            // 检查用户权限
-            boolean isAdmin = isAdminUser(currentUserId);
-            if (!isAdmin) {
-                // 非管理员用户只能为自己的餐厅创建订单
-                Long restaurantId = getRestaurantIdByUserId(currentUserId);
-                if (restaurantId != null) {
-                    // 确保订单的餐厅ID与用户的餐厅ID一致
-                    params.put("restaurantId", restaurantId);
-                }
-            }
-            
             Long orderId = orderService.createOrder(params);
             return Result.success(orderId, "订单创建成功");
         } catch (Exception e) {
