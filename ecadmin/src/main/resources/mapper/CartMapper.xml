@@ -25,7 +25,6 @@
         <!-- SPU信息 -->
         <result column="title" property="title"/>
         <result column="intro" property="intro"/>
-        <result column="link" property="link"/>
         <result column="status" property="status"/>
         <!-- 预览图 -->
         <result column="preview_image" property="previewImage"/>
@@ -76,7 +75,6 @@
             s.stock,
             p.title,
             p.intro,
-            p.link,
             p.status,
             (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
         FROM cart c
@@ -115,7 +113,6 @@
             s.stock,
             p.title,
             p.intro,
-            p.link,
             p.status,
             (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
         FROM cart c
@@ -151,7 +148,6 @@
             s.stock,
             p.title,
             p.intro,
-            p.link,
             p.status,
             (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
         FROM cart c

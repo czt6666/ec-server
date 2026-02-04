@@ -1,5 +1,7 @@
 package com.bistu.ecadmin.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.bistu.ecadmin.dao.ProductDao;
 import com.bistu.ecadmin.dao.mapper.CartMapper;
 import com.bistu.ecadmin.pojo.Cart;
 import com.bistu.ecadmin.pojo.CartVO;
@@ -14,6 +16,9 @@ import java.util.List;
 public class CartServiceIml implements CartService {
     @Autowired
     private CartMapper cartMapper;
+    
+    @Autowired
+    private ProductDao productDao;
 
     @Override
     @Transactional
@@ -75,16 +80,59 @@ public class CartServiceIml implements CartService {
     // 新增方法：返回包含商品信息的购物车列表
     @Override
     public List<CartVO> listByUserWithProduct(int userId) {
-        return cartMapper.selectByUserIdWithProduct(userId);
+        List<CartVO> cartList = cartMapper.selectByUserIdWithProduct(userId);
+        enrichCartListWithProductInfo(cartList);
+        return cartList;
     }
 
     @Override
     public List<CartVO> listByUserPagedWithProduct(int userId, int offset, int pageSize) {
-        return cartMapper.selectByUserIdPagedWithProduct(userId, offset, pageSize);
+        List<CartVO> cartList = cartMapper.selectByUserIdPagedWithProduct(userId, offset, pageSize);
+        enrichCartListWithProductInfo(cartList);
+        return cartList;
     }
 
     @Override
     public List<CartVO> listAllPagedWithProduct(int offset, int pageSize) {
-        return cartMapper.selectAllPagedWithProduct(offset, pageSize);
+        List<CartVO> cartList = cartMapper.selectAllPagedWithProduct(offset, pageSize);
+        enrichCartListWithProductInfo(cartList);
+        return cartList;
+    }
+    
+    /**
+     * 为购物车列表补充完整的商品信息（预览图、详情图、规格）
+     */
+    private void enrichCartListWithProductInfo(List<CartVO> cartList) {
+        for (CartVO cart : cartList) {
+            if (cart.getSpuId() != null) {
+                Long spuId = cart.getSpuId();
+                
+                // 获取预览图列表
+                List<String> previewImages = productDao.getPreviewImagesByProductId(spuId);
+                // 确保返回的预览图URL是完整的
+                for (int i = 0; i < previewImages.size(); i++) {
+                    String imgUrl = previewImages.get(i);
+                    if (!imgUrl.startsWith("http") && !imgUrl.startsWith("/uploads/")) {
+                        previewImages.set(i, "/uploads/" + imgUrl);
+                    }
+                }
+                cart.setPreviewImages(previewImages);
+                
+                // 获取详情图列表
+                List<String> detailImages = productDao.getDetailImagesByProductId(spuId);
+                // 确保返回的详情图URL是完整的
+                for (int i = 0; i < detailImages.size(); i++) {
+                    String imgUrl = detailImages.get(i);
+                    if (!imgUrl.startsWith("http") && !imgUrl.startsWith("/uploads/")) {
+                        detailImages.set(i, "/uploads/" + imgUrl);
+                    }
+                }
+                cart.setDetailImages(detailImages);
+                
+                // 获取规格列表
+                List<JSONObject> specifications = productDao.getSpecificationsByProductId(spuId);
+                cart.setSpecifications(specifications);
+            }
+        }
     }
 }
