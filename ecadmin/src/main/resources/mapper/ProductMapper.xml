@@ -91,6 +91,10 @@
         s.update_time as updateTime,
         s.view_cnt as viewCount,
         s.cart_add_cnt as cartCount,
+        s.mini_program_appid as miniProgramAppid,
+        s.mini_program_path as miniProgramPath,
+        s.micro_shop_appid as microShopAppid,
+        s.micro_shop_product_id as microShopProductId,
         s.upload_method_status as uploadMethodStatus,
         CASE 
             WHEN s.merchant_poster_img IS NOT NULL AND s.merchant_poster_img != '' 
