@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
         // 获取当前用户ID
         Long currentUserId = params.getLong("currentUserId");
         if (currentUserId == null) {
-            throw new Exception("用户ID不能为空");
+            throw new Exception("用户ID不能为空5n");
         }
         
         // 检查用户是否为管理员

@@ -21,7 +21,7 @@ public class RestaurantOrderController {
     /**
      * 获取餐厅订单列表
      */
-    @RequiresPermissions("dishOrder:list")
+
     @GetMapping("/list")
     public Result getRestaurantOrderList(
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -29,7 +29,8 @@ public class RestaurantOrderController {
             @RequestParam(required = false) String orderNo,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long restaurantId,
-            @RequestParam(required = false) Integer orderStatus) {
+            @RequestParam(required = false) Integer orderStatus,
+            @RequestHeader(value = "X-User-Id", required = true) String xUserId) {
         
         JSONObject params = new JSONObject();
         params.put("pageNum", pageNum);
@@ -40,8 +41,16 @@ public class RestaurantOrderController {
         if (orderStatus != null) params.put("orderStatus", orderStatus);
 
         try {
+            // 从X-User-Id请求头获取currentUserId
+            Long currentUserId = Long.parseLong(xUserId.trim());
+            
+            // 将currentUserId放入params
+            params.put("currentUserId", currentUserId);
+            
             JSONObject result = orderService.getOrderList(params);
             return Result.success(result, "获取餐厅订单列表成功");
+        } catch (NumberFormatException e) {
+            return Result.error("X-User-Id格式错误");
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }
@@ -116,6 +125,59 @@ public class RestaurantOrderController {
             
             Long orderId = orderService.createOrder(params);
             return Result.success(orderId, "订单创建成功");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    
+    /**
+     * 根据小程序ID获取用户订单
+     */
+    @GetMapping("/mini-program/list")
+    public Result getMiniProgramUserOrders(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageRow,
+            @RequestParam(required = false) Integer orderStatus,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        try {
+            // 解析Authorization头获取userId
+            Long userId = null;
+            if (authorizationHeader != null && !authorizationHeader.trim().isEmpty()) {
+                String token = authorizationHeader.trim();
+                
+                // 去除Bearer前缀
+                if (token.startsWith("Bearer ")) {
+                    token = token.substring(7).trim();
+                }
+                
+                // 去除可能的花括号和引号
+                token = token.replaceAll("^[{\"']+", "").replaceAll("[}\"']+$", "");
+                token = token.trim();
+                
+                // 从token中获取userId
+                userId = JwtUtil.getUserIdFromToken(token);
+                if (userId == null || !JwtUtil.validateToken(token)) {
+                    return Result.error("无效的令牌");
+                }
+            }
+            
+            if (userId == null) {
+                return Result.error("未提供有效的用户令牌");
+            }
+            
+            // 构建查询参数
+            JSONObject params = new JSONObject();
+            params.put("pageNum", pageNum);
+            params.put("pageRow", pageRow);
+            params.put("userId", userId);
+            if (orderStatus != null) {
+                params.put("orderStatus", orderStatus);
+            }
+            params.put("currentUserId", userId); // 用于权限验证
+            
+            // 获取订单列表
+            JSONObject result = orderService.getOrderList(params);
+            return Result.success(result, "获取用户订单列表成功");
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }
