@@ -97,7 +97,7 @@ public class RestaurantOrderController {
                 }
                 
                 // 去除可能的花括号和引号
-                token = token.replaceAll("^[{\"']+", "").replaceAll("[}"']+$", "");
+                token = token.replaceAll("^[{\"']+", "").replaceAll("[}\"']+$", "");
                 token = token.trim();
                 
                 // 从token中获取userId
