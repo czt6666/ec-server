@@ -46,11 +46,7 @@
         SELECT 
             dc.id,
             dc.category_name,
-            <!-- 修改这行，为imageUrl字段拼接/uploads/前缀 -->
-            CASE 
-                WHEN dc.image_url IS NOT NULL AND dc.image_url != '' THEN CONCAT('/uploads/', dc.image_url)
-                ELSE dc.image_url
-            END AS image_url,
+            dc.image_url AS image_url,
             r.name AS restaurant_name,
             dc.update_time,
             (SELECT MIN(d.create_time) FROM dish d WHERE d.category_id = dc.id AND d.is_deleted = 0) AS dish_create_time

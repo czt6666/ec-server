@@ -1,3 +1,4 @@
-INSERT INTO `ecadmin`.`sys_permission` (`id`, `menu_code`, `menu_name`, `permission_code`, `permission_name`, `required_permission`) VALUES (2305, 'dishOrder', '订单管理', 'dishOrder:list', '菜品订单列表', 2);
-INSERT INTO `ecadmin`.`sys_permission` (`id`, `menu_code`, `menu_name`, `permission_code`, `permission_name`, `required_permission`) VALUES (2306, 'dishOrder', '订单管理', 'dishOrder:update', '菜品订单更新', 2);
-INSERT INTO `ecadmin`.`sys_permission` (`id`, `menu_code`, `menu_name`, `permission_code`, `permission_name`, `required_permission`) VALUES (2307, 'dishOrder', '订单管理', 'dishOrder:add', '菜品订单添加', 2);
+INSERT INTO sys_permission (`id`, `menu_code`, `menu_name`, `permission_code`, `permission_name`, `required_permission`) VALUES
+(2305, 'dishOrder', '订单管理', 'dishOrder:list', '菜品订单列表', 2),
+(2306, 'dishOrder', '订单管理', 'dishOrder:update', '菜品订单更新', 2),
+(2307, 'dishOrder', '订单管理', 'dishOrder:add', '菜品订单添加', 2);

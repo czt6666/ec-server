@@ -220,6 +220,10 @@ public class StudyTourPlanController {
     public Result saveImages(@PathVariable Long planId, @RequestBody Map<String, Object> params) {
         try {
             List<Map<String, Object>> images = (List<Map<String, Object>>) params.get("images");
+            // 处理可能为null的情况
+            if (images == null) {
+                images = new java.util.ArrayList<>();
+            }
             studyTourPlanService.saveImages(planId, images);
             return Result.success("图片保存成功");
         } catch (Exception e) {

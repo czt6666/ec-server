@@ -334,6 +334,11 @@ public class StudyTourPlanService {
      * 保存方案图片
      */
     public void saveImages(Long planId, List<Map<String, Object>> images) {
+        // 处理可能为null的情况
+        if (images == null) {
+            images = new java.util.ArrayList<>();
+        }
+        
         // 先删除旧的图片
         // 1. 先获取旧图片的URL，以便删除真实文件
         List<Map<String, Object>> oldImages = studyTourPlanDao.getImagesByPlanId(planId);
