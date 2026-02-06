@@ -35,4 +35,10 @@ public class CartVO {
     private List<String> previewImages;  // 预览图列表
     private List<String> detailImages;  // 详情图列表
     private List<JSONObject> specifications;  // 规格列表
+    
+    // 小程序和微店配置信息
+    private String miniProgramAppid;  // 小程序APPID
+    private String miniProgramPath;  // 小程序页面路径
+    private String microShopAppid;  // 微店APPID
+    private String microShopProductId;  // 微店商品ID
 }

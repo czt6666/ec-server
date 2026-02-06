@@ -28,6 +28,11 @@
         <result column="status" property="status"/>
         <!-- 预览图 -->
         <result column="preview_image" property="previewImage"/>
+        <!-- 小程序和微店配置 -->
+        <result column="mini_program_appid" property="miniProgramAppid"/>
+        <result column="mini_program_path" property="miniProgramPath"/>
+        <result column="micro_shop_appid" property="microShopAppid"/>
+        <result column="micro_shop_product_id" property="microShopProductId"/>
     </resultMap>
 
     <!-- 幂等加入购物车：若存在则触达更新时间 -->
@@ -76,7 +81,11 @@
             p.title,
             p.intro,
             p.status,
-            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
+            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image,
+            p.mini_program_appid,
+            p.mini_program_path,
+            p.micro_shop_appid,
+            p.micro_shop_product_id
         FROM cart c
             INNER JOIN sku s ON c.sku_id = s.id
             INNER JOIN spu p ON s.spu_id = p.id
@@ -114,7 +123,11 @@
             p.title,
             p.intro,
             p.status,
-            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
+            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image,
+            p.mini_program_appid,
+            p.mini_program_path,
+            p.micro_shop_appid,
+            p.micro_shop_product_id
         FROM cart c
             INNER JOIN sku s ON c.sku_id = s.id
             INNER JOIN spu p ON s.spu_id = p.id
@@ -149,7 +162,11 @@
             p.title,
             p.intro,
             p.status,
-            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image
+            (SELECT img_url FROM spu_preview_img WHERE spu_id = s.spu_id ORDER BY sort ASC LIMIT 1) as preview_image,
+            p.mini_program_appid,
+            p.mini_program_path,
+            p.micro_shop_appid,
+            p.micro_shop_product_id
         FROM cart c
             INNER JOIN sku s ON c.sku_id = s.id
             INNER JOIN spu p ON s.spu_id = p.id
