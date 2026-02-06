@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.bistu.common.config.annotation.RequiresPermissions;
 import com.bistu.ecadmin.pojo.Result;
 import com.bistu.ecadmin.service.OrderService;
+import com.bistu.ecadmin.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,11 @@ public class RestaurantOrderController {
             @RequestParam(required = false) String orderNo,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long restaurantId,
-            @RequestParam(required = false) Integer orderStatus,
-            @RequestHeader("x-user-id") Long currentUserId) {
+            @RequestParam(required = false) Integer orderStatus) {
         
         JSONObject params = new JSONObject();
         params.put("pageNum", pageNum);
         params.put("pageRow", pageRow);
-        params.put("currentUserId", currentUserId);
         if (orderNo != null) params.put("orderNo", orderNo);
         if (userId != null) params.put("userId", userId);
         if (restaurantId != null) params.put("restaurantId", restaurantId);
@@ -53,26 +52,8 @@ public class RestaurantOrderController {
      */
     @GetMapping("/detail/{orderId}")
     public Result getRestaurantOrderDetail(
-            @PathVariable Long orderId,
-            @RequestHeader("x-user-id") Long currentUserId) {
+            @PathVariable Long orderId) {
         try {
-            // 检查用户权限
-            boolean isAdmin = isAdminUser(currentUserId);
-            if (!isAdmin) {
-                // 非管理员用户只能查看自己餐厅的订单
-                Long restaurantId = getRestaurantIdByUserId(currentUserId);
-                if (restaurantId != null) {
-                    // 检查订单是否属于该餐厅
-                    JSONObject orderDetail = orderService.getOrderDetail(orderId);
-                    if (orderDetail != null) {
-                        Long orderRestaurantId = orderDetail.getLong("restaurantId");
-                        if (!restaurantId.equals(orderRestaurantId)) {
-                            return Result.error("无权限查看该订单");
-                        }
-                    }
-                }
-            }
-            
             JSONObject orderDetail = orderService.getOrderDetail(orderId);
             return Result.success(orderDetail, "获取餐厅订单详情成功");
         } catch (Exception e) {
@@ -86,27 +67,8 @@ public class RestaurantOrderController {
     @RequiresPermissions("dishOrder:update")
     @PostMapping("/update-status")
     public Result updateRestaurantOrderStatus(
-            @RequestBody JSONObject params,
-            @RequestHeader("x-user-id") Long currentUserId) {
+            @RequestBody JSONObject params) {
         try {
-            // 检查用户权限
-            boolean isAdmin = isAdminUser(currentUserId);
-            if (!isAdmin) {
-                // 非管理员用户只能更新自己餐厅的订单
-                Long restaurantId = getRestaurantIdByUserId(currentUserId);
-                if (restaurantId != null) {
-                    Long orderId = params.getLong("orderId");
-                    // 检查订单是否属于该餐厅
-                    JSONObject orderDetail = orderService.getOrderDetail(orderId);
-                    if (orderDetail != null) {
-                        Long orderRestaurantId = orderDetail.getLong("restaurantId");
-                        if (!restaurantId.equals(orderRestaurantId)) {
-                            return Result.error("无权限更新该订单");
-                        }
-                    }
-                }
-            }
-            
             Long orderId = params.getLong("orderId");
             Integer orderStatus = params.getInteger("orderStatus");
             orderService.updateOrderStatus(orderId, orderStatus);
@@ -121,8 +83,37 @@ public class RestaurantOrderController {
      */
     @PostMapping("/create")
     public Result createRestaurantOrder(
-            @RequestBody JSONObject params) {
+            @RequestBody JSONObject params,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         try {
+            // 解析Authorization头获取userId
+            Long userId = null;
+            if (authorizationHeader != null && !authorizationHeader.trim().isEmpty()) {
+                String token = authorizationHeader.trim();
+                
+                // 去除Bearer前缀
+                if (token.startsWith("Bearer ")) {
+                    token = token.substring(7).trim();
+                }
+                
+                // 去除可能的花括号和引号
+                token = token.replaceAll("^[{\"']+", "").replaceAll("[}\"']+$", "");
+                token = token.trim();
+                
+                // 从token中获取userId
+                userId = JwtUtil.getUserIdFromToken(token);
+                if (userId == null || !JwtUtil.validateToken(token)) {
+                    return Result.error("无效的令牌");
+                }
+            }
+            
+            if (userId == null) {
+                return Result.error("未提供有效的用户令牌");
+            }
+            
+            // 将解析得到的userId放入params
+            params.put("userId", userId);
+            
             Long orderId = orderService.createOrder(params);
             return Result.success(orderId, "订单创建成功");
         } catch (Exception e) {
