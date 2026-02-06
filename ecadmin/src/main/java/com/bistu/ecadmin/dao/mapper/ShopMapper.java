@@ -29,4 +29,12 @@ public interface ShopMapper {
     int getMaxDisplayNo();
     Integer getDisplayNoById(Long id);
     int resequenceDisplayNoAfterDelete(@Param("displayNo") int displayNo);
+    
+    /**
+     * 查询店铺选项列表（用于下拉选择）
+     * @param userId 用户ID
+     * @param isAdmin 是否是管理员（true: 查询全部店铺, false: 只查询该用户关联的店铺）
+     * @return 店铺列表
+     */
+    List<Shop> listShopOptions(@Param("userId") Long userId, @Param("isAdmin") Boolean isAdmin);
 }

@@ -27,6 +27,9 @@ public class ShopController {
 
     @Autowired
     private ShopService shopService;
+    
+    @Autowired
+    private com.bistu.ecadmin.dao.mapper.ShopMapper shopMapper;
 
     /**
      * 新增店铺
@@ -134,6 +137,42 @@ public class ShopController {
         } catch (Exception e) {
             log.error("查询商家商品失败", e);
             return Result.error("查询商家商品失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取店铺选项列表（用于下拉选择）
+     * 根据用户ID和角色判断：管理员可查看全部店铺，普通用户只能查看自己关联的店铺
+     */
+    @GetMapping("/options")
+    @ApiOperation("获取店铺下拉选项")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "Long", paramType = "query"),
+        @ApiImplicitParam(name = "roleIds", value = "角色ID列表（逗号分隔）", dataType = "String", paramType = "query")
+    })
+    public Result<List<Shop>> listShopOptions(@RequestParam Long userId,
+                                              @RequestParam(required = false) String roleIds) {
+        try {
+            // 判断是否是管理员：userId=10011 或 roleIds 包含 1
+            boolean isAdmin = false;
+            if (userId != null && userId == 10011) {
+                isAdmin = true;
+            } else if (roleIds != null && !roleIds.isEmpty()) {
+                String[] roleIdArray = roleIds.split(",");
+                for (String roleId : roleIdArray) {
+                    if ("1".equals(roleId.trim())) {
+                        isAdmin = true;
+                        break;
+                    }
+                }
+            }
+            
+            List<Shop> shops = shopMapper.listShopOptions(userId, isAdmin);
+            log.info("获取店铺下拉列表（用户ID：{}，是否管理员：{}），数量：{}", userId, isAdmin, shops.size());
+            return Result.success(shops);
+        } catch (Exception e) {
+            log.error("获取店铺下拉列表失败", e);
+            return Result.error("获取店铺列表失败：" + e.getMessage());
         }
     }
 }

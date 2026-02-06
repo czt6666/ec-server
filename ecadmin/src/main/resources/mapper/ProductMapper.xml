@@ -4,8 +4,8 @@
 
     <!-- 新增商品 - 使用数据库自增ID -->
     <insert id="addProduct" parameterType="com.alibaba.fastjson.JSONObject" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO spu (title, intro, link, status, user_id, mini_program_appid, mini_program_path, micro_shop_appid, micro_shop_product_id, upload_method_status)
-        VALUES (#{title}, #{description}, #{productUrl}, #{status}, #{userId}, #{miniProgramAppid}, #{miniProgramPath}, #{microShopAppid}, #{microShopProductId}, #{uploadMethodStatus})
+        INSERT INTO spu (title, intro, link, status, user_id, shop_id, mini_program_appid, mini_program_path, micro_shop_appid, micro_shop_product_id, upload_method_status)
+        VALUES (#{title}, #{description}, #{productUrl}, #{status}, #{userId}, #{shopId}, #{miniProgramAppid}, #{miniProgramPath}, #{microShopAppid}, #{microShopProductId}, #{uploadMethodStatus})
     </insert>
 
     <!-- 更新商品 -->
@@ -16,6 +16,7 @@
             intro = #{description},
             link = #{productUrl},
             status = #{status},
+            shop_id = #{shopId},
             mini_program_appid = #{miniProgramAppid},
             mini_program_path = #{miniProgramPath},
             micro_shop_appid = #{microShopAppid},
@@ -116,7 +117,7 @@
               AND uc2.target_id = CAST(s.id AS CHAR)
         ) THEN 1 ELSE 0 END AS isCollect
         FROM spu s
-        LEFT JOIN shop sh ON s.user_id = sh.user_id
+        LEFT JOIN shop sh ON s.shop_id = sh.id
         WHERE 1=1
         <if test="title != null and title != ''">
             AND s.title LIKE CONCAT('%', #{title}, '%')
@@ -138,7 +139,7 @@
     <select id="countProducts" parameterType="com.alibaba.fastjson.JSONObject" resultType="int">
         SELECT COUNT(*)
         FROM spu s
-        LEFT JOIN shop sh ON s.user_id = sh.user_id
+        LEFT JOIN shop sh ON s.shop_id = sh.id
         WHERE 1=1
         <if test="title != null and title != ''">
             AND s.title LIKE CONCAT('%', #{title}, '%')
@@ -190,6 +191,7 @@
             s.link as productUrl,
             s.status,
             s.user_id as userId,
+            s.shop_id as shopId,
             s.create_time as createTime,
             s.update_time as updateTime,
             s.mini_program_appid as miniProgramAppid,
@@ -216,7 +218,7 @@
                   AND uc2.target_id = CAST(s.id AS CHAR)
             ) THEN 1 ELSE 0 END AS isCollect
         FROM spu s
-                 LEFT JOIN shop sh ON s.user_id = sh.user_id
+                 LEFT JOIN shop sh ON s.shop_id = sh.id
         WHERE s.id = #{productId}
     </select>
 

@@ -207,4 +207,31 @@
         SET display_no = display_no - 1
         WHERE display_no > #{displayNo}
     </update>
+
+    <!-- 查询店铺选项列表（用于下拉选择） -->
+    <select id="listShopOptions" resultMap="ShopMap">
+        SELECT
+            id,
+            shop_name,
+            shop_abbreviation,
+            product_type,
+            business_status,
+            village,
+            shop_intro,
+            shop_avatar,
+            shop_address,
+            latitude,
+            longitude,
+            qualification_files,
+            user_id,
+            display_no,
+            create_time,
+            update_time
+        FROM shop
+        WHERE 1 = 1
+        <if test="isAdmin == null or isAdmin == false">
+            AND user_id = #{userId}
+        </if>
+        ORDER BY display_no ASC, create_time DESC
+    </select>
 </mapper>
