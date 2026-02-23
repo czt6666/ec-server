@@ -164,19 +164,9 @@ public class RestaurantOrderController {
             if (userId == null) {
                 return Result.error("未提供有效的用户令牌");
             }
+            // 调用新的服务方法获取订单列表
+            JSONObject result = orderService.getOrderListByUserId(userId);
             
-            // 构建查询参数
-            JSONObject params = new JSONObject();
-            params.put("pageNum", pageNum);
-            params.put("pageRow", pageRow);
-            params.put("userId", userId);
-            if (orderStatus != null) {
-                params.put("orderStatus", orderStatus);
-            }
-            params.put("currentUserId", userId); // 用于权限验证
-            
-            // 获取订单列表
-            JSONObject result = orderService.getOrderList(params);
             return Result.success(result, "获取用户订单列表成功");
         } catch (Exception e) {
             return Result.error(e.getMessage());

@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
         // 获取当前用户ID
         Long currentUserId = params.getLong("currentUserId");
         if (currentUserId == null) {
-            throw new Exception("用户ID不能为空5n");
+            throw new Exception("用户ID不能为空");
         }
         
         // 检查用户是否为管理员
@@ -226,5 +226,27 @@ public class OrderServiceImpl implements OrderService {
         
         // 插入新的统计数据
         orderDao.insertOrderStatisticsFromOrders(params);
+    }
+
+    @Override
+    public JSONObject getOrderListByUserId(Long userId) throws Exception {
+        // 根据用户ID获取订单列表
+        List<JSONObject> orders = orderDao.getOrdersByUserId(userId);
+        
+        // 为每个订单获取订单项
+        for (JSONObject order : orders) {
+            Long orderId = order.getLong("id");
+            List<JSONObject> orderItems = orderDao.getOrderItemsByOrderId(orderId);
+            order.put("orderItems", orderItems);
+        }
+        
+        // 创建返回结果
+        JSONObject result = new JSONObject();
+        result.put("records", orders);
+        result.put("total", orders.size());
+        result.put("pageNum", 1);
+        result.put("pageRow", orders.size());
+        
+        return result;
     }
 }

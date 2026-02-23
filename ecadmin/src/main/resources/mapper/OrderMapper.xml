@@ -207,4 +207,21 @@
         WHERE user_id = #{userId}
     </select>
 
+    <!-- 根据用户ID获取订单列表 -->
+    <select id="getOrdersByUserId" parameterType="long" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            id,
+            order_no as orderNo,
+            user_id as userId,
+            restaurant_id as restaurantId,
+            order_status as orderStatus,
+            total_amount as totalAmount,
+            remark,
+            create_time as createTime,
+            update_time as updateTime
+        FROM order_info
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
 </mapper>
