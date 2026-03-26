@@ -23,4 +23,6 @@ public interface RestaurantService {
     Long getIdByName(String name);
 
     List<Restaurant> listByUser(Long userId);
+
+    void swapSortOrder(Long id1, Long id2);
 }

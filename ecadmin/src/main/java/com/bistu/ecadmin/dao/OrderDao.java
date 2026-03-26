@@ -67,4 +67,9 @@ public interface OrderDao {
      * 根据用户ID查询餐厅ID
      */
     Long getRestaurantIdByUserId(Long userId);
+    
+    /**
+     * 根据用户ID获取订单列表
+     */
+    List<JSONObject> getOrdersByUserId(Long userId);
 }

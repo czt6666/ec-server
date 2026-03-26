@@ -41,4 +41,9 @@ public interface OrderService {
      * 根据用户ID获取餐厅ID
      */
     Long getRestaurantIdByUserId(Long userId) throws Exception;
+    
+    /**
+     * 根据用户ID获取订单列表
+     */
+    JSONObject getOrderListByUserId(Long userId) throws Exception;
 }

@@ -121,4 +121,18 @@ public class RestaurantController {
     public Result<List<Restaurant>> listByUser(@PathVariable Long userId) {
         return Result.success(restaurantService.listByUser(userId));
     }
+
+    @RequiresPermissions("restaurant:update")
+    @PostMapping("/swapSortOrder")
+    @ApiOperation("交换餐厅排序")
+    @OperateLog(operation = "交换餐厅排序")
+    public Result<String> swapSortOrder(@RequestBody List<Long> ids) {
+        try {
+            restaurantService.swapSortOrder(ids.get(0), ids.get(1));
+            return Result.success("排序交换成功");
+        } catch (Exception e) {
+            log.error("交换餐厅排序失败", e);
+            return Result.error(e.getMessage());
+        }
+    }
 }

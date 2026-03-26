@@ -119,6 +119,12 @@ public class RestaurantServiceImpl implements RestaurantService {
             throw new IllegalArgumentException("未登录，无法新增门店");
         }
 
+        // 如果没有设置sortOrder，自动设置为该用户下最大的sortOrder + 1
+        if (restaurant.getSortOrder() == null) {
+            Integer maxSortOrder = restaurantMapper.getMaxSortOrder(restaurant.getUserId());
+            restaurant.setSortOrder(maxSortOrder != null ? maxSortOrder + 1 : 1);
+        }
+
         validate(restaurant, null);
         restaurantMapper.insert(restaurant);
     }
@@ -175,6 +181,31 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public List<Restaurant> listByUser(Long userId) {
         return restaurantMapper.listByUserId(userId);
+    }
+
+    @Override
+    public void swapSortOrder(Long id1, Long id2) {
+        Restaurant r1 = restaurantMapper.selectById(id1, null);
+        Restaurant r2 = restaurantMapper.selectById(id2, null);
+        
+        if (r1 == null || r2 == null) {
+            throw new IllegalArgumentException("餐厅不存在");
+        }
+        
+        Integer sortOrder1 = r1.getSortOrder();
+        Integer sortOrder2 = r2.getSortOrder();
+        
+        // 如果两个sortOrder相同，不需要交换
+        if (sortOrder1 != null && sortOrder1.equals(sortOrder2)) {
+            return;
+        }
+        
+        // 交换sortOrder
+        r1.setSortOrder(sortOrder2);
+        r2.setSortOrder(sortOrder1);
+        
+        restaurantMapper.update(r1);
+        restaurantMapper.update(r2);
     }
 
     private void validate(Restaurant r, Long excludeId) {

@@ -60,6 +60,10 @@ public class Restaurant implements Serializable {
 
     @ApiModelProperty("更新时间")
     private LocalDateTime updateTime;
+
+    @ApiModelProperty("排序字段")
+    private Integer sortOrder;
+
     private String villageName;
     private String userName;
     @ApiModelProperty("收藏数量")

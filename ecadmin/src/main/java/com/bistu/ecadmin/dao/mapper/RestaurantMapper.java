@@ -27,4 +27,6 @@ public interface RestaurantMapper {
     Long getIdByName(@Param("name") String name);
 
     List<Restaurant> listByUserId(@Param("userId") Long userId);
+
+    Integer getMaxSortOrder(@Param("userId") Long userId);
 }
