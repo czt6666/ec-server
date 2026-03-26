@@ -27,6 +27,9 @@ public class VillageHomestay {
     
     @ApiModelProperty("营业状态：1-营业中（上架），2-待审核/下架（统一视为待审核）")
     private Integer status;
+
+    @ApiModelProperty("展示顺序（越小越靠前）")
+    private Integer displayNo;
     
     @ApiModelProperty("星级/等级：0-未评 1-5星")
     private Integer starLevel;

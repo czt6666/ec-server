@@ -9,6 +9,7 @@
         <result column="homestay_name" property="homestayName"/>
         <result column="address" property="address"/>
         <result column="status" property="status"/>
+        <result column="display_no" property="displayNo"/>
         <result column="star_level" property="starLevel"/>
         <result column="room_count" property="roomCount"/>
         <result column="bed_count" property="bedCount"/>
@@ -78,7 +79,7 @@
                 or vh.contact_name like concat('%', #{keyword}, '%'))
             </if>
         </where>
-        order by vh.id asc
+        order by vh.display_no asc, vh.create_time desc
     </select>
 
     <!-- 根据ID查询民宿详情 -->
@@ -110,11 +111,11 @@
     <!-- 新增民宿 -->
     <insert id="insert" parameterType="com.bistu.ecadmin.pojo.VillageHomestay" useGeneratedKeys="true" keyProperty="id">
         insert into village_homestay (
-            user_id, village_id, homestay_name, address, status, star_level,
+            user_id, village_id, homestay_name, address, status, display_no, star_level,
             room_count, bed_count, max_capacity, contact_name, contact_phone,
             description, cover_image, mini_program_appid, mini_program_path, latitude, longitude, qualification_images, link_address, create_time
         ) values (
-                     #{userId}, #{villageId}, #{homestayName}, #{address}, #{status}, #{starLevel},
+                     #{userId}, #{villageId}, #{homestayName}, #{address}, #{status}, #{displayNo}, #{starLevel},
                      #{roomCount}, #{bedCount}, #{maxCapacity}, #{contactName}, #{contactPhone},
                      #{description}, #{coverImage}, #{miniProgramAppid}, #{miniProgramPath}, #{latitude}, #{longitude}, #{qualificationImages}, #{linkAddress}, #{createTime}
                  )
@@ -129,6 +130,7 @@
             <if test="homestayName != null and homestayName != ''">homestay_name = #{homestayName},</if>
             <if test="address != null">address = #{address},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="displayNo != null">display_no = #{displayNo},</if>
             <if test="starLevel != null">star_level = #{starLevel},</if>
             <if test="roomCount != null">room_count = #{roomCount},</if>
             <if test="bedCount != null">bed_count = #{bedCount},</if>
@@ -179,7 +181,41 @@
                 and vh.status = #{status}
             </if>
         </where>
-        order by vh.id desc
+        order by vh.display_no asc, vh.create_time desc
+    </select>
+
+    <!-- 获取全局最大展示顺序，用于新增自动分配 -->
+    <select id="getMaxDisplayNo" resultType="int">
+        SELECT COALESCE(MAX(display_no), 0)
+        FROM village_homestay
+    </select>
+
+    <!-- 获取用于调整展示顺序的民宿列表（全局） -->
+    <select id="listSortOptions" resultMap="VillageHomestayMap">
+        SELECT vh.*
+        FROM village_homestay vh
+        ORDER BY vh.display_no ASC, vh.create_time DESC
+    </select>
+
+    <!-- 批量更新展示顺序（全局）：sortRequests 的顺序即展示顺序 -->
+    <update id="batchUpdateDisplayNo">
+        UPDATE village_homestay
+        SET display_no = CASE id
+        <foreach collection="list" item="item">
+            WHEN #{item.id} THEN #{item.sortNum}
+        </foreach>
+        ELSE display_no
+        END
+        WHERE id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+    <!-- 获取民宿总数（用于校验排序是否为全量） -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM village_homestay
     </select>
 
     <!-- 统计民宿总数 -->

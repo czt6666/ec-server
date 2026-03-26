@@ -4,6 +4,7 @@ import com.bistu.ecadmin.dao.DTO.VillageHomestayPageQueryDTO;
 
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.VillageHomestay;
+import com.bistu.ecadmin.dao.DTO.SortRequest;
 
 import java.util.List;
 
@@ -38,6 +39,16 @@ public interface VillageHomestayService {
      * 根据乡村ID查询民宿列表
      */
     List<VillageHomestay> getByVillageId(Integer villageId);
+
+    /**
+     * 获取用于调整展示顺序的民宿列表
+     */
+    List<VillageHomestay> listSortOptions(Integer villageId);
+
+    /**
+     * 保存展示顺序（越小越靠前）
+     */
+    boolean saveSort(Integer villageId, List<SortRequest> sortRequests);
 
     /**
      * 管理员上架民宿（将状态改为1-营业）

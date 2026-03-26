@@ -1,6 +1,7 @@
 package com.bistu.ecadmin.dao.mapper;
 
 import com.bistu.ecadmin.dao.DTO.VillageHomestayPageQueryDTO;
+import com.bistu.ecadmin.dao.DTO.SortRequest;
 import com.bistu.ecadmin.pojo.VillageHomestay;
 
 import com.github.pagehelper.Page;
@@ -51,6 +52,26 @@ public interface VillageHomestayMapper {
      * 统计民宿总数
      */
     long count(VillageHomestayPageQueryDTO dto);
+
+    /**
+     * 获取全局最大展示顺序（越小越靠前）
+     */
+    Integer getMaxDisplayNo();
+
+    /**
+     * 获取用于调整展示顺序的民宿列表（全局，按 display_no 升序返回）
+     */
+    List<VillageHomestay> listSortOptions();
+
+    /**
+     * 批量更新 display_no（全局；要求 sortRequests 中的顺序即展示顺序）
+     */
+    int batchUpdateDisplayNo(@Param("list") List<SortRequest> sortRequests);
+
+    /**
+     * 获取民宿总数（用于校验排序请求是否为全量）
+     */
+    int countAll();
 
     /**
      * 根据ID查询民宿（用于权限校验）

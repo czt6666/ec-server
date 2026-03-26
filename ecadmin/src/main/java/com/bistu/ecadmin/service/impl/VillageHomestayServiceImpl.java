@@ -4,6 +4,7 @@ package com.bistu.ecadmin.service.impl;
 import com.bistu.common.dto.session.SessionUserInfo;
 import com.bistu.common.util.TokenUtil;
 import com.bistu.ecadmin.dao.DTO.VillageHomestayPageQueryDTO;
+import com.bistu.ecadmin.dao.DTO.SortRequest;
 import com.bistu.ecadmin.dao.mapper.VillageHomestayMapper;
 import com.bistu.ecadmin.pojo.PageResult;
 import com.bistu.ecadmin.pojo.VillageHomestay;
@@ -17,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -120,6 +124,16 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
             throw new IllegalArgumentException("民宿简介不能超过500字");
         }
 
+        // 展示顺序：新增时自动分配到全局最后（越小越靠前）
+        Integer maxDisplayNo = villageHomestayMapper.getMaxDisplayNo();
+        int safeMax = (maxDisplayNo == null ? 0 : maxDisplayNo);
+        // 兜底：如果历史数据 display_no 全为 NULL/0，MAX 可能返回 0，此时用 COUNT 生成递增，避免继续从 1 开始。
+        if (safeMax <= 0) {
+            int cnt = villageHomestayMapper.countAll();
+            safeMax = cnt;
+        }
+        homestay.setDisplayNo(safeMax + 1);
+
         homestay.setCreateTime(LocalDateTime.now());
         return villageHomestayMapper.insert(homestay) > 0;
     }
@@ -160,6 +174,43 @@ public class VillageHomestayServiceImpl implements VillageHomestayService {
         }
 
         return villageHomestayMapper.update(homestay) > 0;
+    }
+
+    @Override
+    public List<VillageHomestay> listSortOptions(Integer villageId) {
+        // 兼容旧签名：忽略 villageId，返回全局排序列表
+        return villageHomestayMapper.listSortOptions();
+    }
+
+    @Override
+    public boolean saveSort(Integer villageId, List<SortRequest> sortRequests) {
+        if (sortRequests == null || sortRequests.isEmpty()) {
+            throw new IllegalArgumentException("排序请求不能为空");
+        }
+
+        int expectedCount = villageHomestayMapper.countAll();
+        if (sortRequests.size() != expectedCount) {
+            throw new IllegalArgumentException("排序请求不是全量数据，无法保证展示顺序唯一。预期 " + expectedCount + " 条，实际 " + sortRequests.size() + " 条");
+        }
+
+        // 按前端传来的数组顺序重新编号：1..N（避免前端 sortNum 不可靠导致错乱）
+        List<SortRequest> ordered = new ArrayList<>(sortRequests.size());
+        Set<Long> idSet = new HashSet<>();
+        for (int i = 0; i < sortRequests.size(); i++) {
+            SortRequest req = sortRequests.get(i);
+            if (req == null || req.getId() == null) {
+                throw new IllegalArgumentException("排序请求中存在空的 id");
+            }
+            if (!idSet.add(req.getId())) {
+                throw new IllegalArgumentException("排序请求存在重复的 id：" + req.getId());
+            }
+            SortRequest copy = new SortRequest();
+            copy.setId(req.getId());
+            copy.setSortNum(i + 1);
+            ordered.add(copy);
+        }
+
+        return villageHomestayMapper.batchUpdateDisplayNo(ordered) > 0;
     }
 
     @Override

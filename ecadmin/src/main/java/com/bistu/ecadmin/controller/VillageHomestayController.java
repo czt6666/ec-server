@@ -10,6 +10,7 @@ import com.bistu.ecadmin.service.VillageHomestayService;
 import com.bistu.ecadmin.annotation.OperateLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import com.bistu.ecadmin.dao.DTO.SortRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,6 +76,7 @@ public class VillageHomestayController {
         result.put("homestayName", homestay.getHomestayName());
         result.put("address", homestay.getAddress());
         result.put("status", homestay.getStatus());
+        result.put("displayNo", homestay.getDisplayNo());
         result.put("starLevel", homestay.getStarLevel());
         result.put("roomCount", homestay.getRoomCount());
         result.put("bedCount", homestay.getBedCount());
@@ -221,6 +223,35 @@ public class VillageHomestayController {
         try {
             boolean success = villageHomestayService.unpublish(id);
             return success ? Result.success("下架成功") : Result.error("下架失败");
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取用于“调整展示顺序”的民宿列表（按 display_no 升序）
+     */
+    @RequiresPermissions("villageHomestay:update")
+    @GetMapping("/sort-options")
+    @ApiOperation("获取民宿展示顺序列表")
+    public Result<List<VillageHomestay>> sortOptions() {
+        try {
+            return Result.success(villageHomestayService.listSortOptions(null));
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 保存民宿展示顺序：sortRequests 的顺序即展示顺序
+     */
+    @RequiresPermissions("villageHomestay:update")
+    @PostMapping("/sort")
+    @ApiOperation("保存民宿展示顺序")
+    public Result<String> saveSort(@RequestBody List<SortRequest> sortRequests) {
+        try {
+            boolean success = villageHomestayService.saveSort(null, sortRequests);
+            return success ? Result.success("保存成功") : Result.error("保存失败");
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }
