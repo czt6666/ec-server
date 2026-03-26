@@ -7,12 +7,12 @@
         INSERT INTO restaurant (
             user_id, village_id, name, business_start_time, business_end_time,
             logo_url, address, coordinate_lat, coordinate_lng, phone, notice,
-            license_urls, status, create_time, update_time
+            license_urls, status, sort_order, create_time, update_time
         )
         VALUES (
                    #{userId}, #{villageId}, #{name}, #{businessStartTime}, #{businessEndTime},
                    #{logoUrl}, #{address}, #{coordinateLat}, #{coordinateLng}, #{phone}, #{notice},
-                   #{licenseUrls}, #{status}, NOW(), NOW()
+                   #{licenseUrls}, #{status}, #{sortOrder}, NOW(), NOW()
                )
     </insert>
 
@@ -31,6 +31,7 @@
             notice = #{notice},
             license_urls = #{licenseUrls},
             status = #{status},
+            sort_order = #{sortOrder},
             update_time = NOW()
         WHERE id = #{id}
     </update>
@@ -55,6 +56,7 @@
             r.notice,
             r.license_urls AS licenseUrls,
             r.status,
+            r.sort_order AS sortOrder,
             r.create_time AS createTime,
             r.update_time AS updateTime,
             COALESCE((
@@ -90,6 +92,7 @@
         r.notice,
         r.license_urls     AS licenseUrls,
         r.status,
+        r.sort_order       AS sortOrder,
         r.create_time      AS createTime,
         r.update_time      AS updateTime,
         v.village_name     AS villageName,
@@ -122,7 +125,7 @@
         <if test="userId != null">
             AND r.user_id = #{userId}
         </if>
-        ORDER BY r.create_time DESC
+        ORDER BY r.sort_order ASC, r.create_time DESC
         LIMIT #{offset}, #{pageSize}
     </select>
 
@@ -163,13 +166,19 @@
     </select>
 
     <select id="listByUserId" resultType="com.bistu.ecadmin.pojo.Restaurant">
-        SELECT id, name
+        SELECT id, name, sort_order AS sortOrder
         FROM restaurant
         WHERE 1 = 1
         <if test="userId != null and userId != 10011">
             AND user_id = #{userId}
         </if>
-        ORDER BY create_time DESC
+        ORDER BY sort_order ASC, create_time DESC
+    </select>
+
+    <select id="getMaxSortOrder" resultType="integer">
+        SELECT COALESCE(MAX(sort_order), 0)
+        FROM restaurant
+        WHERE user_id = #{userId}
     </select>
 
 </mapper>
